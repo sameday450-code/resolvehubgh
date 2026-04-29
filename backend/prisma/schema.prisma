@@ -1,0 +1,611 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum Role {
+  SUPER_ADMIN
+  COMPANY_ADMIN
+  COMPANY_STAFF
+}
+
+enum CompanyStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum ComplaintStatus {
+  NEW
+  ACKNOWLEDGED
+  IN_REVIEW
+  ASSIGNED
+  RESOLVED
+  CLOSED
+  REJECTED
+  ARCHIVED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum ComplaintType {
+  COMPLAINT
+  FEEDBACK
+}
+
+enum QRCodeStatus {
+  ACTIVE
+  DISABLED
+  EXPIRED
+}
+
+enum BranchStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum NotificationType {
+  NEW_COMPANY_REGISTRATION
+  COMPANY_APPROVED
+  COMPANY_REJECTED
+  COMPANY_SUSPENDED
+  COMPANY_REACTIVATED
+  NEW_COMPLAINT
+  COMPLAINT_ASSIGNED
+  COMPLAINT_STATUS_CHANGED
+  COMPLAINT_RESOLVED
+  NEW_FEEDBACK
+  SYSTEM_ALERT
+}
+
+enum PlanType {
+  STARTER_TRIAL
+  ENTERPRISE_MONTHLY
+  CUSTOM_ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PENDING_PAYMENT
+  EXPIRED
+  PAST_DUE
+  CANCELLED
+  PENDING_ACTIVATION
+}
+
+enum PaymentGateway {
+  PAYSTACK
+  STRIPE
+}
+
+enum BillingCycle {
+  MONTHLY
+  YEARLY
+  CUSTOM
+}
+
+enum PaymentTransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+// ============================================
+// USER & AUTH
+// ============================================
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String?
+  fullName      String
+  phone         String?
+  role          Role
+  avatarUrl     String?
+  googleId      String?   @unique
+  authProvider  String    @default("local")
+  isActive      Boolean   @default(true)
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  companyId     String?
+  company       Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // Staff assignments
+  assignedComplaints  Complaint[]     @relation("AssignedTo")
+  complaintNotes      ComplaintNote[]
+  notifications       Notification[]
+  activityLogs        ActivityLog[]
+  refreshTokens       RefreshToken[]
+
+  @@index([companyId])
+  @@index([role])
+  @@index([email])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+}
+
+// ============================================
+// COMPANY / TENANT
+// ============================================
+
+model Company {
+  id              String        @id @default(uuid())
+  name            String
+  slug            String        @unique
+  email           String        @unique
+  phone           String?
+  industry        String?
+  country         String        @default("Ghana")
+  city            String?
+  address         String?
+  branchCount     Int           @default(1)
+  logoUrl         String?
+  brandColor      String        @default("#2563EB")
+  status          CompanyStatus @default(PENDING)
+  rejectionReason String?
+  approvedAt      DateTime?
+  rejectedAt      DateTime?
+  suspendedAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  users             User[]
+  branches          Branch[]
+  complaints        Complaint[]
+  complaintCategories ComplaintCategory[]
+  qrCodes           QRCode[]
+  settings          CompanySettings?
+  approvalLogs      ApprovalActionLog[]
+  notifications     Notification[]      @relation("CompanyNotifications")
+  activityLogs      ActivityLog[]
+  subscription      CompanySubscription?
+  billingProfile    BillingProfile?
+  paymentTransactions PaymentTransaction[]
+  contactSalesRequests ContactSalesRequest[]
+
+  @@index([status])
+  @@index([slug])
+}
+
+model CompanySettings {
+  id                    String   @id @default(uuid())
+  companyId             String   @unique
+  company               Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  supportEmail          String?
+  supportPhone          String?
+  allowAnonymous        Boolean  @default(true)
+  customWelcomeMessage  String?
+  timezone              String   @default("Africa/Accra")
+  notifyOnNewComplaint  Boolean  @default(true)
+  notifyOnStatusChange  Boolean  @default(true)
+  autoAcknowledge       Boolean  @default(false)
+  dataRetentionDays     Int      @default(365)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+// ============================================
+// BRANCH / LOCATION
+// ============================================
+
+model Branch {
+  id          String       @id @default(uuid())
+  companyId   String
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name        String
+  code        String
+  slug        String
+  address     String?
+  city        String?
+  region      String?
+  country     String?
+  contactPhone String?
+  contactEmail String?
+  managerName String?
+  status      BranchStatus @default(ACTIVE)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  complaintPoints ComplaintPoint[]
+  complaints      Complaint[]
+  qrCodes         QRCode[]
+
+  @@unique([companyId, code])
+  @@unique([companyId, slug])
+  @@index([companyId])
+}
+
+model ComplaintPoint {
+  id        String   @id @default(uuid())
+  branchId  String
+  branch    Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  name      String
+  slug      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  qrCodes    QRCode[]
+  complaints Complaint[]
+
+  @@unique([branchId, slug])
+  @@index([branchId])
+}
+
+// ============================================
+// QR CODE
+// ============================================
+
+model QRCode {
+  id               String       @id @default(uuid())
+  companyId        String
+  company          Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  branchId         String
+  branch           Branch       @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  complaintPointId String?
+  complaintPoint   ComplaintPoint? @relation(fields: [complaintPointId], references: [id], onDelete: SetNull)
+  publicSlug       String       @unique
+  label            String?
+  status           QRCodeStatus @default(ACTIVE)
+  scanCount        Int          @default(0)
+  qrImageUrl       String?
+  lastScannedAt    DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  // Relations
+  complaints Complaint[]
+
+  @@index([companyId])
+  @@index([branchId])
+  @@index([publicSlug])
+}
+
+// ============================================
+// COMPLAINT / FEEDBACK
+// ============================================
+
+model ComplaintCategory {
+  id        String   @id @default(uuid())
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name      String
+  slug      String
+  isDefault Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  complaints Complaint[]
+
+  @@unique([companyId, slug])
+  @@index([companyId])
+}
+
+model Complaint {
+  id              String          @id @default(uuid())
+  referenceNumber String          @unique
+  companyId       String
+  company         Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  branchId        String
+  branch          Branch          @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  complaintPointId String?
+  complaintPoint  ComplaintPoint? @relation(fields: [complaintPointId], references: [id], onDelete: SetNull)
+  qrCodeId        String?
+  qrCode          QRCode?         @relation(fields: [qrCodeId], references: [id], onDelete: SetNull)
+  categoryId      String?
+  category        ComplaintCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  type            ComplaintType   @default(COMPLAINT)
+  title           String
+  description     String
+  status          ComplaintStatus @default(NEW)
+  priority        Priority        @default(MEDIUM)
+
+  // Customer info (optional)
+  customerName    String?
+  customerEmail   String?
+  customerPhone   String?
+  isAnonymous     Boolean         @default(false)
+
+  // Assignment
+  assignedToId    String?
+  assignedTo      User?           @relation("AssignedTo", fields: [assignedToId], references: [id], onDelete: SetNull)
+  assignedAt      DateTime?
+
+  // Timestamps
+  acknowledgedAt  DateTime?
+  resolvedAt      DateTime?
+  closedAt        DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // IP tracking for abuse prevention
+  submitterIp     String?
+
+  // Relations
+  attachments     ComplaintAttachment[]
+  notes           ComplaintNote[]
+
+  @@index([companyId])
+  @@index([branchId])
+  @@index([status])
+  @@index([priority])
+  @@index([type])
+  @@index([referenceNumber])
+  @@index([createdAt])
+  @@index([companyId, status])
+  @@index([companyId, branchId])
+}
+
+model ComplaintAttachment {
+  id          String    @id @default(uuid())
+  complaintId String
+  complaint   Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  fileUrl     String
+  fileName    String
+  fileType    String
+  fileSize    Int
+  createdAt   DateTime  @default(now())
+
+  @@index([complaintId])
+}
+
+model ComplaintNote {
+  id          String    @id @default(uuid())
+  complaintId String
+  complaint   Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content     String
+  isInternal  Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([complaintId])
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String?
+  user      User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyId String?
+  company   Company?         @relation("CompanyNotifications", fields: [companyId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  message   String
+  data      Json?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([companyId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// ============================================
+// AUDIT & ACTIVITY
+// ============================================
+
+model ApprovalActionLog {
+  id        String   @id @default(uuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  action    String
+  adminId   String
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  action    String
+  entity    String?
+  entityId  String?
+  metadata  Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([companyId])
+  @@index([createdAt])
+}
+
+// ============================================
+// SUPPORT
+// ============================================
+
+model SupportMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  isRead    Boolean  @default(false)
+  repliedAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// ============================================
+// SUBSCRIPTION PLANS
+// ============================================
+
+model SubscriptionPlan {
+  id           String       @id @default(uuid())
+  name         String
+  slug         String       @unique
+  planType     PlanType     @unique
+  description  String?
+  price        Float        @default(0)
+  currency     String       @default("GHS")
+  billingCycle BillingCycle @default(MONTHLY)
+  trialDays    Int          @default(0)
+  maxBranches  Int          @default(5)
+  maxQRCodes   Int          @default(20)
+  maxStaff     Int          @default(10)
+  features     Json?
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  // Relations
+  subscriptions CompanySubscription[]
+
+  @@index([planType])
+  @@index([isActive])
+}
+
+// ============================================
+// BILLING / SUBSCRIPTION DOMAIN
+// ============================================
+
+model CompanySubscription {
+  id                     String             @id @default(uuid())
+  companyId              String             @unique
+  company                Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  subscriptionPlanId     String
+  subscriptionPlan       SubscriptionPlan   @relation(fields: [subscriptionPlanId], references: [id])
+  status                 SubscriptionStatus @default(PENDING_ACTIVATION)
+  trialStartedAt         DateTime?
+  trialEndsAt            DateTime?
+  currentPeriodStart     DateTime?
+  currentPeriodEnd       DateTime?
+  activatedAt            DateTime?
+  cancelledAt            DateTime?
+  gateway                PaymentGateway?
+  providerCustomerId     String?
+  providerSubscriptionId String?
+  metadata               Json?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  // Relations
+  paymentTransactions PaymentTransaction[]
+
+  @@index([companyId])
+  @@index([status])
+  @@index([subscriptionPlanId])
+}
+
+model BillingProfile {
+  id               String          @id @default(uuid())
+  companyId        String          @unique
+  company          Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  legalCompanyName String?
+  billingEmail     String
+  billingPhone     String?
+  country          String?
+  state            String?
+  city             String?
+  addressLine1     String?
+  addressLine2     String?
+  taxId            String?
+  defaultGateway   PaymentGateway?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  // Relations
+  paymentTransactions PaymentTransaction[]
+
+  @@index([companyId])
+  @@index([billingEmail])
+}
+
+model PaymentTransaction {
+  id                    String                   @id @default(uuid())
+  companyId             String
+  company               Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companySubscriptionId String?
+  companySubscription   CompanySubscription?     @relation(fields: [companySubscriptionId], references: [id], onDelete: SetNull)
+  billingProfileId      String?
+  billingProfile        BillingProfile?          @relation(fields: [billingProfileId], references: [id], onDelete: SetNull)
+  gateway               PaymentGateway
+  status                PaymentTransactionStatus @default(PENDING)
+  providerReference     String                   @unique
+  amount                Int
+  currency              String                   @default("GHS")
+  paidAt                DateTime?
+  failedAt              DateTime?
+  failureReason         String?
+  metadata              Json?
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @updatedAt
+
+  @@index([companyId])
+  @@index([companySubscriptionId])
+  @@index([billingProfileId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ContactSalesRequest {
+  id                String   @id @default(uuid())
+  companyId         String?
+  company           Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  companyName       String
+  contactName       String
+  contactEmail      String
+  contactPhone      String?
+  country           String?
+  industry          String?
+  estimatedBranches Int?
+  estimatedUsers    Int?
+  requirements      String
+  sourcePlanType    PlanType @default(CUSTOM_ENTERPRISE)
+  status            String   @default("NEW")
+  adminNotes        String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([contactEmail])
+  @@index([status])
+  @@index([createdAt])
+}

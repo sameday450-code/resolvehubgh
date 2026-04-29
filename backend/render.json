@@ -1,0 +1,99 @@
+{
+  "name": "qr-complaint-backend",
+  "description": "Real-Time QR Complaint & Feedback Reporting SaaS - Backend",
+  "repository": "https://github.com/your-username/your-repo",
+  "keywords": ["node", "express", "prisma", "socket.io"],
+  "buildPacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "env": {
+    "NODE_ENV": {
+      "description": "Node environment",
+      "value": "production",
+      "required": true
+    },
+    "DATABASE_URL": {
+      "description": "PostgreSQL connection string",
+      "required": true
+    },
+    "JWT_SECRET": {
+      "description": "JWT secret for token generation",
+      "required": true,
+      "generator": "secret"
+    },
+    "JWT_REFRESH_SECRET": {
+      "description": "JWT refresh secret",
+      "required": true,
+      "generator": "secret"
+    },
+    "FRONTEND_URL": {
+      "description": "Frontend URL for CORS",
+      "required": true
+    },
+    "STRIPE_SECRET_KEY": {
+      "description": "Stripe API secret key",
+      "required": false
+    },
+    "STRIPE_PUBLIC_KEY": {
+      "description": "Stripe public key",
+      "required": false
+    },
+    "STRIPE_WEBHOOK_SECRET": {
+      "description": "Stripe webhook secret",
+      "required": false
+    },
+    "CLOUDINARY_CLOUD_NAME": {
+      "description": "Cloudinary cloud name",
+      "required": false
+    },
+    "CLOUDINARY_API_KEY": {
+      "description": "Cloudinary API key",
+      "required": false
+    },
+    "CLOUDINARY_API_SECRET": {
+      "description": "Cloudinary API secret",
+      "required": false
+    },
+    "GOOGLE_CLIENT_ID": {
+      "description": "Google OAuth client ID",
+      "required": false
+    },
+    "SMTP_HOST": {
+      "description": "SMTP host for email",
+      "required": false
+    },
+    "SMTP_PORT": {
+      "description": "SMTP port",
+      "value": "587",
+      "required": false
+    },
+    "SMTP_USER": {
+      "description": "SMTP username",
+      "required": false
+    },
+    "SMTP_PASS": {
+      "description": "SMTP password",
+      "required": false
+    },
+    "EMAIL_FROM": {
+      "description": "Email sender address",
+      "value": "noreply@apploge.com",
+      "required": false
+    }
+  },
+  "addons": [
+    {
+      "plan": "heroku-postgresql:hobby-dev"
+    }
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "scripts": {
+    "postdeploy": "npx prisma generate && npx prisma migrate deploy"
+  }
+}

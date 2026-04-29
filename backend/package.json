@@ -1,0 +1,49 @@
+{
+  "name": "qr-complaint-saas-backend",
+  "version": "1.0.0",
+  "description": "Real-Time QR Complaint & Feedback Reporting SaaS - Backend",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "prisma:generate": "npx prisma generate",
+    "prisma:migrate": "npx prisma migrate dev",
+    "prisma:seed": "node prisma/seed.js",
+    "prisma:studio": "npx prisma studio",
+    "test": "jest --detectOpenHandles"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.5.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "express-rate-limit": "^7.4.1",
+    "google-auth-library": "^10.6.2",
+    "helmet": "^8.0.0",
+    "jose": "^6.2.2",
+    "jsonwebtoken": "^9.0.2",
+    "jwt": "^0.2.0",
+    "multer": "^1.4.5-lts.1",
+    "nanoid": "^3.3.7",
+    "node-schedule": "^2.1.1",
+    "nodemailer": "^6.9.16",
+    "pino": "^9.5.0",
+    "pino-pretty": "^13.0.0",
+    "qrcode": "^1.5.4",
+    "sharp": "^0.33.5",
+    "socket.io": "^4.8.1",
+    "streamifier": "^0.1.1",
+    "uuid": "^10.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.7",
+    "prisma": "^5.22.0"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  }
+}
