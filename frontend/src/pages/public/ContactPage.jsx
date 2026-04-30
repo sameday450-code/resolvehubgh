@@ -16,7 +16,6 @@ import {
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { contactSalesAPI } from '../../lib/api';
-import GoogleMap from '../../components/shared/GoogleMap';
 
 export default function ContactPage() {
   const [searchParams] = useSearchParams();
@@ -494,9 +493,32 @@ export default function ContactPage() {
         <div className="container mx-auto px-4">
           <div className="relative max-w-6xl mx-auto rounded-3xl overflow-hidden border border-border/40 bg-gradient-to-br from-muted/50 to-muted/20">
             <div className="grid md:grid-cols-2">
-              {/* Real Leaflet Map */}
-              <div className="relative h-64 md:h-[500px] w-full">
-                <GoogleMap />
+              {/* Location Information */}
+              <div className="relative h-64 md:h-[500px] w-full bg-gradient-to-br from-primary/5 via-blue-500/5 to-muted/30 flex flex-col items-center justify-center p-8">
+                <div className="text-center">
+                  <MapPin className="h-12 w-12 text-primary mx-auto mb-4" />
+                  <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-4">
+                    Visit Our Office
+                  </h3>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-lg font-semibold text-foreground">Korle Bu, Accra, Ghana</p>
+                      <p className="text-sm text-muted-foreground mt-1">Our main office location</p>
+                    </div>
+                    <div className="pt-4 border-t border-border/30">
+                      <p className="text-sm">
+                        <span className="font-medium">📞 Phone:</span> <br />
+                        <a href="tel:+233059434524" className="text-primary hover:underline">+233 (059) 434 5424</a>
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm">
+                        <span className="font-medium">📧 Email:</span> <br />
+                        <a href="mailto:support@resolvehub.com" className="text-primary hover:underline">support@resolvehub.com</a>
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* CTA side */}
