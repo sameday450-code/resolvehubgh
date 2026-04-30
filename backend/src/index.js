@@ -11,6 +11,7 @@ const config = require('./config');
 const logger = require('./config/logger');
 const errorHandler = require('./middleware/errorHandler');
 const { initializeSocket } = require('./sockets');
+const { ensureMigrations } = require('./utils/ensureMigrations');
 
 // Route imports
 const authRoutes = require('./modules/auth/auth.routes');
@@ -145,14 +146,28 @@ function getLocalIp() {
 
 const localIp = getLocalIp();
 
-// Start server
-server.listen(config.port, '0.0.0.0', () => {
-  logger.info(`🚀 Server running on port ${config.port} in ${config.nodeEnv} mode`);
-  logger.info(`📡 Socket.IO ready`);
-  logger.info(`\n📱 Access from mobile:`);
-  logger.info(`   http://${localIp}:${config.port}`);
-  logger.info(`   Frontend: http://${localIp}:5173\n`);
-});
+// Async startup wrapper to ensure migrations run before server starts
+(async () => {
+  try {
+    // Verify database migrations are complete (production safety check)
+    if (config.nodeEnv === 'production') {
+      logger.info('⏳ Verifying database migrations in production...');
+      await ensureMigrations();
+    }
+
+    // Start server
+    server.listen(config.port, '0.0.0.0', () => {
+      logger.info(`🚀 Server running on port ${config.port} in ${config.nodeEnv} mode`);
+      logger.info(`📡 Socket.IO ready`);
+      logger.info(`\n📱 Access from mobile:`);
+      logger.info(`   http://${localIp}:${config.port}`);
+      logger.info(`   Frontend: http://${localIp}:5173\n`);
+    });
+  } catch (error) {
+    logger.error(`✗ Failed to start server: ${error.message}`);
+    process.exit(1);
+  }
+})();
 
 // Graceful shutdown
 const shutdown = async () => {

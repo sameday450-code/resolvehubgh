@@ -6,10 +6,13 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
-    "prisma:generate": "npx prisma generate",
-    "prisma:migrate": "npx prisma migrate dev",
+    "prisma:generate": "pnpm prisma generate",
+    "prisma:migrate:dev": "pnpm prisma migrate dev",
+    "prisma:migrate:deploy": "pnpm prisma migrate deploy",
     "prisma:seed": "node prisma/seed.js",
-    "prisma:studio": "npx prisma studio",
+    "prisma:studio": "pnpm prisma studio",
+    "build": "pnpm prisma generate && pnpm prisma migrate deploy",
+    "start:prod": "pnpm build && pnpm start",
     "test": "jest --detectOpenHandles"
   },
   "dependencies": {
@@ -45,5 +48,9 @@
   },
   "prisma": {
     "seed": "node prisma/seed.js"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=9.0.0"
   }
 }

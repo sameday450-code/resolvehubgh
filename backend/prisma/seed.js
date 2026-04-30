@@ -7,8 +7,8 @@ async function main() {
   console.log('🌱 Seeding database...');
 
   // Create Super Admin
-  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || 'admin@resolvehub.com';
-  const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || 'Admin@123';
+  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || 'admin@resolvehubgh.com';
+  const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || 'GoodGod1$';
   const superAdminName = process.env.SUPER_ADMIN_NAME || 'System Administrator';
 
   const existingAdmin = await prisma.user.findUnique({

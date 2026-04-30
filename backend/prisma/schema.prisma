@@ -111,34 +111,38 @@ enum PaymentTransactionStatus {
 // ============================================
 
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  passwordHash  String?
-  fullName      String
-  phone         String?
-  role          Role
-  avatarUrl     String?
-  googleId      String?   @unique
-  authProvider  String    @default("local")
-  isActive      Boolean   @default(true)
-  lastLoginAt   DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String?
+  fullName     String
+  phone        String?
+  role         Role
+  avatarUrl    String?
+  googleId     String?   @unique
+  authProvider String    @default("local")
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   // Relations
-  companyId     String?
-  company       Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   // Staff assignments
-  assignedComplaints  Complaint[]     @relation("AssignedTo")
-  complaintNotes      ComplaintNote[]
-  notifications       Notification[]
-  activityLogs        ActivityLog[]
-  refreshTokens       RefreshToken[]
+  assignedComplaints Complaint[]     @relation("AssignedTo")
+  complaintNotes     ComplaintNote[]
+  notifications      Notification[]
+  activityLogs       ActivityLog[]
+  refreshTokens      RefreshToken[]
 
+  // Optimized indexes for user queries
   @@index([companyId])
   @@index([role])
   @@index([email])
+  // Composite indexes for common filters
+  @@index([companyId, role])
+  @@index([companyId, isActive])
 }
 
 model RefreshToken {
@@ -179,39 +183,44 @@ model Company {
   updatedAt       DateTime      @updatedAt
 
   // Relations
-  users             User[]
-  branches          Branch[]
-  complaints        Complaint[]
-  complaintCategories ComplaintCategory[]
-  qrCodes           QRCode[]
-  settings          CompanySettings?
-  approvalLogs      ApprovalActionLog[]
-  notifications     Notification[]      @relation("CompanyNotifications")
-  activityLogs      ActivityLog[]
-  subscription      CompanySubscription?
-  billingProfile    BillingProfile?
-  paymentTransactions PaymentTransaction[]
+  users                User[]
+  branches             Branch[]
+  complaints           Complaint[]
+  complaintCategories  ComplaintCategory[]
+  qrCodes              QRCode[]
+  settings             CompanySettings?
+  approvalLogs         ApprovalActionLog[]
+  notifications        Notification[]        @relation("CompanyNotifications")
+  activityLogs         ActivityLog[]
+  subscription         CompanySubscription?
+  billingProfile       BillingProfile?
+  paymentTransactions  PaymentTransaction[]
   contactSalesRequests ContactSalesRequest[]
 
+  // Optimized indexes for common company queries
   @@index([status])
   @@index([slug])
+  // Composite indexes for common filter patterns
+  @@index([status, createdAt(sort: Desc)])
+  @@index([industry, status])
+  @@index([createdAt(sort: Desc)])
 }
 
 model CompanySettings {
-  id                    String   @id @default(uuid())
-  companyId             String   @unique
-  company               Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  supportEmail          String?
-  supportPhone          String?
-  allowAnonymous        Boolean  @default(true)
-  customWelcomeMessage  String?
-  timezone              String   @default("Africa/Accra")
-  notifyOnNewComplaint  Boolean  @default(true)
-  notifyOnStatusChange  Boolean  @default(true)
-  autoAcknowledge       Boolean  @default(false)
-  dataRetentionDays     Int      @default(365)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                   String   @id @default(uuid())
+  companyId            String   @unique
+  company              Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  supportEmail         String?
+  supportPhone         String?
+  allowAnonymous       Boolean  @default(true)
+  customWelcomeMessage String?
+  timezone             String   @default("Africa/Accra")
+  notifyOnNewComplaint Boolean  @default(true)
+  notifyOnStatusChange Boolean  @default(true)
+  autoAcknowledge      Boolean  @default(false)
+  dataRetentionDays    Int      @default(365)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 }
 
 // ============================================
@@ -219,22 +228,22 @@ model CompanySettings {
 // ============================================
 
 model Branch {
-  id          String       @id @default(uuid())
-  companyId   String
-  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  name        String
-  code        String
-  slug        String
-  address     String?
-  city        String?
-  region      String?
-  country     String?
+  id           String       @id @default(uuid())
+  companyId    String
+  company      Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name         String
+  code         String
+  slug         String
+  address      String?
+  city         String?
+  region       String?
+  country      String?
   contactPhone String?
   contactEmail String?
-  managerName String?
-  status      BranchStatus @default(ACTIVE)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  managerName  String?
+  status       BranchStatus @default(ACTIVE)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
   // Relations
   complaintPoints ComplaintPoint[]
@@ -243,7 +252,10 @@ model Branch {
 
   @@unique([companyId, code])
   @@unique([companyId, slug])
+  // Optimized indexes
   @@index([companyId])
+  @@index([status])
+  @@index([companyId, status])
 }
 
 model ComplaintPoint {
@@ -269,21 +281,21 @@ model ComplaintPoint {
 // ============================================
 
 model QRCode {
-  id               String       @id @default(uuid())
+  id               String          @id @default(uuid())
   companyId        String
-  company          Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company          Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
   branchId         String
-  branch           Branch       @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branch           Branch          @relation(fields: [branchId], references: [id], onDelete: Cascade)
   complaintPointId String?
   complaintPoint   ComplaintPoint? @relation(fields: [complaintPointId], references: [id], onDelete: SetNull)
-  publicSlug       String       @unique
+  publicSlug       String          @unique
   label            String?
-  status           QRCodeStatus @default(ACTIVE)
-  scanCount        Int          @default(0)
+  status           QRCodeStatus    @default(ACTIVE)
+  scanCount        Int             @default(0)
   qrImageUrl       String?
   lastScannedAt    DateTime?
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 
   // Relations
   complaints Complaint[]
@@ -315,59 +327,64 @@ model ComplaintCategory {
 }
 
 model Complaint {
-  id              String          @id @default(uuid())
-  referenceNumber String          @unique
-  companyId       String
-  company         Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  branchId        String
-  branch          Branch          @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  id               String             @id @default(uuid())
+  referenceNumber  String             @unique
+  companyId        String
+  company          Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  branchId         String
+  branch           Branch             @relation(fields: [branchId], references: [id], onDelete: Cascade)
   complaintPointId String?
-  complaintPoint  ComplaintPoint? @relation(fields: [complaintPointId], references: [id], onDelete: SetNull)
-  qrCodeId        String?
-  qrCode          QRCode?         @relation(fields: [qrCodeId], references: [id], onDelete: SetNull)
-  categoryId      String?
-  category        ComplaintCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  complaintPoint   ComplaintPoint?    @relation(fields: [complaintPointId], references: [id], onDelete: SetNull)
+  qrCodeId         String?
+  qrCode           QRCode?            @relation(fields: [qrCodeId], references: [id], onDelete: SetNull)
+  categoryId       String?
+  category         ComplaintCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
-  type            ComplaintType   @default(COMPLAINT)
-  title           String
-  description     String
-  status          ComplaintStatus @default(NEW)
-  priority        Priority        @default(MEDIUM)
+  type        ComplaintType   @default(COMPLAINT)
+  title       String
+  description String
+  status      ComplaintStatus @default(NEW)
+  priority    Priority        @default(MEDIUM)
 
   // Customer info (optional)
-  customerName    String?
-  customerEmail   String?
-  customerPhone   String?
-  isAnonymous     Boolean         @default(false)
+  customerName  String?
+  customerEmail String?
+  customerPhone String?
+  isAnonymous   Boolean @default(false)
 
   // Assignment
-  assignedToId    String?
-  assignedTo      User?           @relation("AssignedTo", fields: [assignedToId], references: [id], onDelete: SetNull)
-  assignedAt      DateTime?
+  assignedToId String?
+  assignedTo   User?     @relation("AssignedTo", fields: [assignedToId], references: [id], onDelete: SetNull)
+  assignedAt   DateTime?
 
   // Timestamps
-  acknowledgedAt  DateTime?
-  resolvedAt      DateTime?
-  closedAt        DateTime?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  acknowledgedAt DateTime?
+  resolvedAt     DateTime?
+  closedAt       DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   // IP tracking for abuse prevention
-  submitterIp     String?
+  submitterIp String?
 
   // Relations
-  attachments     ComplaintAttachment[]
-  notes           ComplaintNote[]
+  attachments ComplaintAttachment[]
+  notes       ComplaintNote[]
 
+  // Optimized indexes for common query patterns
   @@index([companyId])
   @@index([branchId])
   @@index([status])
   @@index([priority])
   @@index([type])
   @@index([referenceNumber])
-  @@index([createdAt])
   @@index([companyId, status])
   @@index([companyId, branchId])
+  // Composite indexes for filtered pagination
+  @@index([companyId, createdAt(sort: Desc)])
+  @@index([companyId, status, createdAt(sort: Desc)])
+  @@index([companyId, priority, createdAt(sort: Desc)])
+  @@index([branchId, status, createdAt(sort: Desc)])
 }
 
 model ComplaintAttachment {
@@ -415,10 +432,14 @@ model Notification {
   readAt    DateTime?
   createdAt DateTime         @default(now())
 
+  // Optimized indexes for notification queries
   @@index([userId])
   @@index([companyId])
   @@index([isRead])
   @@index([createdAt])
+  // Composite indexes for common patterns
+  @@index([userId, isRead])
+  @@index([userId, createdAt(sort: Desc)])
 }
 
 // ============================================
@@ -434,7 +455,10 @@ model ApprovalActionLog {
   reason    String?
   createdAt DateTime @default(now())
 
+  // Optimized indexes for approval logs
   @@index([companyId])
+  @@index([adminId])
+  @@index([createdAt(sort: Desc)])
 }
 
 model ActivityLog {
@@ -450,9 +474,13 @@ model ActivityLog {
   ipAddress String?
   createdAt DateTime @default(now())
 
+  // Optimized indexes for audit queries
   @@index([userId])
   @@index([companyId])
-  @@index([createdAt])
+  // Composite indexes for common patterns
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([companyId, action])
+  @@index([companyId, createdAt(sort: Desc)])
 }
 
 // ============================================
@@ -460,14 +488,14 @@ model ActivityLog {
 // ============================================
 
 model SupportMessage {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   name      String
   email     String
   subject   String
   message   String
-  isRead    Boolean  @default(false)
+  isRead    Boolean   @default(false)
   repliedAt DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   @@index([isRead])
   @@index([createdAt])
@@ -523,26 +551,31 @@ model CompanySubscription {
   providerCustomerId     String?
   providerSubscriptionId String?
   metadata               Json?
-  
+
   // Subscription management
-  subscriptionStartDate  DateTime?
-  subscriptionEndDate    DateTime?
-  nextBillingDate        DateTime?
-  paymentStatus          String             @default("UNPAID")  // UNPAID, PAID, MANUAL_APPROVED, OVERDUE
-  paymentProvider        String             @default("MANUAL")  // MANUAL, PAYSTACK, STRIPE
-  daysRemainingInTrial   Int?
-  
-  createdAt              DateTime           @default(now())
-  updatedAt              DateTime           @updatedAt
+  subscriptionStartDate DateTime?
+  subscriptionEndDate   DateTime?
+  nextBillingDate       DateTime?
+  paymentStatus         String    @default("UNPAID") // UNPAID, PAID, MANUAL_APPROVED, OVERDUE
+  paymentProvider       String    @default("MANUAL") // MANUAL, PAYSTACK, STRIPE
+  daysRemainingInTrial  Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   paymentTransactions PaymentTransaction[]
 
+  // Optimized indexes for subscription queries
   @@index([companyId])
   @@index([status])
   @@index([subscriptionPlanId])
   @@index([paymentStatus])
   @@index([trialEndsAt])
+  // Composite indexes for common filter patterns
+  @@index([status, trialEndsAt(sort: Asc)])
+  @@index([status, createdAt(sort: Desc)])
+  @@index([paymentStatus, updatedAt(sort: Desc)])
 }
 
 model BillingProfile {
@@ -589,11 +622,15 @@ model PaymentTransaction {
   createdAt             DateTime                 @default(now())
   updatedAt             DateTime                 @updatedAt
 
+  // Optimized indexes for payment queries
   @@index([companyId])
   @@index([companySubscriptionId])
   @@index([billingProfileId])
   @@index([status])
-  @@index([createdAt])
+  // Composite indexes for common patterns
+  @@index([status, createdAt(sort: Desc)])
+  @@index([companyId, status])
+  @@index([companyId, createdAt(sort: Desc)])
 }
 
 model ContactSalesRequest {
@@ -615,8 +652,12 @@ model ContactSalesRequest {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
+  // Optimized indexes for sales inquiry queries
   @@index([companyId])
   @@index([contactEmail])
   @@index([status])
   @@index([createdAt])
+  // Composite indexes for common patterns
+  @@index([status, createdAt(sort: Desc)])
+  @@index([sourcePlanType, status])
 }

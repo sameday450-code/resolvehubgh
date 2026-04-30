@@ -1,7 +1,12 @@
 /**
  * Trial Reminder Job Scheduler
- * Sends trial reminder emails: 7 days, 3 days, 1 day before expiration
- * Runs daily and checks all active trials approaching expiration
+ * Optimized: Sends trial reminder emails: 7 days, 3 days, 1 day before expiration
+ * Runs daily and only fetches trials approaching expiration (within 7 days)
+ * 
+ * PERFORMANCE OPTIMIZATION:
+ * - Uses date range queries with indexes (not full table scan + loop)
+ * - Only fetches subscriptions that need reminders
+ * - Uses composite index on (status, trialEndsAt)
  */
 
 const schedule = require('node-schedule');
@@ -9,8 +14,8 @@ const prisma = require('../config/database');
 const logger = require('../config/logger');
 const { sendTrialReminderEmail, sendTrialExpiredEmail } = require('../utils/emailService');
 
-// Track which reminders have been sent to avoid duplicates
-const sentReminders = new Map(); // key: "companyId:daysLeft", value: timestamp
+// Track which reminders have been sent to avoid duplicates (per day)
+const sentReminders = new Map(); // key: "companyId:daysLeft", value: date string
 
 /**
  * Initialize trial reminder jobs
@@ -21,7 +26,7 @@ const initializeTrialReminderJobs = () => {
 
   // Run daily at 08:00 (configurable)
   schedule.scheduleJob('0 8 * * *', async () => {
-    logger.info('Running trial reminder check...');
+    logger.info('Running optimized trial reminder check...');
     await checkAndSendTrialReminders();
   });
 
@@ -30,46 +35,60 @@ const initializeTrialReminderJobs = () => {
 
 /**
  * Check for trials that need reminders and send emails
+ * OPTIMIZED: Only fetches subscriptions expiring within 7 days
  */
 const checkAndSendTrialReminders = async () => {
   try {
     const now = new Date();
-    const company = await prisma.companySubscription.findMany({
+    const sevenDaysFromNow = new Date(now);
+    sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+
+    // OPTIMIZED: Database-level filtering using composite index
+    // Only fetch subscriptions expiring in next 7 days (uses index: [status, trialEndsAt])
+    const upcomingTrials = await prisma.companySubscription.findMany({
       where: {
         status: 'TRIALING',
         trialEndsAt: {
-          not: null,
+          gte: now,        // Trial hasn't expired yet
+          lte: sevenDaysFromNow, // Trial expires within 7 days
         },
       },
-      include: {
-        company: true,
-        subscriptionPlan: true,
+      select: {
+        id: true,
+        companyId: true,
+        trialEndsAt: true,
+        company: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+        subscriptionPlan: {
+          select: {
+            name: true,
+          },
+        },
+      },
+      // Order by trialEndsAt to handle expiring trials first
+      orderBy: {
+        trialEndsAt: 'asc',
       },
     });
 
-    logger.info({ count: company.length }, 'Found trials to check');
+    logger.info({ count: upcomingTrials.length }, 'Found trials expiring within 7 days');
 
-    for (const subscription of company) {
+    // Process each trial
+    for (const subscription of upcomingTrials) {
       const trialEndsAt = new Date(subscription.trialEndsAt);
       const daysUntilExpiration = Math.ceil((trialEndsAt - now) / (1000 * 60 * 60 * 24));
 
-      // Skip if already expired
+      // Determine which reminder to send
       if (daysUntilExpiration <= 0) {
+        // Trial has expired
         await handleExpiredTrial(subscription);
-        continue;
-      }
-
-      // Send 7-day reminder
-      if (daysUntilExpiration === 7) {
-        await sendReminderIfNotSent(subscription, 7);
-      }
-      // Send 3-day reminder
-      else if (daysUntilExpiration === 3) {
-        await sendReminderIfNotSent(subscription, 3);
-      }
-      // Send 1-day reminder
-      else if (daysUntilExpiration === 1) {
-        await sendReminderIfNotSent(subscription, 1);
+      } else if (daysUntilExpiration === 7 || daysUntilExpiration === 3 || daysUntilExpiration === 1) {
+        // Send reminder for 7, 3, or 1 day milestones
+        await sendReminderIfNotSent(subscription, daysUntilExpiration);
       }
     }
 
@@ -81,28 +100,30 @@ const checkAndSendTrialReminders = async () => {
 
 /**
  * Send reminder email if not already sent today
+ * Avoids duplicate emails on same day for same company
  */
 const sendReminderIfNotSent = async (subscription, daysRemaining) => {
   try {
     const remindKey = `${subscription.companyId}:${daysRemaining}`;
-    const lastSent = sentReminders.get(remindKey);
-    const now = Date.now();
+    const today = new Date().toISOString().split('T')[0];
+    const lastSentKey = `${remindKey}:${today}`;
+    const lastSent = sentReminders.get(lastSentKey);
 
-    // Check if already sent today (within 24 hours)
-    if (lastSent && now - lastSent < 24 * 60 * 60 * 1000) {
+    // Skip if already sent today
+    if (lastSent) {
       logger.debug({ daysRemaining, company: subscription.company.name }, 'Reminder already sent today, skipping');
       return;
     }
 
     logger.info(
       { companyName: subscription.company.name, daysRemaining },
-      'Sending trial reminder email'
+      `Sending ${daysRemaining}-day trial reminder email`
     );
 
     await sendTrialReminderEmail(subscription.company, subscription, daysRemaining);
-    sentReminders.set(remindKey, now);
+    sentReminders.set(lastSentKey, true);
 
-    // Track in database for audit trail (optional - commented for now)
+    // Optional: Track in database for audit trail
     // await prisma.emailLog.create({
     //   data: {
     //     companyId: subscription.companyId,
@@ -121,16 +142,17 @@ const sendReminderIfNotSent = async (subscription, daysRemaining) => {
 
 /**
  * Handle trial expiration
- * Send expiration email if not already sent, mark as expired
+ * Send expiration email and update status if needed
  */
 const handleExpiredTrial = async (subscription) => {
   try {
     const remindKey = `${subscription.companyId}:expired`;
-    const lastSent = sentReminders.get(remindKey);
-    const now = Date.now();
+    const today = new Date().toISOString().split('T')[0];
+    const lastSentKey = `${remindKey}:${today}`;
+    const lastSent = sentReminders.get(lastSentKey);
 
     // Check if already sent today
-    if (lastSent && now - lastSent < 24 * 60 * 60 * 1000) {
+    if (lastSent) {
       return;
     }
 
@@ -138,18 +160,24 @@ const handleExpiredTrial = async (subscription) => {
 
     // Send expiration email
     await sendTrialExpiredEmail(subscription.company);
-    sentReminders.set(remindKey, now);
+    sentReminders.set(lastSentKey, true);
 
-    // Update subscription status to EXPIRED
-    // (In production, this might stay TRIALING but with an expired flag)
-    // For now, the billingGuard middleware handles the expiration check
-
+    // Optional: Update subscription status
+    // Note: In current system, billingGuard middleware handles expired trial checks
+    // await prisma.companySubscription.update({
+    //   where: { id: subscription.id },
+    //   data: { status: 'EXPIRED' },
+    // });
   } catch (err) {
     logger.error(
       { err, companyId: subscription.companyId },
       'Failed to handle trial expiration'
     );
   }
+};
+
+module.exports = {
+  initializeTrialReminderJobs,
 };
 
 /**
