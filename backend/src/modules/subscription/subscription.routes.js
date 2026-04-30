@@ -18,6 +18,14 @@ router.get(
   subscriptionController.getMySubscription
 );
 
+router.get(
+  '/my/status',
+  authenticate,
+  authorize('COMPANY_ADMIN', 'COMPANY_STAFF'),
+  tenantGuard,
+  subscriptionController.getSubscriptionStatus
+);
+
 router.post(
   '/trial/activate',
   authenticate,
@@ -40,6 +48,18 @@ router.patch(
   authenticate,
   authorize('SUPER_ADMIN'),
   subscriptionController.updateSubscription
+);
+
+/**
+ * Super-admin: manually activate a company subscription.
+ * POST /api/subscriptions/:companyId/activate
+ * Body: { subscriptionStartDate?, subscriptionEndDate?, nextBillingDate?, paymentStatus? }
+ */
+router.post(
+  '/:companyId/activate',
+  authenticate,
+  authorize('SUPER_ADMIN'),
+  subscriptionController.manuallyActivate
 );
 
 module.exports = router;

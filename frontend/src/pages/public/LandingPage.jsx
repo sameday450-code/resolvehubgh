@@ -18,73 +18,77 @@ import {
   Mail,
   Plus,
   Minus,
+  TrendingUp,
+  Rocket,
+  Settings,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '../../components/ui/accordion';
 
 const features = [
-  { icon: QrCode, title: 'QR Code Generation', description: 'Generate unique QR codes for each branch and complaint point. Customers simply scan to submit feedback.' },
-  { icon: MessageSquareWarning, title: 'Real-Time Complaints', description: 'Receive complaints instantly with real-time notifications. Never miss critical customer feedback.' },
-  { icon: BarChart3, title: 'Advanced Analytics', description: 'Visualize complaint trends, resolution times, peak hours, and branch performance with rich dashboards.' },
-  { icon: Bell, title: 'Instant Notifications', description: 'Get notified the moment a complaint arrives. Assign, escalate, and resolve faster than ever.' },
-  { icon: Building2, title: 'Multi-Branch Support', description: 'Manage multiple branches and complaint points from a single dashboard. Perfect for growing businesses.' },
-  { icon: Shield, title: 'Enterprise Security', description: 'Role-based access control, tenant isolation, encrypted data, and full audit trails for compliance.' },
+  { icon: QrCode, title: 'QR Code Generation', description: 'Create unique QR codes for each location. Customers scan and submit complaints instantly, with no signup required.' },
+  { icon: MessageSquareWarning, title: 'Real-Time Alerts', description: 'Receive instant notifications when complaints arrive. Your team can act immediately, not after shift change.' },
+  { icon: BarChart3, title: 'Clear Analytics', description: 'See complaint trends by location, category, and time. Identify patterns and fix problems before they escalate.' },
+  { icon: Bell, title: 'Smart Assignment', description: 'Route complaints to the right team member instantly. Track who handles what and ensure accountability.' },
+  { icon: Building2, title: 'Multi-Branch Visibility', description: 'Monitor all your branches from one place. Compare performance, spot inconsistencies, and standardize service quality.' },
+  { icon: Shield, title: 'Secure & Compliant', description: 'Your data is encrypted and backed up. Role-based access ensures sensitive information stays within your team.' },
 ];
 
 const plans = [
   {
-    name: 'Starter Trial',
-    planType: 'starter_trial',
-    price: '0',
-    period: '/14 days',
-    description: 'Free trial — no credit card required',
-    features: [
-      'Up to 2 branches',
-      'Up to 10 QR codes',
-      'Up to 5 staff accounts',
-      'Basic analytics',
-      'Email notifications',
-      'Community support',
-    ],
-    cta: 'Start 14-Day Free Trial',
-    popular: false,
-    trialBadge: true,
-  },
-  {
-    name: 'Enterprise Monthly',
-    planType: 'enterprise_monthly',
-    price: '299',
+    name: 'Starter',
+    planType: 'starter',
+    price: '150',
     period: '/month',
     priceCurrency: 'GHS',
-    description: 'For growing businesses that need full power',
+    description: 'Ideal for single locations or small teams who want to capture and track customer complaints without complexity.',
     features: [
-      'Up to 50 branches',
-      'Up to 200 QR codes',
-      'Up to 100 staff accounts',
-      'Advanced analytics & export',
-      'Real-time notifications',
-      'Priority support',
-      'Custom branding',
+      'Up to 2 locations',
+      'Up to 50 QR codes',
+      'Up to 10 team members',
+      'Complaint dashboard',
+      'Real-time tracking',
+      'Email alerts',
+      'Basic reports',
+      'QR-based submissions',
     ],
-    cta: 'Get Started',
+    cta: 'Start 14-Day Free Trial',
     popular: true,
+    trialNote: 'No payment required',
   },
   {
-    name: 'Custom Enterprise',
-    planType: 'custom_enterprise',
-    price: 'Custom',
-    period: '',
-    description: 'Tailored for large organizations with unique requirements',
+    name: 'Enterprise',
+    planType: 'enterprise',
+    price: '300',
+    period: '/month',
+    priceCurrency: 'GHS',
+    description: 'For businesses running multiple locations who need centralized visibility, advanced analytics, and dedicated support.',
     features: [
-      'Unlimited branches',
-      'Unlimited QR codes & staff',
-      'Full analytics suite',
+      'Up to 10 locations',
+      'Up to 200 QR codes',
+      'Up to 50 team members',
+      'Advanced analytics',
       'Real-time notifications',
-      '24/7 dedicated support',
-      'White-label branding',
-      'API access & SLA guarantee',
-      'Bespoke onboarding',
+      'Priority support',
+      'Data export',
+    ],
+    cta: 'Start Free Trial',
+    popular: false,
+  },
+  {
+    name: 'Custom',
+    planType: 'custom',
+    price: 'Contact Sales',
+    period: '',
+    description: 'For large enterprises with unique workflows or special requirements. Custom builds, unlimited scale, dedicated support.',
+    features: [
+      'Unlimited locations',
+      'Unlimited everything',
+      'Dedicated account manager',
+      'Custom setup',
+      'API access',
+      'Full customization',
     ],
     cta: 'Contact Sales',
     popular: false,
@@ -92,11 +96,11 @@ const plans = [
 ];
 
 const faqs = [
-  { q: 'How does the QR complaint system work?', a: 'You generate unique QR codes for your branches and complaint points. Place them in your physical locations. When customers scan the QR code, they are taken to a branded complaint form where they can submit feedback with photos and details. You receive the complaint in real-time on your dashboard.' },
-  { q: 'Can customers submit complaints anonymously?', a: 'Yes. Customers can choose to submit complaints anonymously or provide their contact information for follow-up. Anonymous complaints are tracked with reference numbers.' },
-  { q: 'How long does setup take?', a: 'After your company is approved by our team (usually within 24 hours), you can set up branches, generate QR codes, and start receiving complaints immediately. The entire process takes less than 30 minutes.' },
-  { q: 'Is my data secure?', a: 'Absolutely. We use enterprise-grade security including encrypted data transmission, tenant isolation, role-based access control, and regular security audits. Your data is never shared with third parties.' },
-  { q: 'Can I manage multiple branches?', a: 'Yes. ResolveHub is designed for multi-branch businesses. Each branch can have its own complaint points, QR codes, and staff assignments. Analytics can be viewed per-branch or company-wide.' },
+  { q: 'How does the QR complaint system work?', a: 'Each location gets a unique QR code. Customers scan it from their phone and fill out a short form. Complaints appear in your dashboard instantly. No app download needed.' },
+  { q: 'Can complaints be anonymous?', a: 'Yes. Customers can choose to share their name and phone, or stay anonymous. You still get their feedback either way, which is what matters.' },
+  { q: 'How quickly can we start?', a: 'Register today, we approve within 24 hours, then you print your QR codes and start receiving complaints immediately. Setup takes no technical knowledge.' },
+  { q: 'Is our data safe?', a: 'Yes. Your data is encrypted, regularly backed up, and accessed only by authorized team members. We follow standard security practices for SaaS platforms.' },
+  { q: 'Does this work for multiple locations?', a: 'Yes. That\'s what we built it for. You can manage 2 branches or 100 from one dashboard. Compare performance across locations in real time.' },
 ];
 
 export default function LandingPage() {
@@ -118,27 +122,25 @@ export default function LandingPage() {
           <div className="max-w-2xl">
             <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-xs font-medium backdrop-blur-sm bg-white/70 dark:bg-background/70 border border-primary/10 shadow-sm">
               <Zap className="mr-1.5 h-3 w-3 text-primary" />
-              Trusted by 500+ businesses worldwide
+              Trusted by growing businesses across Ghana
             </Badge>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-[1.1]">
-              Real-Time{' '}
-              <span className="text-primary bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">QR Complaint</span>{' '}
-              &amp; Feedback Reporting
+              Capture Every Customer Complaint{' '}
+              <span className="text-primary bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Before It Escalates</span>
             </h1>
             <p className="text-base md:text-lg text-muted-foreground mb-10 max-w-xl leading-relaxed">
-              Transform how your business handles customer complaints. Generate QR codes, receive instant feedback, 
-              and resolve issues faster with ResolveHub's intelligent platform.
+              Let customers report issues instantly via QR codes at any branch. Track, manage, and resolve complaints in real time from one centralized dashboard.
             </p>
             <div className="flex flex-col sm:flex-row items-start gap-4">
               <Button size="lg" className="shadow-lg shadow-primary/25 px-8 h-12 text-base" asChild>
                 <Link to="/register">
-                  Get Started Free
+                  Start Free 14-Day Trial
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" className="backdrop-blur-sm bg-white/50 dark:bg-background/50 h-12 px-8 text-base" asChild>
                 <a href="#features">
-                  See How It Works
+                  Watch Live Demo
                 </a>
               </Button>
             </div>
@@ -146,14 +148,17 @@ export default function LandingPage() {
             {/* Stats bar */}
             <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
-                { value: '20K+', label: 'Complaints Resolved' },
-                { value: '50+', label: 'Active Companies' },
-                { value: '1K+', label: 'QR Codes Active' },
-                { value: '< 1hr', label: 'Avg Resolution' },
+                { icon: TrendingUp, title: 'Real-Time Insights', label: 'Respond to customer issues instantly' },
+                { icon: Rocket, title: 'Instant Setup', label: 'Start capturing feedback in minutes' },
+                { icon: Building2, title: 'Multi-Branch Management', label: 'Manage all locations from one place' },
+                { icon: Shield, title: '24/7 Availability', label: 'Reliable service when you need it' },
               ].map((stat) => (
                 <div key={stat.label} className="backdrop-blur-sm bg-white/50 dark:bg-background/50 rounded-xl px-4 py-3 border border-white/60 dark:border-border/30 shadow-sm">
-                  <p className="text-xl md:text-2xl font-bold text-primary">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
+                  <div className="flex items-center gap-2 mb-2">
+                    <stat.icon className="h-5 w-5 text-primary" />
+                    <p className="font-semibold text-foreground text-sm">{stat.title}</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{stat.label}</p>
                 </div>
               ))}
             </div>
@@ -175,14 +180,14 @@ export default function LandingPage() {
           <div className="text-center mb-16 md:mb-20">
             <Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-primary/5 border-primary/10 text-primary">
               <Zap className="mr-1.5 h-3 w-3" />
-              Powerful Features
+              Features That Matter
             </Badge>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
-              Everything You Need to{' '}
-              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Succeed</span>
+              Stop Losing Customer Feedback{' '}
+              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Across Your Branches</span>
             </h2>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              A complete platform for managing complaints across all your locations with powerful tools, real-time insights, and enterprise-grade security.
+              Stop losing customer complaints at your branches. ResolveHub gives you full visibility into customer issues, helping your team respond faster and improve service quality.
             </p>
           </div>
 
@@ -282,16 +287,17 @@ export default function LandingPage() {
             <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm p-6 md:p-8">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
                 {[
-                  { value: '99.9%', label: 'Uptime SLA' },
-                  { value: '<2s', label: 'Notification Speed' },
-                  { value: '20+', label: 'Companies Trust Us' },
-                  { value: '25k+', label: 'Complaints Resolved' },
+                  { icon: TrendingUp, title: 'Real-Time Insights', label: 'Respond to customer issues instantly' },
+                  { icon: Rocket, title: 'Instant Setup', label: 'Start capturing feedback in minutes' },
+                  { icon: Building2, title: 'Multi-Branch Management', label: 'Manage all locations from one place' },
+                  { icon: Shield, title: '24/7 Availability', label: 'Reliable service when you need it' },
                 ].map((stat) => (
                   <div key={stat.label} className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-                      {stat.value}
+                    <div className="flex justify-center mb-3">
+                      <stat.icon className="h-6 w-6 text-primary" />
                     </div>
-                    <p className="text-xs md:text-sm text-muted-foreground mt-1">{stat.label}</p>
+                    <div className="font-semibold text-foreground text-sm mb-1">{stat.title}</div>
+                    <p className="text-xs text-muted-foreground">{stat.label}</p>
                   </div>
                 ))}
               </div>
@@ -317,20 +323,20 @@ export default function LandingPage() {
               <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Works</span>
             </h2>
             <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto leading-relaxed">
-              Get started in three simple steps and start receiving customer feedback within minutes.
+              Get up and running in three simple steps—no technical setup needed.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto relative">
             {/* Connector line */}
             <div className="hidden md:block absolute top-16 left-[20%] right-[20%] h-px bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20" />
             {[
-              { step: '1', title: 'Register & Setup', description: 'Create your company account, add branches, and configure your complaint categories. Our team approves you within 24 hours.' },
-              { step: '2', title: 'Generate QR Codes', description: 'Generate unique QR codes for each branch and complaint point. Print and place them in your physical locations.' },
-              { step: '3', title: 'Receive & Resolve', description: 'Customers scan the QR code and submit complaints. You receive them instantly and can assign, track, and resolve from your dashboard.' },
+              { icon: Settings, title: 'Configure Your Organization', description: 'Set up your company, branches, and team access in minutes. Define roles and permissions to maintain control and security.' },
+              { icon: QrCode, title: 'Deploy QR Codes', description: 'Generate unique QR codes for each location instantly. Download, print, and place them at your branches—no technical setup.' },
+              { icon: BarChart3, title: 'Centralize & Resolve', description: 'Capture feedback in real-time, track complaints across all locations, and resolve issues from one unified dashboard.' },
             ].map((item) => (
-              <div key={item.step} className="relative text-center group">
-                <div className="relative z-10 inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-blue-600 text-white font-bold text-xl mb-6 shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform duration-300">
-                  {item.step}
+              <div key={item.icon} className="relative text-center group">
+                <div className="relative z-10 inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-blue-600 text-white mb-6 shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform duration-300">
+                  <item.icon className="h-8 w-8" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto">{item.description}</p>
@@ -353,16 +359,16 @@ export default function LandingPage() {
               Pricing
             </Badge>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
-              Simple, Transparent{' '}
-              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Pricing</span>
+              Plans Built for Your Scale{' '}
+              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Not Your Size</span>
             </h2>
             <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto leading-relaxed">
-              Choose the plan that fits your business. All plans include a 14-day free trial.
+              Start with a free trial. No credit card required. Upgrade or downgrade anytime as your business grows.
             </p>
-            {/* Toggle (visual only) */}
-            <div className="mt-8 inline-flex items-center gap-3 rounded-full bg-muted/50 border border-border/40 p-1.5">
-              <span className="px-4 py-2 text-sm font-medium rounded-full bg-background shadow-sm">Monthly</span>
-              <span className="px-4 py-2 text-sm font-medium text-muted-foreground rounded-full">Yearly <span className="text-primary text-xs font-semibold ml-1">-20%</span></span>
+            {/* Global pricing message */}
+            <div className="mt-10 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/30">
+              <Shield className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">All plans include a 14-day free trial. No upfront payment required.</span>
             </div>
           </div>
 
@@ -389,26 +395,15 @@ export default function LandingPage() {
                 <div className="p-8 md:p-10">
                   {/* Plan header */}
                   <div className="mb-8">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className={`inline-flex items-center justify-center w-10 h-10 rounded-xl ${
-                        plan.popular ? 'bg-primary/10 ring-1 ring-primary/20' : 'bg-muted ring-1 ring-border/40'
-                      }`}>
-                        {planIdx === 0 && <Zap className="h-5 w-5 text-muted-foreground" />}
-                        {planIdx === 1 && <Star className="h-5 w-5 text-primary" />}
-                        {planIdx === 2 && <Shield className="h-5 w-5 text-muted-foreground" />}
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold">{plan.name}</h3>
-                      </div>
-                    </div>
+                    <h3 className="text-lg font-bold mb-2">{plan.name}</h3>
                     <p className="text-sm text-muted-foreground">{plan.description}</p>
                   </div>
 
                   {/* Price */}
                   <div className="mb-8">
                     <div className="flex items-baseline gap-1">
-                      {plan.planType === 'custom_enterprise' ? (
-                        <span className="text-5xl md:text-6xl font-bold tracking-tight">Custom</span>
+                      {plan.planType === 'custom' ? (
+                        <span className="text-5xl md:text-6xl font-bold tracking-tight">Contact Sales</span>
                       ) : (
                         <>
                           <span className="text-sm text-muted-foreground font-medium">
@@ -419,11 +414,8 @@ export default function LandingPage() {
                         </>
                       )}
                     </div>
-                    {plan.planType === 'enterprise_monthly' && (
-                      <p className="text-xs text-primary font-medium mt-2">Contact us for yearly billing discounts</p>
-                    )}
-                    {plan.trialBadge && (
-                      <p className="text-xs text-emerald-600 font-medium mt-2">No credit card required</p>
+                    {plan.trialNote && (
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-2">{plan.trialNote} • Manual activation after</p>
                     )}
                   </div>
 
@@ -451,10 +443,10 @@ export default function LandingPage() {
                     }`}
                     variant={plan.popular ? 'default' : 'outline'}
                     onClick={() => {
-                      if (plan.planType === 'starter_trial') {
-                        navigate('/register?plan=starter_trial');
-                      } else if (plan.planType === 'enterprise_monthly') {
-                        navigate('/register/enterprise');
+                      if (plan.planType === 'starter') {
+                        navigate('/register?plan=starter');
+                      } else if (plan.planType === 'enterprise') {
+                        navigate('/register?plan=enterprise');
                       } else {
                         navigate('/contact?type=sales');
                       }
@@ -468,11 +460,28 @@ export default function LandingPage() {
             ))}
           </div>
 
-          {/* Money-back guarantee */}
-          <div className="mt-12 text-center">
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-muted/50 border border-border/40">
-              <Shield className="h-4 w-4 text-primary" />
-              <span className="text-sm text-muted-foreground">14-day free trial · No credit card required · Cancel anytime</span>
+          {/* Manual payment flow section */}
+          <div className="mt-20 max-w-3xl mx-auto">
+            <div className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-sm p-8 md:p-10">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 ring-1 ring-primary/20 shrink-0">
+                  <Mail className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold mb-3">After Your Trial Ends</h3>
+                  <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+                    <p>
+                      After 14 days, you'll need to activate your subscription to keep using ResolveHub. No automatic charges.
+                    </p>
+                    <p>
+                      Pay via <strong className="text-foreground">Mobile Money or Bank Transfer</strong>, then email our team to activate your account. We'll confirm within 2 hours.
+                    </p>
+                    <p>
+                      During your trial, we'll send clear instructions on how to activate. Any questions? Contact support@resolvehub.com.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -492,8 +501,8 @@ export default function LandingPage() {
               Testimonials
             </Badge>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
-              Loved by Businesses{' '}
-              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Worldwide</span>
+              What Our Customers{' '}
+              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Are Saying</span>
             </h2>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
               See how companies are transforming their feedback management with ResolveHub.
@@ -511,16 +520,16 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <p className="text-lg md:text-xl text-foreground leading-relaxed mb-8 font-medium">
-                  &ldquo;ResolveHub completely transformed our customer feedback process. We went from chaotic email threads to a streamlined system that gives us real-time visibility across all 45 locations. Resolution time dropped 60% in the first month.&rdquo;
+                  &ldquo;ResolveHub gave us visibility we never had before. Complaints that used to be verbal and lost are now tracked in real time across all our branches. We reduced resolution delays and improved internal accountability within weeks.&rdquo;
                 </p>
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white text-sm font-bold ring-4 ring-primary/10">
-                    SJ
+                    DM
                   </div>
                   <div>
-                    <p className="font-semibold text-base">Sarah Johnson</p>
-                    <p className="text-sm text-muted-foreground">Operations Manager, RetailCo</p>
-                    <p className="text-xs text-primary font-medium mt-0.5">45 branches · Enterprise plan</p>
+                    <p className="font-semibold text-base">Daniel Mensah</p>
+                    <p className="text-sm text-muted-foreground">Operations Manager, MultiBranch Retail</p>
+                    <p className="text-xs text-primary font-medium mt-0.5">12 branches · Starter Plan</p>
                   </div>
                 </div>
               </div>
@@ -530,12 +539,12 @@ export default function LandingPage() {
           {/* Testimonial cards grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
             {[
-              { name: 'Ahmed Al-Rashid', role: 'CEO, FoodChain Group', text: 'The QR code system is brilliant. Our customers love the simplicity, and we love the real-time insights across all our branches. Setup took less than 20 minutes.', initials: 'AA', metric: '40% more feedback collected' },
-              { name: 'Maria Garcia', role: 'Quality Director, HotelPrime', text: 'The analytics dashboard gives us incredible visibility into complaint patterns. We can now proactively address issues before they escalate.', initials: 'MG', metric: '3x faster response times' },
-              { name: 'James Chen', role: 'COO, TechRetail', text: 'Multi-branch management is seamless. Each location manager gets their own view while we maintain oversight of everything from HQ.', initials: 'JC', metric: '25 branches managed' },
-              { name: 'Fatima Hassan', role: 'CX Lead, ServiceFirst', text: 'Anonymous feedback option means we get honest, actionable insights. Our customer satisfaction scores improved by 35% in three months.', initials: 'FH', metric: '+35% satisfaction scores' },
-              { name: 'David Kim', role: 'Founder, QuickBites', text: 'As a small chain, the free tier was perfect to start. We upgraded within two weeks because the value was immediately obvious.', initials: 'DK', metric: 'Free to Pro in 2 weeks' },
-              { name: 'Lisa Thompson', role: 'VP Operations, MegaStore', text: 'The notification system is incredible. Staff can acknowledge and respond to issues within minutes. Our customers feel heard.', initials: 'LT', metric: '<5 min avg response' },
+              { name: 'Aisha Bello', role: 'Branch Supervisor, FuelChain Group', text: 'The QR-based complaint system is simple and effective. Customers submit feedback instantly, and our team can act on it without delays.', initials: 'AB', metric: '35% more feedback captured' },
+              { name: 'Michael Osei', role: 'Customer Experience Lead, ServicePoint', text: 'The dashboard helps us identify recurring issues quickly. Instead of reacting late, we now fix problems before they escalate.', initials: 'MO', metric: '3x faster issue resolution' },
+              { name: 'Josephine Adjei', role: 'Operations Coordinator, RetailHub', text: 'Managing multiple branches used to be difficult. With ResolveHub, every location is monitored from one place, and reporting is consistent.', initials: 'JA', metric: '8 branches managed centrally' },
+              { name: 'Fatima Abdul', role: 'CX Manager, HealthPlus Clinic', text: 'We now receive honest feedback directly from customers. This has helped us improve service quality and staff responsiveness.', initials: 'FA', metric: '+30% service improvement insights' },
+              { name: 'Kwame Asante', role: 'Founder, QuickServe Foods', text: 'We started with the trial and quickly saw the value. Within days, we had structured complaint data instead of scattered feedback.', initials: 'KA', metric: 'Activated within first week' },
+              { name: 'Linda Boateng', role: 'Operations Lead, UrbanMart', text: 'Real-time notifications ensure no complaint is ignored. Our team responds faster, and customers feel heard.', initials: 'LB', metric: '<10 min average response' },
             ].map((t, idx) => (
               <div key={t.name} className="group relative rounded-2xl border border-border/40 bg-card/60 backdrop-blur-sm p-7 transition-all duration-500 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 hover:border-primary/20">
                 {/* Gradient overlay on hover */}
@@ -568,9 +577,9 @@ export default function LandingPage() {
 
           {/* Trust logos bar */}
           <div className="mt-16 text-center">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-6">Trusted by teams at</p>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-6">Trusted by growing businesses and multi-branch teams</p>
             <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-50">
-              {['ZenPertroluemLtd','OceanicResort', 'FoodChain', 'HotelPrime', 'TechRetail', 'MegaStore'].map((name) => (
+              {['MultiBranch Retail', 'FuelChain Group', 'ServicePoint', 'RetailHub', 'HealthPlus Clinic', 'UrbanMart'].map((name) => (
                 <span key={name} className="text-lg md:text-xl font-bold text-muted-foreground/60">{name}</span>
               ))}
             </div>
@@ -598,7 +607,7 @@ export default function LandingPage() {
               <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Questions</span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
-              Everything you need to know about ResolveHub. Can&apos;t find what you&apos;re looking for? Reach out to our support team.
+              Find answers to common questions about how ResolveHub works, setup, pricing, and account activation.
             </p>
           </div>
 
@@ -611,26 +620,19 @@ export default function LandingPage() {
                   <Sparkles className="h-7 w-7 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold tracking-tight mb-2">Still have questions?</h3>
+                  <h3 className="text-xl font-bold tracking-tight mb-2">Need help getting started?</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Our support team is here to help. Get in touch and we&apos;ll respond as soon as we can.
+                    Our team is here to help with setup, onboarding, and account activation. We respond within 2 hours during business hours.
                   </p>
                 </div>
                 <Button className="w-full h-11 gap-2" asChild>
                   <a href="mailto:support@resolvehub.com">
                     <Mail className="h-4 w-4" />
-                    Contact Support
+                    Contact ResolveHub Support
                   </a>
                 </Button>
                 <div className="flex items-center gap-3 pt-4 border-t border-border/40">
-                  <div className="flex -space-x-2">
-                    {['bg-blue-500', 'bg-emerald-500', 'bg-amber-500'].map((bg, i) => (
-                      <div key={i} className={`w-8 h-8 rounded-full ${bg} ring-2 ring-background flex items-center justify-center text-white text-[10px] font-bold`}>
-                        {['S', 'A', 'R'][i]}
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-muted-foreground">Average response time: <span className="font-semibold text-foreground">under 2 hours</span></p>
+                  <p className="text-xs text-muted-foreground">Support available via <span className="font-semibold text-foreground">WhatsApp, phone, and email</span></p>
                 </div>
               </div>
             </div>
@@ -680,16 +682,16 @@ export default function LandingPage() {
 
             <div className="relative z-10">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-sm mb-6 ring-1 ring-white/20">
-                <Globe className="h-8 w-8 text-white" />
+                <Bell className="h-8 w-8 text-white" />
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold mb-5 text-white tracking-tight">Ready to Transform Your Feedback?</h2>
+              <h2 className="text-3xl md:text-5xl font-bold mb-5 text-white tracking-tight">Get Real-Time Visibility Into Every Customer Issue</h2>
               <p className="text-white/75 mb-10 max-w-xl mx-auto text-base md:text-lg leading-relaxed">
-                Join hundreds of businesses already using ResolveHub to manage complaints and improve customer satisfaction.
+                Join companies tracking feedback in real-time, resolving issues faster, and improving customer satisfaction across all locations. Start your 14-day free trial—no card required.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Button size="lg" variant="secondary" className="h-12 px-8 text-base shadow-xl" asChild>
                   <Link to="/register">
-                    Get Started Free
+                    Start 14-Day Free Trial
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -699,6 +701,7 @@ export default function LandingPage() {
                   </a>
                 </Button>
               </div>
+              <p className="text-white/60 text-xs mt-6 font-medium">14-day free trial • No credit card • Instant setup • Proven by growing businesses</p>
             </div>
           </div>
         </div>

@@ -51,17 +51,17 @@ export default function BillingLockedBanner({
   const getDetailedMessage = () => {
     switch (reason) {
       case 'TRIAL_EXPIRED':
-        return 'Your free trial period has ended. Upgrade to a paid plan to continue using all features.';
+        return 'Your free trial has ended. Activate a paid plan to continue using ResolveHub.';
       case 'PENDING_PAYMENT':
-        return 'Your payment is pending. Please update your payment method to continue using the platform.';
+        return 'Your payment is pending. Complete your activation to regain access.';
       case 'PAST_DUE':
-        return 'Your subscription payment is overdue. Please update your payment method immediately.';
+        return 'Your subscription payment is overdue. Please update your payment method.';
       case 'EXPIRED':
-        return 'Your subscription has expired. Renew your subscription to regain access to all features.';
+        return 'Your subscription has expired. Renew your subscription to restore access.';
       case 'CANCELLED':
-        return 'Your subscription has been cancelled. Start a new subscription to continue using the platform.';
+        return 'Your subscription has been cancelled. Start a new subscription to continue.';
       case 'NO_SUBSCRIPTION':
-        return 'You do not have an active subscription. Choose a plan to get started.';
+        return 'You don\'t have an active subscription. Choose a plan to get started.';
       case 'PENDING_ACTIVATION':
         return 'Your subscription is being activated. Please wait a moment and try again.';
       default:

@@ -55,17 +55,17 @@ export default function TrialExpiredModal() {
           </div>
 
           <h2 className="text-2xl font-bold tracking-tight mb-2">
-            {isPendingPayment ? 'Complete Your Payment' : 'Your free trial has ended'}
+            {isPendingPayment ? 'Activate Your Subscription' : 'Your Trial Has Ended'}
           </h2>
           <p className="text-muted-foreground text-sm mb-1">
             {isPendingPayment
-              ? 'Your account is pending payment to activate your Enterprise Monthly subscription.'
-              : 'Your 14-day free trial has expired.'}
+              ? 'Your account is ready. Complete your payment to activate your subscription.'
+              : 'Your 14-day free trial has ended.'}
           </p>
           <p className="text-muted-foreground text-sm mb-8">
             {isPendingPayment
-              ? 'Choose a payment gateway below to complete your subscription and unlock all features.'
-              : 'Upgrade to a paid plan to continue using complaint management, QR codes, analytics, and branch management.'}
+              ? 'Select your payment method below to activate your plan and regain access.'
+              : 'To continue using ResolveHub, activate a paid plan. Payment is via Mobile Money or Bank Transfer.'}
           </p>
 
           <div className="w-full space-y-3">

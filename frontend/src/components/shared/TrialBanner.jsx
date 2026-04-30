@@ -39,15 +39,15 @@ export default function TrialBanner() {
 
   const label =
     daysRemaining <= 1
-      ? 'Trial expires today!'
-      : `${daysRemaining} day${daysRemaining === 1 ? '' : 's'} left in your free trial`;
+      ? 'Your trial expires today.'
+      : `${daysRemaining} day${daysRemaining === 1 ? '' : 's'} remaining in your free trial`;
 
   return (
     <div className={`flex items-center gap-3 px-6 py-2.5 border-b text-sm ${bgClass}`}>
       <Icon className={`h-4 w-4 shrink-0 ${textClass}`} />
       <span className={`font-medium ${textClass}`}>{label}</span>
       <span className={`hidden sm:inline ${subTextClass}`}>
-        · Upgrade to keep access to all features after your trial ends.
+        · When your trial ends, you'll need to activate a paid plan to continue.
       </span>
       <Button
         size="sm"
@@ -55,7 +55,7 @@ export default function TrialBanner() {
         onClick={() => navigate('/dashboard/settings?tab=billing')}
       >
         <Zap className="h-3 w-3" />
-        Upgrade Plan
+        View Plans
       </Button>
     </div>
   );

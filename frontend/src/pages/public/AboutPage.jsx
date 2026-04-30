@@ -16,7 +16,7 @@ export default function AboutPage() {
     {
       name: 'Samson Kendrick Egbetorke',
       role: 'Founder & CEO',
-      bio: 'Visionary entrepreneur with 10+ years in SaaS and customer experience solutions. Leading ResolveHub to revolutionize complaint management.',
+      bio: 'SaaS entrepreneur with 10+ years in fintech and customer experience. Founded ResolveHub to help businesses hear what customers really think.',
       image: '👨‍💼',
       socials: { linkedin: '#', twitter: '#' },
       color: 'from-blue-500 to-cyan-500',
@@ -50,8 +50,8 @@ export default function AboutPage() {
   const values = [
     {
       icon: Lightbulb,
-      title: 'Innovation First',
-      description: 'We constantly push boundaries and leverage cutting-edge technology to solve real-world problems.',
+      title: 'Built to Solve Real Problems',
+      description: 'We focus on practical solutions that businesses actually need, not theoretical features. Every tool we build has a purpose.',
       color: 'from-yellow-500/20 to-orange-500/20',
       borderColor: 'from-yellow-500/50 to-orange-500/50',
     },
@@ -103,7 +103,7 @@ export default function AboutPage() {
               </span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto mb-10 font-light">
-              We revolutionized customer feedback management through innovative QR-based complaint systems and real-time insights that empower businesses to build stronger customer relationships.
+              We help businesses listen to their customers better, track complaints in real time, and fix problems faster. ResolveHub brings clarity to customer feedback.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button size="lg" className="shadow-lg shadow-primary/25 px-8 h-12 group" asChild>
@@ -134,10 +134,10 @@ export default function AboutPage() {
                   <div className="h-1 w-20 bg-gradient-to-r from-primary to-blue-600 rounded-full" />
                 </div>
                 <p className="text-muted-foreground text-lg leading-relaxed">
-                  ResolveHub is an intelligent, real-time complaint and feedback management platform designed for modern businesses. We empower organizations to understand their customers better and build lasting relationships through transparent, efficient complaint resolution.
+                  ResolveHub is a complaint and feedback management platform for businesses with multiple locations. We help you capture customer feedback via QR codes, track issues in real time, and resolve problems faster.
                 </p>
                 <p className="text-muted-foreground text-lg leading-relaxed">
-                  Using innovative QR code technology, customers can easily share feedback from any location. Our platform provides real-time notifications, advanced analytics, and powerful tools to help teams resolve issues faster than ever before.
+                  With ResolveHub, you gain visibility into what customers think, you can respond quickly, and your team stays accountable. No more lost complaints or unclear priorities.
                 </p>
                 <div className="space-y-3 pt-4">
                   {[
@@ -161,17 +161,17 @@ export default function AboutPage() {
                   <div className="space-y-6">
                     <div className="text-center">
                       <div className="text-7xl mb-4">📊</div>
-                      <h3 className="text-2xl font-bold mb-2">500+</h3>
-                      <p className="text-muted-foreground">Active Businesses</p>
+                      <h3 className="text-2xl font-bold mb-2">50+</h3>
+                      <p className="text-muted-foreground">Growing Businesses</p>
                     </div>
                     <div className="grid grid-cols-2 gap-4 pt-6 border-t">
                       <div className="text-center">
-                        <p className="text-3xl font-bold text-primary">20K+</p>
-                        <p className="text-xs text-muted-foreground mt-1">Issues Resolved</p>
+                        <p className="text-3xl font-bold text-primary">99.9%</p>
+                        <p className="text-xs text-muted-foreground mt-1">Uptime</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-3xl font-bold text-blue-600">99.9%</p>
-                        <p className="text-xs text-muted-foreground mt-1">Uptime</p>
+                        <p className="text-3xl font-bold text-blue-600">24/7</p>
+                        <p className="text-xs text-muted-foreground mt-1">Available</p>
                       </div>
                     </div>
                   </div>
@@ -204,7 +204,7 @@ export default function AboutPage() {
                   <h3 className="text-2xl font-bold">Our Mission</h3>
                 </div>
                 <p className="text-muted-foreground text-lg leading-relaxed">
-                  To revolutionize customer complaint management by providing businesses with real-time insights, efficient resolution pathways, and the tools to build stronger customer relationships through transparent communication and continuous improvement.
+                  To help businesses capture, track, and resolve customer complaints in real time. We make it easier for companies to hear their customers, respond faster, and improve service quality.
                 </p>
               </div>
             </div>
@@ -220,7 +220,7 @@ export default function AboutPage() {
                   <h3 className="text-2xl font-bold">Our Vision</h3>
                 </div>
                 <p className="text-muted-foreground text-lg leading-relaxed">
-                  To become the leading global platform for customer feedback and complaint management, enabling every business—from startups to enterprises—to create exceptional customer experiences and drive sustainable growth through actionable insights.
+                  To be the platform businesses choose to manage customer feedback. We want every multi-branch business to have visibility into what customers think and the tools to fix problems quickly.
                 </p>
               </div>
             </div>
@@ -290,13 +290,13 @@ export default function AboutPage() {
                     </div>
                     <div className="space-y-3 text-muted-foreground text-lg leading-relaxed">
                       <p>
-                        Samson is a visionary entrepreneur with over a decade of experience in SaaS, fintech, and customer experience solutions. He founded ResolveHub after identifying a critical gap in how businesses manage customer feedback across multiple locations.
+                        Samson is a SaaS entrepreneur with over 10 years of experience in fintech and customer experience. He founded ResolveHub after working with businesses that struggled to track and respond to customer complaints across multiple locations.
                       </p>
                       <p>
-                        With a passion for technology and customer success, Samson has built a team dedicated to delivering world-class solutions that empower businesses to turn complaints into opportunities for growth and customer delight.
+                        He built ResolveHub to solve this specific problem: giving businesses visibility into what customers think and the tools to respond quickly. Today, ResolveHub helps growing businesses across multiple industries capture complaints in real time.
                       </p>
                       <p>
-                        When not leading ResolveHub, Samson enjoys mentoring young entrepreneurs, speaking at industry conferences, and exploring innovative solutions to complex business problems.
+                        When not leading ResolveHub, Samson mentors entrepreneurs, speaks at industry events, and works on solutions for small and medium businesses.
                       </p>
                     </div>
                   </div>
@@ -313,7 +313,7 @@ export default function AboutPage() {
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">Our Leadership Team</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Diverse expertise, unified mission to revolutionize complaint management.
+              Experienced professionals focused on helping businesses succeed.
             </p>
           </div>
 
@@ -368,10 +368,10 @@ export default function AboutPage() {
               <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-blue-500 to-transparent md:-translate-x-1/2" />
 
               {[
-                { year: '2022', title: '🚀 Founded', description: 'ResolveHub was founded with a mission to solve the complaint management crisis for multi-branch businesses.' },
-                { year: '2023', title: '✨ MVP Launch', description: 'Launched our MVP with QR code generation and basic complaint management features. Early customers loved it.' },
-                { year: '2024', title: '📈 Scale & Growth', description: 'Expanded to 500+ customers across multiple regions. Launched advanced analytics, multi-branch support, and enterprise features.' },
-                { year: '2025', title: '👑 Market Leadership', description: 'Became the leading complaint management platform in our region. Continued expansion with new features and integrations.' },
+                { year: '2022', title: '🚀 Founded', description: 'ResolveHub was founded to solve a specific problem: helping multi-branch businesses capture and track customer complaints.' },
+                { year: '2023', title: '✨ MVP Launch', description: 'Launched with QR codes and complaint dashboard. Early customers got results within weeks.' },
+                { year: '2024', title: '📈 Scaled Up', description: 'Added advanced analytics, multi-branch support, and enterprise features. Now serving 50+ businesses.' },
+                { year: '2025', title: '🎯 Market Growth', description: 'Expanding across industries and regions. New features rolling out based on customer feedback.' },
               ].map((milestone, i) => (
                 <div key={i} className="flex gap-6 md:gap-0 relative md:mb-12">
                   <div className="md:w-1/2 md:text-right md:pr-12">
@@ -418,7 +418,7 @@ export default function AboutPage() {
               </span>
             </h2>
             <p className="text-lg md:text-xl text-muted-foreground mb-10 leading-relaxed max-w-2xl mx-auto">
-              Join 500+ businesses that are already using ResolveHub to listen better, resolve faster, and delight customers.
+              Get started with a 14-day free trial. No card required. See how ResolveHub helps you track complaints, respond faster, and improve service quality.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button size="lg" className="shadow-lg shadow-primary/25 px-8 h-12 group" asChild>

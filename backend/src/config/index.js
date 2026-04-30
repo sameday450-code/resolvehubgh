@@ -45,4 +45,13 @@ module.exports = {
     max: parseInt(process.env.RATE_LIMIT_MAX, 10) || 100,
   },
   maxFileSize: parseInt(process.env.MAX_FILE_SIZE, 10) || 10485760,
+  billing: {
+    enableOnlinePayments: process.env.ENABLE_ONLINE_PAYMENTS !== 'false',
+    trialDays: parseInt(process.env.TRIAL_DAYS, 10) || 14,
+  },
+  supportContact: {
+    email: process.env.SUPPORT_EMAIL || 'support@resolvehub.com',
+    phone: process.env.SUPPORT_PHONE || '+233 (0) XXX XXX XXX',
+    whatsapp: process.env.SUPPORT_WHATSAPP || '+233XXXXXXXXX',
+  },
 };

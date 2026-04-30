@@ -79,10 +79,9 @@ export default function PendingPaymentPage() {
               {isPending ? 'Payment Required' : 'Active'}
             </div>
 
-            <h1 className="text-2xl font-bold tracking-tight mb-1">Complete Your Payment</h1>
+            <h1 className="text-2xl font-bold tracking-tight mb-1">Activate Your Subscription</h1>
             <p className="text-sm text-muted-foreground mb-6">
-              Hi {user?.fullName?.split(' ')[0] ?? 'there'}, your account is ready. Activate your
-              Enterprise Monthly subscription to get started.
+              Hi {user?.fullName?.split(' ')[0] ?? 'there'}, your account is ready. Complete your payment to activate your Enterprise plan.
             </p>
 
             {/* Plan summary */}
@@ -92,66 +91,50 @@ export default function PendingPaymentPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline justify-between gap-2 flex-wrap">
-                  <p className="font-semibold">Enterprise Monthly</p>
+                  <p className="font-semibold">Enterprise Monthly Plan</p>
                   <p className="text-xl font-bold text-primary shrink-0">GHS 299<span className="text-xs font-normal text-muted-foreground">/mo</span></p>
                 </div>
-                <ul className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1">
-                  {PLAN_FEATURES.map((f) => (
-                    <li key={f} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <CheckCircle2 className="h-3 w-3 text-primary shrink-0" />
-                      {f}
-                    </li>
-                  ))}
+                <ul className="mt-3 space-y-1.5">
+                  <li className="text-xs text-muted-foreground">
+                    <p className="font-medium text-foreground mb-1">Payment Method:</p>
+                    <p>Mobile Money or Bank Transfer</p>
+                  </li>
+                  <li className="text-xs text-muted-foreground">
+                    <p className="font-medium text-foreground mb-1">Activation:</p>
+                    <p>Email support@resolvehub.com with payment confirmation. We'll activate within 2 hours.</p>
+                  </li>
                 </ul>
               </div>
             </div>
 
-            {/* Gateway buttons */}
+            {/* Manual payment instructions */}
             <div className="space-y-3 mb-6">
+              <h3 className="text-sm font-semibold">How to Activate:</h3>
+              <ol className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex gap-3">
+                  <span className="font-bold text-primary shrink-0">1.</span>
+                  <span>Pay GHS 299 via Mobile Money or Bank Transfer to the account we'll provide</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="font-bold text-primary shrink-0">2.</span>
+                  <span>Email us at <a href="mailto:support@resolvehub.com" className="text-primary font-medium hover:underline">support@resolvehub.com</a> with your payment proof</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="font-bold text-primary shrink-0">3.</span>
+                  <span>We'll verify and activate your account within 2 hours</span>
+                </li>
+              </ol>
               <Button
-                onClick={() => handlePay('PAYSTACK')}
-                disabled={!!loadingGateway}
-                className="w-full h-13 text-sm font-semibold justify-between px-5"
-                style={{ background: '#00c3a0', color: '#fff' }}
+                onClick={() => window.location.href = 'mailto:support@resolvehub.com?subject=Payment%20for%20ResolveHub&body=I%20would%20like%20to%20complete%20payment%20for%20my%20Enterprise%20subscription.'}
+                className="w-full h-12 text-sm font-medium bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 mt-4"
               >
-                <span className="flex items-center gap-2">
-                  {loadingGateway === 'PAYSTACK' ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <span className="text-base">P</span>
-                  )}
-                  Pay with Paystack
-                </span>
-                <span className="flex items-center gap-1 text-xs opacity-80">
-                  GHS · Cards · Mobile Money
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </span>
-              </Button>
-
-              <Button
-                onClick={() => handlePay('STRIPE')}
-                disabled={!!loadingGateway}
-                className="w-full h-13 text-sm font-semibold justify-between px-5"
-                style={{ background: '#635bff', color: '#fff' }}
-              >
-                <span className="flex items-center gap-2">
-                  {loadingGateway === 'STRIPE' ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <span className="text-base">S</span>
-                  )}
-                  Pay with Stripe
-                </span>
-                <span className="flex items-center gap-1 text-xs opacity-80">
-                  USD · International Cards
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </span>
+                <CreditCard className="mr-2 h-4 w-4" />
+                Email Support for Payment Details
               </Button>
             </div>
 
             <p className="text-xs text-center text-muted-foreground mb-6">
-              Payments are processed securely by Paystack or Stripe. Your billing information is
-              never stored on our servers.
+              Payment will be processed manually. We typically respond to payment inquiries within 2 hours during business hours.
             </p>
 
             <div className="border-t pt-4 flex justify-center">

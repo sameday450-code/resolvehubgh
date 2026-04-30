@@ -19,6 +19,15 @@ const getMySubscription = async (req, res, next) => {
   }
 };
 
+const getSubscriptionStatus = async (req, res, next) => {
+  try {
+    const status = await subscriptionService.getSubscriptionStatus(req.user.companyId);
+    return response.success(res, status);
+  } catch (err) {
+    next(err);
+  }
+};
+
 const activateTrial = async (req, res, next) => {
   try {
     const subscription = await subscriptionService.activateTrial(req.user.companyId);
@@ -52,10 +61,25 @@ const updateSubscription = async (req, res, next) => {
   }
 };
 
+const manuallyActivate = async (req, res, next) => {
+  try {
+    const { companyId } = req.params;
+    const subscription = await subscriptionService.manuallyActivate(companyId, {
+      ...req.body,
+      activatedBy: req.user.email,
+    });
+    return response.success(res, subscription, 'Company subscription manually activated', 200);
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getPlans,
   getMySubscription,
+  getSubscriptionStatus,
   activateTrial,
   listSubscriptions,
   updateSubscription,
+  manuallyActivate,
 };

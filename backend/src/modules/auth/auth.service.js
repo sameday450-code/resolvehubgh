@@ -126,7 +126,7 @@ const register = async (data) => {
     if (isStarterTrial && starterPlan) {
       const now = new Date();
       const trialEndsAt = new Date(now);
-      trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+      trialEndsAt.setDate(trialEndsAt.getDate() + config.billing.trialDays);
 
       subscription = await tx.companySubscription.create({
         data: {
@@ -136,6 +136,8 @@ const register = async (data) => {
           trialStartedAt: now,
           trialEndsAt,
           activatedAt: now,
+          paymentStatus: 'UNPAID',
+          paymentProvider: 'MANUAL',
         },
         include: { subscriptionPlan: true },
       });

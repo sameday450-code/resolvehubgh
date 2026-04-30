@@ -523,6 +523,15 @@ model CompanySubscription {
   providerCustomerId     String?
   providerSubscriptionId String?
   metadata               Json?
+  
+  // Subscription management
+  subscriptionStartDate  DateTime?
+  subscriptionEndDate    DateTime?
+  nextBillingDate        DateTime?
+  paymentStatus          String             @default("UNPAID")  // UNPAID, PAID, MANUAL_APPROVED, OVERDUE
+  paymentProvider        String             @default("MANUAL")  // MANUAL, PAYSTACK, STRIPE
+  daysRemainingInTrial   Int?
+  
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
 
@@ -532,6 +541,8 @@ model CompanySubscription {
   @@index([companyId])
   @@index([status])
   @@index([subscriptionPlanId])
+  @@index([paymentStatus])
+  @@index([trialEndsAt])
 }
 
 model BillingProfile {

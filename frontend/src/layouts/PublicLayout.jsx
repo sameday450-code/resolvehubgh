@@ -95,16 +95,18 @@ export default function PublicLayout() {
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
+      </header>
 
-        {/* Mobile Menu */}
+      {/* Mobile Menu Overlay - Outside Header to avoid stacking context issues */}
+      {mobileOpen && (
         <div
-          className={`md:hidden fixed inset-x-0 top-16 bottom-0 z-40 bg-background/98 backdrop-blur-xl transition-all duration-300 ease-in-out ${
-            mobileOpen
-              ? 'opacity-100 translate-y-0 pointer-events-auto'
-              : 'opacity-0 -translate-y-4 pointer-events-none'
-          }`}
+          className="md:hidden fixed inset-0 top-16 z-40 bg-black/40 backdrop-blur-xl"
+          onClick={() => setMobileOpen(false)}
         >
-          <div className="container mx-auto px-4 pt-6 pb-8 flex flex-col h-full">
+          <div 
+            className="container mx-auto px-4 pt-6 pb-8 flex flex-col h-full bg-background"
+            onClick={(e) => e.stopPropagation()}
+          >
             <nav className="flex flex-col gap-1">
               {navLinks.map((link) =>
                 link.href.startsWith('/') && !link.href.includes('#') ? (
@@ -146,11 +148,12 @@ export default function PublicLayout() {
               </Link>
             </div>
             <div className="mt-auto pt-8 text-center">
-              <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Apploge</p>
+              <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} ResolveHub. All rights reserved.</p>
             </div>
           </div>
         </div>
-      </header>
+      )}
+
       <main className="flex-1">
         <Outlet />
       </main>

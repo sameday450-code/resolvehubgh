@@ -94,11 +94,11 @@ export default function ContactPage() {
                 Custom Enterprise Plan
               </Badge>
               <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-5">
-                Let&apos;s Build Your{' '}
-                <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Perfect Plan</span>
+                Let&apos;s Talk About Your{' '}
+                <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Needs</span>
               </h1>
               <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-                Tell us about your business needs and requirements. Our sales team will work with you to create a custom plan tailored to your organization.
+                Tell us about your business and your requirements. Our sales team will design a custom plan that fits your organization.
               </p>
             </>
           ) : (
@@ -223,8 +223,8 @@ export default function ContactPage() {
                     </h3>
                     <p className="text-muted-foreground max-w-sm mx-auto mb-8">
                       {isSalesInquiry 
-                        ? 'Thank you for your interest in our Custom Enterprise plan. Our sales team will contact you within 24 hours to discuss your specific needs.'
-                        : 'Thank you for reaching out. Our team will get back to you within 2 hours during business hours.'}
+                      ? 'Thank you for your interest. Our sales team will review your requirements and contact you within 24 hours to discuss a custom plan for your business.'
+                      : 'Thanks for reaching out. We received your message and will get back to you within 2 hours during business hours.'}
                     </p>
                     <Button variant="outline" onClick={() => setSubmitted(false)} className="rounded-xl">
                       {isSalesInquiry ? 'Submit Another Inquiry' : 'Send Another Message'}
@@ -233,8 +233,8 @@ export default function ContactPage() {
                 ) : isSalesInquiry ? (
                   <>
                     <div className="mb-8">
-                      <h2 className="text-xl font-bold tracking-tight mb-2">Custom Enterprise Plan Inquiry</h2>
-                      <p className="text-sm text-muted-foreground">Tell us about your organization and requirements so our team can prepare the perfect plan for you.</p>
+                      <h2 className="text-xl font-bold tracking-tight mb-2">Tell Us About Your Business</h2>
+                      <p className="text-sm text-muted-foreground">The more details you share, the better we can tailor ResolveHub to your needs. We'll review your information and contact you within 24 hours.</p>
                     </div>
 
                     {error && (
