@@ -2,9 +2,5 @@
   "buildCommand": "pnpm build",
   "installCommand": "pnpm install",
   "framework": "vite",
-  "outputDirectory": "dist",
-  "env": {
-    "VITE_API_URL": "@vite-api-url",
-    "VITE_GOOGLE_CLIENT_ID": "@vite-google-client-id"
-  }
+  "outputDirectory": "dist"
 }
