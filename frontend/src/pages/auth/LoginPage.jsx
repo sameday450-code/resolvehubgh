@@ -88,7 +88,7 @@ export default function LoginPage() {
           <div className="login-glass-card rounded-2xl p-8 sm:p-10">
             {/* Logo */}
             <div className="flex items-center gap-2.5 mb-8">
-              <img src="/public/logo.png" alt="ResolveHub" className="h-6 w-6" />
+              <img src="/logo.png" alt="ResolveHub" className="h-6 w-6" />
               <span className="text-lg font-bold tracking-tight">ResolveHub</span>
             </div>
 

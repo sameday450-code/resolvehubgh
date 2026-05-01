@@ -124,7 +124,7 @@ export default function ComplaintPortal() {
           {company?.logoUrl ? (
             <img src={company.logoUrl} alt={company.name} className="h-16 w-16 mx-auto rounded-lg mb-3 object-contain" />
           ) : (
-            <img src="/public/logo.png" alt="ResolveHub" className="h-16 w-16 mx-auto mb-3 object-contain" />
+            <img src="/logo.png" alt="ResolveHub" className="h-16 w-16 mx-auto mb-3 object-contain" />
           )}
           <h1 className="text-2xl font-bold">{company?.name}</h1>
           <p className="text-muted-foreground mt-1">
