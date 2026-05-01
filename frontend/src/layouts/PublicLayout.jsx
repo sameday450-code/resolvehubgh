@@ -38,7 +38,7 @@ export default function PublicLayout() {
         <div className="container mx-auto flex h-16 md:h-[72px] items-center justify-between px-4 lg:px-6">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <img src="/public/logo.png" alt="ResolveHub" className="h-8 w-8 transition-transform duration-300 group-hover:scale-110" />
+            <img src="/logo.png" alt="ResolveHub" className="h-8 w-8 transition-transform duration-300 group-hover:scale-110" />
             <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
               ResolveHub
             </span>
@@ -162,7 +162,7 @@ export default function PublicLayout() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-3">
-                <img src="/public/logo.png" alt="ResolveHub" className="h-6 w-6" />
+                <img src="/logo.png" alt="ResolveHub" className="h-6 w-6" />
                 <span className="text-lg font-bold">ResolveHub</span>
               </div>
               <p className="text-sm text-muted-foreground">

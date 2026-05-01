@@ -87,7 +87,7 @@ export default function SuperAdminLayout() {
     <div className={`flex flex-col h-full ${mobile ? '' : 'w-[260px]'}`}>
       {/* Logo area */}
       <div className="flex h-16 items-center gap-3 px-5">
-        <img src="/public/logo.png" alt="ResolveHub" className="h-5 w-5" />
+        <img src="/logo.png" alt="ResolveHub" className="h-5 w-5" />
         <div className="flex flex-col">
           <span className="text-[15px] font-bold tracking-tight">ResolveHub</span>
           <span className="text-[10px] text-muted-foreground font-medium -mt-0.5 uppercase tracking-wider">Admin Panel</span>

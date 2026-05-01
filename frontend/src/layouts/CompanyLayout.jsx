@@ -83,7 +83,7 @@ export default function CompanyLayout() {
     <div className={`sidebar-container flex flex-col h-full ${mobile ? '' : 'w-64'}`}>
       {/* Logo area */}
       <div className="flex h-16 items-center gap-2.5 px-6 sidebar-logo-area">
-        <img src="/public/logo.png" alt="ResolveHub" className="h-6 w-6" />
+        <img src="/logo.png" alt="ResolveHub" className="h-6 w-6" />
         <span className="text-lg font-bold text-white tracking-tight">ResolveHub</span>
         {mobile && (
           <button onClick={() => setSidebarOpen(false)} className="ml-auto text-white/60 hover:text-white transition-colors">
