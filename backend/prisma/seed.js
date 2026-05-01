@@ -28,7 +28,17 @@ async function main() {
     });
     console.log(`✅ Super Admin created: ${superAdminEmail}`);
   } else {
-    console.log(`ℹ️  Super Admin already exists: ${superAdminEmail}`);
+    // Ensure password is always updated to match .env
+    const passwordHash = await bcrypt.hash(superAdminPassword, 12);
+    await prisma.user.update({
+      where: { id: existingAdmin.id },
+      data: {
+        passwordHash,
+        fullName: superAdminName,
+        isActive: true,
+      },
+    });
+    console.log(`✅ Super Admin updated with latest credentials: ${superAdminEmail}`);
   }
 
   // Create default complaint categories (system-wide)

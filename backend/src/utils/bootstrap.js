@@ -37,18 +37,17 @@ async function ensureSuperAdmin() {
     });
 
     if (existingAdmin) {
-      // Admin exists, log info
-      if (!existingAdmin.isActive) {
-        logger.warn(`⚠️  Super Admin exists but is inactive: ${superAdminEmail}`);
-        // Reactivate if needed
-        await prisma.user.update({
-          where: { id: existingAdmin.id },
-          data: { isActive: true },
-        });
-        logger.info(`✅ Reactivated Super Admin: ${superAdminEmail}`);
-      } else {
-        logger.info(`✅ Super Admin exists: ${superAdminEmail}`);
-      }
+      // Admin exists - ensure password is always in sync with .env
+      const passwordHash = await bcrypt.hash(superAdminPassword, 12);
+      await prisma.user.update({
+        where: { id: existingAdmin.id },
+        data: {
+          passwordHash,
+          fullName: superAdminName,
+          isActive: true,
+        },
+      });
+      logger.info(`✅ Super Admin credentials synchronized: ${superAdminEmail}`);
     } else {
       // Create new super admin
       const passwordHash = await bcrypt.hash(superAdminPassword, 12);
