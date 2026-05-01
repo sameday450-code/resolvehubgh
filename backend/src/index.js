@@ -12,6 +12,7 @@ const logger = require('./config/logger');
 const errorHandler = require('./middleware/errorHandler');
 const { initializeSocket } = require('./sockets');
 const { ensureMigrations } = require('./utils/ensureMigrations');
+const { bootstrap } = require('./utils/bootstrap');
 
 // Route imports
 const authRoutes = require('./modules/auth/auth.routes');
@@ -154,6 +155,10 @@ const localIp = getLocalIp();
       logger.info('⏳ Verifying database migrations in production...');
       await ensureMigrations();
     }
+
+    // Run bootstrap to ensure essential data exists
+    logger.info('🔧 Bootstrapping system...');
+    await bootstrap();
 
     // Start server
     server.listen(config.port, '0.0.0.0', () => {

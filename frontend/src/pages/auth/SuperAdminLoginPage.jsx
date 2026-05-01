@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Eye, EyeOff, Shield, Lock } from 'lucide-react';
 import { Button } from '../../components/ui/button';
@@ -12,6 +13,7 @@ export default function SuperAdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { superAdminLogin } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,6 +23,7 @@ export default function SuperAdminLoginPage() {
     try {
       await superAdminLogin(email, password);
       toast.success('Welcome, Super Admin');
+      navigate('/super-admin');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Invalid credentials');
     } finally {
