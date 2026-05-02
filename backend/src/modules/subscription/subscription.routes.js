@@ -1,3 +1,11 @@
+const { Router } = require('express');
+const subscriptionController = require('./subscription.controller');
+const { authenticate, authorize, tenantGuard } = require('../../middleware/auth');
+const validate = require('../../middleware/validate');
+const { activateTrialSchema } = require('./subscription.validation');
+
+const router = Router();
+
 // Public — list available plans
 router.get('/plans', subscriptionController.getPlans);
 
