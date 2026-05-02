@@ -18,6 +18,7 @@ import SubscriptionCard from '../../components/billing/SubscriptionCard';
 import BillingStatusBanner from '../../components/billing/BillingStatusBanner';
 import TransactionTable from '../../components/billing/TransactionTable';
 import UpgradeModal from '../../components/billing/UpgradeModal';
+import ManualActivationForm from '../../components/billing/ManualActivationForm';
 import {
   Tabs,
   TabsContent,
@@ -31,6 +32,7 @@ import {
   AlertTriangle,
   CheckCircle,
   Loader,
+  Smartphone,
 } from 'lucide-react';
 
 export default function BillingPage() {
@@ -214,6 +216,10 @@ export default function BillingPage() {
             <CreditCard className="h-4 w-4" />
             Subscription
           </TabsTrigger>
+          <TabsTrigger value="manual" className="gap-2">
+            <Smartphone className="h-4 w-4" />
+            Manual Payment
+          </TabsTrigger>
           <TabsTrigger value="transactions" className="gap-2">
             <FileText className="h-4 w-4" />
             Transactions
@@ -307,6 +313,11 @@ export default function BillingPage() {
               )}
             </div>
           </div>
+        </TabsContent>
+
+        {/* MANUAL PAYMENT TAB */}
+        <TabsContent value="manual" className="space-y-4">
+          <ManualActivationForm />
         </TabsContent>
 
         {/* TRANSACTIONS TAB */}

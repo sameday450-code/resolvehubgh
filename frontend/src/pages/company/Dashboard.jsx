@@ -3,6 +3,7 @@ import { complaintAPI } from '../../lib/api';
 import { useSocket } from '../../contexts/SocketContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { PageLoading, ErrorState } from '../../components/shared';
+import TrialStatusBanner from '../../components/billing/TrialStatusBanner';
 import { Badge } from '../../components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import {
@@ -218,6 +219,9 @@ export default function Dashboard() {
           Live data
         </div>
       </div>
+
+      {/* Trial Status Banner */}
+      <TrialStatusBanner />
 
       {/* Primary Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

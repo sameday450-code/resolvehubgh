@@ -93,6 +93,20 @@ enum PaymentGateway {
   STRIPE
 }
 
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  MANUAL_APPROVED
+  FAILED
+}
+
+enum PaymentProvider {
+  NONE
+  MANUAL
+  PAYSTACK
+  STRIPE
+}
+
 enum BillingCycle {
   MONTHLY
   YEARLY
@@ -182,6 +196,15 @@ model Company {
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
+  // Subscription & trial fields (denormalized for easier access)
+  plan                String?        @default("STARTER") // STARTER, ENTERPRISE, CUSTOM
+  trialStartDate      DateTime?
+  trialEndDate        DateTime?
+  paymentStatus       PaymentStatus  @default(UNPAID)
+  paymentProvider     PaymentProvider @default(NONE)
+  isDashboardLocked   Boolean        @default(false)
+  branchLimit         Int            @default(1) // 1 during trial, increases after activation
+
   // Relations
   users                User[]
   branches             Branch[]
@@ -196,6 +219,7 @@ model Company {
   billingProfile       BillingProfile?
   paymentTransactions  PaymentTransaction[]
   contactSalesRequests ContactSalesRequest[]
+  activationRequests   ActivationRequest[]
 
   // Optimized indexes for common company queries
   @@index([status])
@@ -660,4 +684,36 @@ model ContactSalesRequest {
   // Composite indexes for common patterns
   @@index([status, createdAt(sort: Desc)])
   @@index([sourcePlanType, status])
+}
+
+// ============================================
+// MANUAL ACTIVATION REQUEST
+// ============================================
+
+model ActivationRequest {
+  id                 String   @id @default(uuid())
+  companyId          String
+  company            Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  selectedPlan       String   @default("STARTER") // STARTER, ENTERPRISE, CUSTOM
+  amountPaid         Float
+  paymentMethod      String   // "MOBILE_MONEY", "BANK_TRANSFER"
+  paymentReference   String   // Reference from payment provider or bank
+  paymentDate        DateTime
+  proofOfPaymentUrl  String?  // URL to uploaded proof
+  note               String?  // Optional note from company
+  status             String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  reviewedBy         String?  // Super Admin user ID who reviewed it
+  reviewedAt         DateTime?
+  rejectionReason    String?  // Reason if rejected
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Optimized indexes
+  @@index([companyId])
+  @@index([status])
+  @@index([paymentDate])
+  @@index([createdAt(sort: Desc)])
+  // Composite indexes for common patterns
+  @@index([companyId, status])
+  @@index([status, createdAt(sort: Desc)])
 }

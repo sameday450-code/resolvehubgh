@@ -47,6 +47,54 @@ const createBranch = async (companyId, data) => {
   const slug = generateSlug(data.name);
   const code = data.code || generateBranchCode(data.name);
 
+  // Check subscription status and trial limits
+  const company = await prisma.company.findUnique({
+    where: { id: companyId },
+    select: {
+      id: true,
+      paymentStatus: true,
+      isDashboardLocked: true,
+      branchLimit: true,
+      trialEndDate: true,
+    },
+  });
+
+  if (!company) throw new NotFoundError('Company not found');
+
+  // Check if dashboard is locked
+  if (company.isDashboardLocked) {
+    throw new BadRequestError(
+      'Your trial has expired. Please activate your subscription to continue.'
+    );
+  }
+
+  // Check if trial has expired
+  if (
+    company.trialEndDate &&
+    new Date(company.trialEndDate) < new Date() &&
+    company.paymentStatus !== 'MANUAL_APPROVED'
+  ) {
+    throw new BadRequestError(
+      'Your trial has expired. Please activate your subscription to continue.'
+    );
+  }
+
+  // Count existing branches
+  const branchCount = await prisma.branch.count({ where: { companyId } });
+
+  // Check branch limit
+  if (branchCount >= company.branchLimit) {
+    if (company.branchLimit === 1) {
+      throw new BadRequestError(
+        'Your free trial allows only 1 branch. Please activate your subscription to add more branches.'
+      );
+    } else {
+      throw new BadRequestError(
+        `You have reached your branch limit (${company.branchLimit}). Please upgrade your plan to add more branches.`
+      );
+    }
+  }
+
   const branch = await prisma.branch.create({
     data: {
       companyId,

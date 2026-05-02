@@ -200,9 +200,23 @@ export const publicAPI = {
 
 // Subscription API
 export const subscriptionAPI = {
+  // Company routes
   getPlans: () => api.get('/subscriptions/plans'),
   getMySubscription: () => api.get('/subscriptions/my'),
   activateTrial: () => api.post('/subscriptions/trial/activate'),
+  getCompanySubscriptionInfo: () => api.get('/subscriptions/company/info'),
+  submitActivationRequest: (data) => api.post('/subscriptions/company/request-activation', data),
+  getActivationRequests: (status) => api.get('/subscriptions/company/activation-requests', { params: { status } }),
+  
+  // Super Admin routes
+  getCompanySubscriptionAdmin: (companyId) => api.get(`/subscriptions/admin/${companyId}/info`),
+  activateSubscription: (companyId, data) => api.patch(`/subscriptions/admin/${companyId}/activate`, data),
+  lockDashboard: (companyId) => api.patch(`/subscriptions/admin/${companyId}/lock-dashboard`),
+  unlockDashboard: (companyId) => api.patch(`/subscriptions/admin/${companyId}/unlock-dashboard`),
+  extendTrial: (companyId, days) => api.patch(`/subscriptions/admin/${companyId}/extend-trial`, { days }),
+  getAllActivationRequests: (params) => api.get('/subscriptions/admin/activation-requests', { params }),
+  approveActivationRequest: (requestId) => api.patch(`/subscriptions/admin/activation-requests/${requestId}/approve`),
+  rejectActivationRequest: (requestId, reason) => api.patch(`/subscriptions/admin/activation-requests/${requestId}/reject`, { reason }),
 };
 
 // Contact Sales API

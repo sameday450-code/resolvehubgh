@@ -10,6 +10,7 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Separator } from '../../components/ui/separator';
 import { PageLoading, ErrorState } from '../../components/shared';
+import SubscriptionPanel from '../../components/billing/SubscriptionPanel';
 import toast from 'react-hot-toast';
 
 const statusConfig = {
@@ -229,6 +230,9 @@ export default function SACompanyDetail() {
 
         {/* Activity sidebar */}
         <div className="space-y-4">
+          {/* Subscription Panel */}
+          <SubscriptionPanel companyId={id} />
+
           <div className="rounded-2xl border bg-card p-5 shadow-sm">
             <h3 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">Quick Stats</h3>
             <div className="space-y-4">

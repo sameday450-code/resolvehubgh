@@ -189,6 +189,11 @@ const approveCompany = async (companyId, adminId) => {
   if (!company) throw new NotFoundError('Company not found');
   if (company.status === 'APPROVED') throw new BadRequestError('Company is already approved');
 
+  // Calculate 14-day trial period
+  const trialStartDate = new Date();
+  const trialEndDate = new Date(trialStartDate);
+  trialEndDate.setDate(trialEndDate.getDate() + 14);
+
   const updated = await prisma.$transaction(async (tx) => {
     const updatedCompany = await tx.company.update({
       where: { id: companyId },
@@ -196,6 +201,13 @@ const approveCompany = async (companyId, adminId) => {
         status: 'APPROVED',
         approvedAt: new Date(),
         rejectionReason: null,
+        // Start 14-day free trial
+        trialStartDate,
+        trialEndDate,
+        paymentStatus: 'UNPAID',
+        paymentProvider: 'MANUAL',
+        isDashboardLocked: false,
+        branchLimit: 1, // Only 1 branch during trial
       },
     });
 
@@ -218,8 +230,8 @@ const approveCompany = async (companyId, adminId) => {
           userId: admin.id,
           companyId,
           type: 'COMPANY_APPROVED',
-          title: 'Company Approved',
-          message: `Your company "${company.name}" has been approved. You can now log in and start using the platform.`,
+          title: 'Company Approved - Trial Started',
+          message: `Your company "${company.name}" has been approved! Your 14-day free trial has started. You can now log in and create 1 branch to test the platform.`,
         },
       });
     }
@@ -230,7 +242,7 @@ const approveCompany = async (companyId, adminId) => {
         action: 'COMPANY_APPROVED',
         entity: 'Company',
         entityId: companyId,
-        metadata: { companyName: company.name },
+        metadata: { companyName: company.name, trialStartDate, trialEndDate },
       },
     });
 
