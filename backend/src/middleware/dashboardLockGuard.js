@@ -60,21 +60,21 @@ const dashboardLockGuard = async (req, res, next) => {
     // Dashboard is locked - check if this route is allowed
     const path = req.path.toLowerCase();
 
-    // Allowed paths when dashboard is locked
+    // Allowed paths when dashboard is locked (include /api prefix)
     const allowedPaths = [
-      '/billing',
-      '/subscriptions/company',
-      '/subscription/company',
-      '/support',
-      '/contact-sales',
-      '/profile',
-      '/settings',
-      '/users/profile',
-      '/auth/logout',
-      '/auth/profile',
+      '/api/billing',
+      '/api/subscriptions/company',
+      '/api/subscription/company',
+      '/api/support',
+      '/api/contact-sales',
+      '/api/profile',
+      '/api/settings',
+      '/api/users/profile',
+      '/api/auth/logout',
+      '/api/auth/profile',
     ];
 
-    const isAllowedRoute = allowedPaths.some((allowedPath) => path.includes(allowedPath));
+    const isAllowedRoute = allowedPaths.some((allowedPath) => path.startsWith(allowedPath));
 
     if (isAllowedRoute) {
       // Attach lock status to request for use in handlers
