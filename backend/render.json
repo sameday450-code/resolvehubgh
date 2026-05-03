@@ -1,36 +1,52 @@
 {
-  "name": "qr-complaint-backend",
+  "name": "resolveclub-backend",
   "description": "Real-Time QR Complaint & Feedback Reporting SaaS - Backend",
   "repository": "https://github.com/your-username/your-repo",
-  "keywords": ["node", "express", "prisma", "socket.io"],
-  "buildPacks": [
-    {
-      "url": "heroku/nodejs"
-    }
-  ],
+  "keywords": ["node", "express", "prisma", "socket.io", "saas"],
   "env": {
     "NODE_ENV": {
       "description": "Node environment",
       "value": "production",
       "required": true
     },
+    "PORT": {
+      "description": "Server port",
+      "value": "3000",
+      "required": true
+    },
     "DATABASE_URL": {
-      "description": "PostgreSQL connection string",
+      "description": "PostgreSQL connection string (Neon)",
       "required": true
     },
     "JWT_SECRET": {
-      "description": "JWT secret for token generation",
+      "description": "JWT secret for access tokens",
       "required": true,
       "generator": "secret"
     },
     "JWT_REFRESH_SECRET": {
-      "description": "JWT refresh secret",
+      "description": "JWT secret for refresh tokens",
       "required": true,
       "generator": "secret"
     },
+    "JWT_EXPIRES_IN": {
+      "description": "JWT expiration time",
+      "value": "15m",
+      "required": false
+    },
+    "JWT_REFRESH_EXPIRES_IN": {
+      "description": "JWT refresh expiration time",
+      "value": "7d",
+      "required": false
+    },
     "FRONTEND_URL": {
-      "description": "Frontend URL for CORS",
+      "description": "Frontend production URL for CORS",
+      "value": "https://getresolvehub.com",
       "required": true
+    },
+    "CORS_ORIGIN": {
+      "description": "Comma-separated list of allowed CORS origins",
+      "value": "https://getresolvehub.com,https://www.getresolvehub.com,https://resolvehub-frontend.vercel.app",
+      "required": false
     },
     "STRIPE_SECRET_KEY": {
       "description": "Stripe API secret key",
@@ -42,6 +58,14 @@
     },
     "STRIPE_WEBHOOK_SECRET": {
       "description": "Stripe webhook secret",
+      "required": false
+    },
+    "PAYSTACK_SECRET_KEY": {
+      "description": "Paystack API secret key",
+      "required": false
+    },
+    "PAYSTACK_PUBLIC_KEY": {
+      "description": "Paystack public key",
       "required": false
     },
     "CLOUDINARY_CLOUD_NAME": {
@@ -62,6 +86,7 @@
     },
     "SMTP_HOST": {
       "description": "SMTP host for email",
+      "value": "smtp.gmail.com",
       "required": false
     },
     "SMTP_PORT": {
@@ -70,31 +95,89 @@
       "required": false
     },
     "SMTP_USER": {
-      "description": "SMTP username",
+      "description": "SMTP username/email",
       "required": false
     },
     "SMTP_PASS": {
-      "description": "SMTP password",
+      "description": "SMTP password/app password",
       "required": false
     },
     "EMAIL_FROM": {
       "description": "Email sender address",
-      "value": "noreply@apploge.com",
+      "value": "noreply@resolvehub.com",
+      "required": false
+    },
+    "SMTP_SECURE": {
+      "description": "Use TLS for SMTP",
+      "value": "false",
+      "required": false
+    },
+    "SMTP_TIMEOUT": {
+      "description": "SMTP timeout in milliseconds",
+      "value": "10000",
+      "required": false
+    },
+    "SUPER_ADMIN_EMAIL": {
+      "description": "Default super admin email",
+      "value": "admin@resolvehub.com",
+      "required": true
+    },
+    "SUPER_ADMIN_PASSWORD": {
+      "description": "Default super admin password (change immediately)",
+      "required": true,
+      "generator": "secret"
+    },
+    "SUPER_ADMIN_NAME": {
+      "description": "Super admin full name",
+      "value": "System Administrator",
+      "required": false
+    },
+    "RATE_LIMIT_WINDOW_MS": {
+      "description": "Rate limit window in milliseconds",
+      "value": "900000",
+      "required": false
+    },
+    "RATE_LIMIT_MAX": {
+      "description": "Max requests per rate limit window",
+      "value": "100",
+      "required": false
+    },
+    "MAX_FILE_SIZE": {
+      "description": "Maximum file upload size in bytes",
+      "value": "10485760",
+      "required": false
+    },
+    "TRIAL_DAYS": {
+      "description": "Number of free trial days",
+      "value": "14",
+      "required": false
+    },
+    "ENABLE_ONLINE_PAYMENTS": {
+      "description": "Enable online payment processing",
+      "value": "true",
+      "required": false
+    },
+    "SUPPORT_EMAIL": {
+      "description": "Support email address",
+      "value": "support@resolvehub.com",
+      "required": false
+    },
+    "SUPPORT_PHONE": {
+      "description": "Support phone number",
+      "value": "+233 (0) XXX XXX XXX",
+      "required": false
+    },
+    "SUPPORT_WHATSAPP": {
+      "description": "Support WhatsApp number",
+      "value": "+233XXXXXXXXX",
       "required": false
     }
   },
-  "addons": [
-    {
-      "plan": "heroku-postgresql:hobby-dev"
-    }
-  ],
-  "buildpacks": [
-    {
-      "url": "heroku/nodejs"
-    }
-  ],
-  "scripts": {
-    \"postdeploy\": \"pnpm prisma generate && pnpm prisma migrate deploy\"
+  "build": {
+    "command": "pnpm install && pnpm prisma generate && pnpm prisma migrate deploy && pnpm build"
+  },
+  "start": {
+    "command": "pnpm start"
   }
 }
 

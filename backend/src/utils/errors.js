@@ -44,6 +44,12 @@ class TooManyRequestsError extends AppError {
   }
 }
 
+class ValidationError extends AppError {
+  constructor(message = 'Validation failed') {
+    super(message, 400, 'VALIDATION_ERROR');
+  }
+}
+
 module.exports = {
   AppError,
   BadRequestError,
@@ -52,4 +58,5 @@ module.exports = {
   NotFoundError,
   ConflictError,
   TooManyRequestsError,
+  ValidationError,
 };

@@ -1,5 +1,35 @@
 require('dotenv').config();
 
+/**
+ * Parse CORS origins from environment variable
+ * Supports comma-separated list or JSON array
+ */
+const parseCorsOrigins = () => {
+  const corsOriginEnv = process.env.CORS_ORIGIN || process.env.FRONTEND_URL;
+  
+  if (!corsOriginEnv) {
+    return process.env.NODE_ENV === 'production'
+      ? 'https://getresolvehub.com'
+      : '*';
+  }
+
+  // Try parsing as JSON array
+  try {
+    if (corsOriginEnv.startsWith('[')) {
+      return JSON.parse(corsOriginEnv);
+    }
+  } catch (e) {
+    // Fall through to comma-separated parsing
+  }
+
+  // Parse as comma-separated list
+  if (corsOriginEnv.includes(',')) {
+    return corsOriginEnv.split(',').map(url => url.trim());
+  }
+
+  return corsOriginEnv;
+};
+
 module.exports = {
   port: parseInt(process.env.PORT, 10) || 5000,
   nodeEnv: process.env.NODE_ENV || 'development',
@@ -19,11 +49,12 @@ module.exports = {
     port: parseInt(process.env.SMTP_PORT, 10) || 587,
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
-    from: process.env.EMAIL_FROM || 'noreply@apploge.com',
-    secure: process.env.SMTP_SECURE || 'false',
-    timeout: process.env.SMTP_TIMEOUT || 10000,
+    from: process.env.EMAIL_FROM || 'noreply@resolvehub.com',
+    secure: process.env.SMTP_SECURE === 'true',
+    timeout: parseInt(process.env.SMTP_TIMEOUT, 10) || 10000,
   },
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
+  corsOrigins: parseCorsOrigins(),
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID,
   },

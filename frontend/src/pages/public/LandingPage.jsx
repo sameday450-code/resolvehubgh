@@ -25,6 +25,7 @@ import {
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '../../components/ui/accordion';
+import SEO, { useStructuredData, generateFAQSchema } from '../../components/seo';
 
 const features = [
   { icon: QrCode, title: 'QR Code Generation', description: 'Create unique QR codes for each location. Customers scan and submit complaints instantly, with no signup required.' },
@@ -105,8 +106,19 @@ const faqs = [
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  
+  // Set up FAQ structured data
+  useStructuredData(generateFAQSchema(faqs));
+
   return (
     <div>
+      <SEO
+        title="Get ResolveHub | Smart Complaint & Feedback Management SaaS"
+        description="ResolveHub is a QR-based complaint and feedback management SaaS that helps businesses capture complaints, track issues, and resolve them faster. Start your free trial today."
+        keywords="get resolve, getresolvehub, ResolveHub, complaint management system, feedback management SaaS, QR complaint system Ghana, customer feedback system"
+        canonical="https://getresolvehub.com"
+        ogImage="https://getresolvehub.com/og-image.png"
+      />
       {/* Hero Section */}
       <section className="relative overflow-hidden min-h-[90vh] flex items-center">
         {/* Background image */}
@@ -129,7 +141,7 @@ export default function LandingPage() {
               <span className="text-primary bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Before It Escalates</span>
             </h1>
             <p className="text-base md:text-lg text-muted-foreground mb-10 max-w-xl leading-relaxed">
-              Let customers report issues instantly via QR codes at any branch. Track, manage, and resolve complaints in real time from one centralized dashboard.
+              Get ResolveHub: A QR-based complaint management system that helps you capture, track, and resolve customer complaints faster. Perfect for multi-branch businesses looking to streamline feedback collection and improve service quality.
             </p>
             <div className="flex flex-col sm:flex-row items-start gap-4">
               <Button size="lg" className="shadow-lg shadow-primary/25 px-8 h-12 text-base" asChild>
@@ -183,11 +195,11 @@ export default function LandingPage() {
               Features That Matter
             </Badge>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
-              Stop Losing Customer Feedback{' '}
-              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Across Your Branches</span>
+              ResolveHub: Smart Complaint Management Across Your Branches{' '}
+              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Never Miss Feedback Again</span>
             </h2>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              Stop losing customer complaints at your branches. ResolveHub gives you full visibility into customer issues, helping your team respond faster and improve service quality.
+              Stop losing customer complaints at your branches. ResolveHub gives you full visibility into customer issues, helping your team respond faster and improve service quality. Our QR complaint system makes it easy for customers to submit feedback.
             </p>
           </div>
 
@@ -319,11 +331,11 @@ export default function LandingPage() {
               Simple Process
             </Badge>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
-              How It{' '}
+              How ResolveHub Complaint Management{' '}
               <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Works</span>
             </h2>
             <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto leading-relaxed">
-              Get up and running in three simple steps—no technical setup needed.
+              Get ResolveHub up and running in three simple steps—no technical setup needed. Our QR-based complaint system is designed for businesses of all sizes.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto relative">
@@ -331,8 +343,8 @@ export default function LandingPage() {
             <div className="hidden md:block absolute top-16 left-[20%] right-[20%] h-px bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20" />
             {[
               { icon: Settings, title: 'Configure Your Organization', description: 'Set up your company, branches, and team access in minutes. Define roles and permissions to maintain control and security.' },
-              { icon: QrCode, title: 'Deploy QR Codes', description: 'Generate unique QR codes for each location instantly. Download, print, and place them at your branches—no technical setup.' },
-              { icon: BarChart3, title: 'Centralize & Resolve', description: 'Capture feedback in real-time, track complaints across all locations, and resolve issues from one unified dashboard.' },
+              { icon: QrCode, title: 'Deploy QR Codes - Our Smart Complaint System', description: 'Generate unique QR codes for each location instantly. Download, print, and place them at your branches—no technical setup. Our QR complaint system works across all devices.' },
+              { icon: BarChart3, title: 'Centralize & Resolve Complaints Faster', description: 'Capture feedback in real-time using our QR-based system. Track complaints across all locations, and resolve issues from one unified dashboard. Perfect for multi-branch complaint management.' },
             ].map((item) => (
               <div key={item.icon} className="relative text-center group">
                 <div className="relative z-10 inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-blue-600 text-white mb-6 shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform duration-300">
@@ -359,11 +371,11 @@ export default function LandingPage() {
               Pricing
             </Badge>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
-              Plans Built for Your Scale{' '}
+              Get ResolveHub Pricing Built for Your Scale{' '}
               <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Not Your Size</span>
             </h2>
             <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto leading-relaxed">
-              Start with a free trial. No credit card required. Upgrade or downgrade anytime as your business grows.
+              Start with a free trial of our complaint management SaaS. No credit card required. Upgrade or downgrade anytime as your business grows.
             </p>
             {/* Global pricing message */}
             <div className="mt-10 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/30">
@@ -502,10 +514,10 @@ export default function LandingPage() {
             </Badge>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
               What Our Customers{' '}
-              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Are Saying</span>
+              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Are Saying About ResolveHub</span>
             </h2>
             <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              See how companies are transforming their feedback management with ResolveHub.
+              See how companies in Ghana are transforming their complaint management with our QR-based feedback system. Read real testimonials from multi-branch businesses using ResolveHub.
             </p>
           </div>
 
@@ -520,7 +532,7 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <p className="text-lg md:text-xl text-foreground leading-relaxed mb-8 font-medium">
-                  &ldquo;ResolveHub gave us visibility we never had before. Complaints that used to be verbal and lost are now tracked in real time across all our branches. We reduced resolution delays and improved internal accountability within weeks.&rdquo;
+                  &ldquo;ResolveHub gave us visibility we never had before. Complaints that used to be verbal and lost are now tracked in real time across all our branches. We reduced resolution delays and improved internal accountability within weeks. The QR complaint system is so easy to use.&rdquo;
                 </p>
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white text-sm font-bold ring-4 ring-primary/10">
@@ -529,7 +541,7 @@ export default function LandingPage() {
                   <div>
                     <p className="font-semibold text-base">Daniel Mensah</p>
                     <p className="text-sm text-muted-foreground">Operations Manager, MultiBranch Retail</p>
-                    <p className="text-xs text-primary font-medium mt-0.5">12 branches · Starter Plan</p>
+                    <p className="text-xs text-primary font-medium mt-0.5">12 branches · Starter Plan · Get ResolveHub User</p>
                   </div>
                 </div>
               </div>
@@ -603,11 +615,11 @@ export default function LandingPage() {
               Support
             </Badge>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
-              Frequently Asked{' '}
-              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Questions</span>
+              Frequently Asked Questions About{' '}
+              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">ResolveHub</span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
-              Find answers to common questions about how ResolveHub works, setup, pricing, and account activation.
+              Find answers to common questions about how our complaint management SaaS works, setup, pricing, and account activation for Get ResolveHub.
             </p>
           </div>
 
@@ -684,9 +696,9 @@ export default function LandingPage() {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-sm mb-6 ring-1 ring-white/20">
                 <Bell className="h-8 w-8 text-white" />
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold mb-5 text-white tracking-tight">Get Real-Time Visibility Into Every Customer Issue</h2>
+              <h2 className="text-3xl md:text-5xl font-bold mb-5 text-white tracking-tight">Get Real-Time Visibility Into Every Customer Issue With ResolveHub</h2>
               <p className="text-white/75 mb-10 max-w-xl mx-auto text-base md:text-lg leading-relaxed">
-                Join companies tracking feedback in real-time, resolving issues faster, and improving customer satisfaction across all locations. Start your 14-day free trial—no card required.
+                Join companies tracking feedback in real-time with our QR complaint management system. Resolve issues faster, and improve customer satisfaction across all locations. Start your 14-day free trial of Get ResolveHub—no card required.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Button size="lg" variant="secondary" className="h-12 px-8 text-base shadow-xl" asChild>

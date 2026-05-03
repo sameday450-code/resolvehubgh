@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
+import SEO from '../../components/seo';
 import { contactSalesAPI } from '../../lib/api';
 
 export default function ContactPage() {
@@ -78,6 +79,12 @@ export default function ContactPage() {
 
   return (
     <div>
+      <SEO
+        title="Contact ResolveHub | Get Support for Complaint Management"
+        description="Get in touch with ResolveHub team. We're here to help with questions about our complaint management system, QR feedback platform, and custom enterprise solutions."
+        keywords="contact ResolveHub, complaint system support, feedback management help, ResolveHub contact, customer support"
+        canonical="https://getresolvehub.com/contact"
+      />
       {/* Hero */}
       <section className="relative pt-20 pb-16 md:pt-28 md:pb-24 overflow-hidden">
         <div className="absolute inset-0 -z-10">

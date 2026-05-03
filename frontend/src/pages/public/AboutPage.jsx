@@ -2,6 +2,7 @@ import { Users, Target, Lightbulb, Heart, ArrowRight, Code, Zap, Shield, CheckCi
 import { Button } from '../../components/ui/button';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import SEO from '../../components/seo';
 
 export default function AboutPage() {
   const [scrollY, setScrollY] = useState(0);
@@ -72,6 +73,12 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30 overflow-hidden">
+      <SEO
+        title="About ResolveHub | Smart Complaint Management Platform"
+        description="Learn how ResolveHub helps businesses in Ghana capture and resolve customer complaints faster using QR-based feedback technology. Meet the team building the future of complaint management."
+        keywords="about ResolveHub, complaint management platform, customer feedback system, ResolveHub story, multi-branch management"
+        canonical="https://getresolvehub.com/about"
+      />
       {/* Animated Background Elements */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-primary/30 to-blue-600/30 rounded-full blur-3xl opacity-20 animate-pulse" />

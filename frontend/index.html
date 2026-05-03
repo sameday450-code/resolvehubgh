@@ -1,19 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- Character Encoding & Viewport -->
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <!-- Favicon & Site Icons -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="ResolveHub - Streamline Your Business Operations with Real-Time QR Complaint & Feedback Reporting. Powerful solutions to manage your company efficiently." />
-    <meta property="og:title" content="ResolveHub - QR Complaint & Feedback Management Platform" />
-    <meta property="og:description" content="Real-time complaint and feedback reporting using QR codes. Register your business and start receiving instant customer feedback." />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+
+    <!-- Primary Meta Tags -->
+    <title>Get ResolveHub | Smart Complaint & Feedback Management SaaS</title>
+    <meta name="title" content="Get ResolveHub | Smart Complaint & Feedback Management SaaS" />
+    <meta name="description" content="ResolveHub is a QR-based complaint and feedback management SaaS that helps businesses capture complaints, track issues, and resolve them faster." />
+    <meta name="keywords" content="get resolve, getresolvehub, ResolveHub, complaint management system, feedback management SaaS, QR complaint system Ghana, customer feedback system, complaint tracking software" />
+    <meta name="author" content="ResolveHub" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="canonical" href="https://getresolvehub.com" />
+    <link rel="canonical" href="https://getresolvehub.com" />
+
+    <!-- Open Graph Meta Tags (Social Sharing) -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://getresolvehub.com" />
+    <meta property="og:title" content="Get ResolveHub | Smart Complaint & Feedback Management SaaS" />
+    <meta property="og:description" content="ResolveHub is a QR-based complaint and feedback management SaaS that helps businesses capture complaints, track issues, and resolve them faster." />
+    <meta property="og:image" content="https://getresolvehub.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:site_name" content="ResolveHub" />
+
+    <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image" />
-    <title>ResolveHub - QR Complaint & Feedback Management</title>
+    <meta name="twitter:url" content="https://getresolvehub.com" />
+    <meta name="twitter:title" content="Get ResolveHub | Smart Complaint & Feedback Management SaaS" />
+    <meta name="twitter:description" content="ResolveHub is a QR-based complaint and feedback management SaaS that helps businesses capture complaints, track issues, and resolve them faster." />
+    <meta name="twitter:image" content="https://getresolvehub.com/og-image.png" />
+    <meta name="twitter:creator" content="@ResolveHub" />
+
+    <!-- Additional SEO Meta Tags -->
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="country" content="GH" />
+    <meta name="geo.region" content="GH" />
+    <meta name="theme-color" content="#ffffff" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "ResolveHub",
+      "alternateName": "Get ResolveHub",
+      "description": "ResolveHub is a QR-based complaint and feedback management SaaS that helps businesses capture complaints, track issues, and resolve them faster.",
+      "url": "https://getresolvehub.com",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "150",
+        "priceCurrency": "GHS",
+        "description": "Starter plan from 150 GHS/month"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5.0",
+        "ratingCount": "25"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "ResolveHub",
+        "url": "https://getresolvehub.com"
+      },
+      "mainEntity": {
+        "@type": "LocalBusiness",
+        "name": "ResolveHub",
+        "image": "https://getresolvehub.com/logo.png",
+        "description": "QR-based complaint and feedback management system",
+        "url": "https://getresolvehub.com",
+        "areaServed": "GH"
+      }
+    }
+    </script>
+
+    <!-- Organization Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "ResolveHub",
+      "alternateName": "Get ResolveHub",
+      "url": "https://getresolvehub.com",
+      "logo": "https://getresolvehub.com/logo.png",
+      "description": "QR-based complaint and feedback management SaaS",
+      "sameAs": [
+        "https://www.facebook.com/getresolvehub",
+        "https://www.twitter.com/getresolvehub",
+        "https://www.linkedin.com/company/resolvehub"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Service",
+        "telephone": "+233-XXX-XXXXXX",
+        "email": "support@getresolvehub.com"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "GH",
+        "addressLocality": "Accra"
+      }
+    }
+    </script>
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" as="style" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Performance optimization -->
+    <link rel="dns-prefetch" href="https://apis.google.com" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
   </head>
   <body>
     <div id="root"></div>

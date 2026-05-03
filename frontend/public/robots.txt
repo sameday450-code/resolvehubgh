@@ -1,0 +1,28 @@
+# robots.txt for ResolveHub
+# For more information, see https://www.robotstxt.org/
+
+# Allow all bots to crawl the site
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /*.json
+Disallow: /*.js
+Disallow: /*.css
+
+# Specific rules for Google Bot
+User-agent: Googlebot
+Allow: /
+
+# Specific rules for Bing Bot
+User-agent: Bingbot
+Allow: /
+
+# Crawl delay for all bots (in seconds)
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://getresolvehub.com/sitemap.xml
+
+# Comment: This robots.txt file allows all search engine bots to crawl public pages
+# while preventing access to admin sections and static assets.
+# Update Crawl-delay if needed based on server load.

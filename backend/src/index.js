@@ -36,12 +36,33 @@ const { initializeJobs } = require('./jobs');
 const app = express();
 const server = http.createServer(app);
 
-// Socket.IO setup
+// Determine allowed origins for CORS
+const getAllowedOrigins = () => {
+  if (config.nodeEnv === 'development') {
+    return ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:5173', '*'];
+  }
+  
+  // Production: specific frontend URLs
+  const origins = Array.isArray(config.corsOrigins) ? config.corsOrigins : [config.corsOrigins];
+  
+  // Add all frontend variants
+  const allOrigins = new Set(origins);
+  allOrigins.add('https://getresolvehub.com');
+  allOrigins.add('https://www.getresolvehub.com');
+  allOrigins.add('https://resolvehub-frontend.vercel.app');
+  
+  return Array.from(allOrigins);
+};
+
+const allowedOrigins = getAllowedOrigins();
+
+// Socket.IO setup with proper CORS
 const io = new Server(server, {
   cors: {
-    origin: config.nodeEnv === 'development' ? '*' : config.frontendUrl,
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
   },
   pingTimeout: 60000,
   pingInterval: 25000,
@@ -54,11 +75,23 @@ app.set('io', io);
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
+
+// CORS middleware with support for multiple origins
 app.use(cors({
-  origin: config.nodeEnv === 'development' ? '*' : config.frontendUrl,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (config.nodeEnv === 'development' || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'), false);
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200,
 }));
 
 // Rate limiting
@@ -90,7 +123,18 @@ app.post(
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Health check
+// Root endpoint - returns API status
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'ResolveHub API is running',
+    environment: config.nodeEnv,
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
@@ -125,13 +169,13 @@ app.use((req, res) => {
   });
 });
 
-// Error handler
+// Error handler (must be last)
 app.use(errorHandler);
 
 // Initialize scheduled jobs
 initializeJobs();
 
-// Get local IP address
+// Get local IP address for development logs
 const os = require('os');
 function getLocalIp() {
   const interfaces = os.networkInterfaces();
@@ -164,12 +208,14 @@ const localIp = getLocalIp();
     server.listen(config.port, '0.0.0.0', () => {
       logger.info(`🚀 Server running on port ${config.port} in ${config.nodeEnv} mode`);
       logger.info(`📡 Socket.IO ready`);
-      logger.info(`\n📱 Access from mobile:`);
-      logger.info(`   http://${localIp}:${config.port}`);
-      logger.info(`   Frontend: http://${localIp}:5173\n`);
+      if (config.nodeEnv === 'development') {
+        logger.info(`\n📱 Access from mobile:`);
+        logger.info(`   http://${localIp}:${config.port}`);
+        logger.info(`   Frontend: http://${localIp}:5173\n`);
+      }
     });
   } catch (error) {
-    logger.error(`✗ Failed to start server: ${error.message}`);
+    logger.error({ err: error }, 'Failed to start server');
     process.exit(1);
   }
 })();

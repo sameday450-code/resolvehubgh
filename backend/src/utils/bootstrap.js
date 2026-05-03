@@ -1,6 +1,7 @@
 const prisma = require('../config/database');
 const bcrypt = require('bcryptjs');
 const logger = require('../config/logger');
+const config = require('../config');
 
 /**
  * Bootstrap essential system data (super admin, plans, etc.)
@@ -18,18 +19,30 @@ async function bootstrap() {
 
     logger.info('✅ Bootstrap complete');
   } catch (error) {
-    logger.error(`❌ Bootstrap failed: ${error.message}`);
+    logger.error({ err: error }, 'Bootstrap failed');
     throw error;
   }
 }
 
 /**
  * Ensure Super Admin user exists with credentials from .env
+ * SECURITY: Requires environment variables to be explicitly set
  */
 async function ensureSuperAdmin() {
-  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || 'admin@resolvehubgh.com';
-  const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || 'GoodGod1$';
+  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
+  const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
   const superAdminName = process.env.SUPER_ADMIN_NAME || 'System Administrator';
+
+  // In production, fail fast if credentials are not configured
+  if (!superAdminEmail || !superAdminPassword) {
+    if (config.nodeEnv === 'production') {
+      throw new Error(
+        'SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD must be set in environment variables'
+      );
+    }
+    logger.warn('⚠️  SUPER_ADMIN_EMAIL or SUPER_ADMIN_PASSWORD not configured. Skipping super admin setup.');
+    return;
+  }
 
   try {
     const existingAdmin = await prisma.user.findUnique({
@@ -47,7 +60,7 @@ async function ensureSuperAdmin() {
           isActive: true,
         },
       });
-      logger.info(`✅ Super Admin credentials synchronized: ${superAdminEmail}`);
+      logger.info(`✅ Super Admin synchronized: ${superAdminEmail}`);
     } else {
       // Create new super admin
       const passwordHash = await bcrypt.hash(superAdminPassword, 12);
@@ -63,26 +76,29 @@ async function ensureSuperAdmin() {
       logger.info(`✅ Created Super Admin: ${superAdminEmail}`);
     }
   } catch (error) {
-    logger.error(`❌ Failed to ensure Super Admin: ${error.message}`);
+    logger.error({ err: error, email: superAdminEmail }, 'Failed to ensure Super Admin');
     throw error;
   }
 }
 
 /**
  * Ensure default subscription plans exist
+ * Updates plan configuration based on TRIAL_DAYS env variable
  */
 async function ensureSubscriptionPlans() {
+  const trialDays = config.billing.trialDays;
+
   const systemPlans = [
     {
       name: 'Starter Trial',
       slug: 'starter-trial',
       planType: 'STARTER_TRIAL',
-      description: '30-day free trial for new businesses to explore the platform',
+      description: `${trialDays}-day free trial for new businesses to explore the platform`,
       price: 0,
       currency: 'GHS',
       billingCycle: 'MONTHLY',
-      trialDays: 30,
-      maxBranches: 2,
+      trialDays: trialDays,
+      maxBranches: 1, // Trial limited to 1 branch only
       maxQRCodes: 10,
       maxStaff: 5,
       features: {
@@ -91,6 +107,7 @@ async function ensureSubscriptionPlans() {
         customBranding: false,
         prioritySupport: false,
       },
+      isActive: true,
     },
     {
       name: 'Enterprise Monthly',
@@ -110,6 +127,7 @@ async function ensureSubscriptionPlans() {
         customBranding: true,
         prioritySupport: true,
       },
+      isActive: true,
     },
     {
       name: 'Custom Enterprise',
@@ -120,9 +138,9 @@ async function ensureSubscriptionPlans() {
       currency: 'GHS',
       billingCycle: 'CUSTOM',
       trialDays: 0,
-      maxBranches: -1,
-      maxQRCodes: -1,
-      maxStaff: -1,
+      maxBranches: -1, // Unlimited
+      maxQRCodes: -1, // Unlimited
+      maxStaff: -1, // Unlimited
       features: {
         analytics: true,
         export: true,
@@ -131,6 +149,7 @@ async function ensureSubscriptionPlans() {
         dedicatedSupport: true,
         sla: true,
       },
+      isActive: true,
     },
   ];
 
@@ -143,10 +162,21 @@ async function ensureSubscriptionPlans() {
       if (!existing) {
         await prisma.subscriptionPlan.create({ data: plan });
         logger.info(`✅ Created subscription plan: ${plan.name}`);
+      } else if (plan.planType === 'STARTER_TRIAL') {
+        // Update starter trial plan with current TRIAL_DAYS config
+        await prisma.subscriptionPlan.update({
+          where: { planType: 'STARTER_TRIAL' },
+          data: {
+            description: plan.description,
+            trialDays: trialDays,
+            maxBranches: 1,
+          },
+        });
+        logger.info(`✅ Updated Starter Trial plan: trialDays=${trialDays}`);
       }
     }
   } catch (error) {
-    logger.error(`❌ Failed to ensure subscription plans: ${error.message}`);
+    logger.error({ err: error }, 'Failed to ensure subscription plans');
     throw error;
   }
 }
