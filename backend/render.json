@@ -3,6 +3,7 @@
   "description": "Real-Time QR Complaint & Feedback Reporting SaaS - Backend",
   "repository": "https://github.com/your-username/your-repo",
   "keywords": ["node", "express", "prisma", "socket.io", "saas"],
+  "root": "backend",
   "env": {
     "NODE_ENV": {
       "description": "Node environment",
@@ -173,11 +174,7 @@
       "required": false
     }
   },
-  "build": {
-    "command": "pnpm install && pnpm prisma generate && pnpm prisma migrate deploy && pnpm build"
-  },
-  "start": {
-    "command": "pnpm start"
-  }
+  "buildCommand": "pnpm install && pnpm prisma generate && pnpm build",
+  "startCommand": "pnpm prisma migrate deploy && pnpm start"
 }
 
