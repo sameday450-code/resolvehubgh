@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const subscriptionController = require('./subscription.controller');
 const { authenticate, authorize, tenantGuard } = require('../../middleware/auth');
-const validate = require('../../middleware/validate');
+const { validate } = require('../../middleware/validate');
 const { activateTrialSchema } = require('./subscription.validation');
 
 const router = Router();
