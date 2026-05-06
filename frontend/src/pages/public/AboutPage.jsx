@@ -116,7 +116,7 @@ export default function AboutPage() {
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="px-8 h-12 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm" asChild>
+              <Button size="lg" variant="outline" className="px-8 h-12 border-2 border-white bg-transparent text-white hover:bg-white/20 backdrop-blur-sm font-semibold" asChild>
                 <Link to="/contact">Learn More</Link>
               </Button>
             </div>
