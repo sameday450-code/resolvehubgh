@@ -118,22 +118,6 @@ app.options('*', cors({
   optionsSuccessStatus: 200,
 }));
 
-// Dedicated CORS middleware for auth routes (extra protection)
-app.use('/api/auth/', cors({
-  origin: (origin, callback) => {
-    if (!origin || config.nodeEnv === 'development' || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
-      callback(null, true);
-    } else {
-      callback(null, false);
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['Content-Length', 'X-JSON-Response'],
-  optionsSuccessStatus: 200,
-}));
-
 // Rate limiting - skip OPTIONS preflight requests
 const limiter = rateLimit({
   windowMs: config.rateLimit.windowMs,
@@ -162,8 +146,7 @@ const googleAuthLimiter = rateLimit({
   skip: (req) => req.method === 'OPTIONS', // Skip preflight requests
   message: { success: false, message: 'Too many login attempts. Please try again in 15 minutes.' },
 });
-// Only apply to POST requests, not OPTIONS
-app.post('/api/auth/google', googleAuthLimiter);
+app.use('/api/auth/google', googleAuthLimiter);
 
 // Body parsing
 // Stripe webhook must receive the raw body — register BEFORE express.json()
