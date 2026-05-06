@@ -198,12 +198,29 @@ model Company {
 
   // Subscription & trial fields (denormalized for easier access)
   plan                String?        @default("STARTER") // STARTER, ENTERPRISE, CUSTOM
+  planName            String?        @default("Free Trial") // Descriptive plan name
   trialStartDate      DateTime?
   trialEndDate        DateTime?
   paymentStatus       PaymentStatus  @default(UNPAID)
   paymentProvider     PaymentProvider @default(NONE)
   isDashboardLocked   Boolean        @default(false)
+  isLocked            Boolean        @default(false) // Explicit lock status
+  lockReason          String? // Reason for lock
+  isActive            Boolean        @default(false) // Company active status
   branchLimit         Int            @default(1) // 1 during trial, increases after activation
+  
+  // Subscription dates
+  subscriptionStartDate DateTime?
+  subscriptionEndDate   DateTime?
+  subscriptionStatus    String?       @default("TRIAL") // TRIAL, ACTIVE, EXPIRED, CANCELLED
+  
+  // Payment reference
+  paymentMethod       String? // MOBILE_MONEY, BANK_TRANSFER, PAYSTACK, STRIPE
+  paymentReference    String? // Reference number for manual payments
+  
+  // Activation tracking
+  activatedAt         DateTime?
+  activatedBy         String? // Super admin user ID who activated
 
   // Relations
   users                User[]

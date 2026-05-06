@@ -1,13 +1,36 @@
 /**
  * Date formatting utility
  * Provides simple date formatting without external dependencies
+ * 
+ * IMPORTANT: All formatters safely handle invalid dates by returning "Not available"
+ * instead of "Invalid Date"
  */
 
-export const formatDate = (date, format = 'MMM dd, yyyy') => {
-  if (!date) return '';
+/**
+ * Safe date formatter - returns "Not available" for invalid dates instead of "Invalid Date"
+ * @param {string|Date|null} date - Date to format
+ * @param {string} defaultValue - Value to return if date is missing (default: "Not available")
+ * @returns {string} Formatted date or "Not available"
+ */
+export const formatDateSafe = (date, defaultValue = 'Not available') => {
+  if (!date) return defaultValue;
   
   const d = new Date(date);
-  if (isNaN(d.getTime())) return '';
+  if (isNaN(d.getTime())) return defaultValue;
+
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const month = months[d.getMonth()];
+  const day = String(d.getDate()).padStart(2, '0');
+  const year = d.getFullYear();
+
+  return `${month} ${parseInt(day)}, ${year}`;
+};
+
+export const formatDate = (date, format = 'MMM dd, yyyy') => {
+  if (!date) return 'Not available';
+  
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return 'Not available';
 
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const month = months[d.getMonth()];
@@ -51,10 +74,10 @@ export const formatDate = (date, format = 'MMM dd, yyyy') => {
 };
 
 export const formatDateTime = (date) => {
-  if (!date) return '';
+  if (!date) return 'Not available';
   
   const d = new Date(date);
-  if (isNaN(d.getTime())) return '';
+  if (isNaN(d.getTime())) return 'Not available';
 
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const month = months[d.getMonth()];

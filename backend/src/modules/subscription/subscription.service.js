@@ -349,12 +349,23 @@ const getCompanySubscriptionAdminView = async (companyId) => {
       id: true,
       name: true,
       plan: true,
+      planName: true,
       trialStartDate: true,
       trialEndDate: true,
       paymentStatus: true,
       paymentProvider: true,
       isDashboardLocked: true,
+      isLocked: true,
+      isActive: true,
       branchLimit: true,
+      subscriptionStartDate: true,
+      subscriptionEndDate: true,
+      subscriptionStatus: true,
+      paymentMethod: true,
+      paymentReference: true,
+      activatedAt: true,
+      activatedBy: true,
+      status: true,
     },
   });
 
@@ -391,14 +402,23 @@ const getCompanySubscriptionAdminView = async (companyId) => {
 
 /**
  * Super Admin: Manually activate company subscription
+ * 
+ * Updates both Company and CompanySubscription records in a transaction.
+ * Ensures all required fields are updated for full activation.
  */
 const activateCompanySubscription = async (companyId, data, adminId) => {
   const company = await prisma.company.findUnique({
     where: { id: companyId },
+    include: { subscription: true },
   });
 
   if (!company) {
     throw new NotFoundError('Company not found');
+  }
+
+  // Validate required data
+  if (!data.plan) {
+    throw new Error('Plan is required for subscription activation');
   }
 
   // Parse subscription duration
@@ -408,21 +428,81 @@ const activateCompanySubscription = async (companyId, data, adminId) => {
     '1_year': 365,
   };
   const durationDays = durationMap[data.subscriptionDuration] || 30;
-  const subscriptionEndDate = new Date();
+  
+  const now = new Date();
+  const subscriptionEndDate = new Date(now);
   subscriptionEndDate.setDate(subscriptionEndDate.getDate() + durationDays);
 
-  // Update company with activation
+  // Plan configuration
+  const planConfig = {
+    STARTER: { branchLimit: 2, name: 'Starter Plan' },
+    ENTERPRISE: { branchLimit: 5, name: 'Enterprise Plan' },
+    CUSTOM: { branchLimit: 10, name: 'Custom Plan' },
+  };
+
+  const selectedPlanConfig = planConfig[data.plan] || planConfig.STARTER;
+
+  // Update both company and subscription in one transaction
   const updated = await prisma.$transaction(async (tx) => {
+    // Update Company record with all required activation fields
     const updatedCompany = await tx.company.update({
       where: { id: companyId },
       data: {
-        plan: data.plan || 'STARTER',
+        // Approval/Active status
+        status: 'APPROVED',
+        isActive: true,
+        approvedAt: company.approvedAt || now,
+        
+        // Unlock dashboard
+        isDashboardLocked: false,
+        isLocked: false,
+        lockReason: null,
+        
+        // Plan information
+        plan: data.plan,
+        planName: selectedPlanConfig.name,
+        branchLimit: selectedPlanConfig.branchLimit,
+        
+        // Payment information
         paymentStatus: 'MANUAL_APPROVED',
         paymentProvider: 'MANUAL',
-        isDashboardLocked: false,
-        branchLimit: data.plan === 'STARTER' ? 2 : data.plan === 'ENTERPRISE' ? 5 : 10,
+        paymentMethod: data.paymentMethod || 'MANUAL',
+        paymentReference: data.paymentReference || 'MANUAL_ADMIN_ACTIVATION',
+        
+        // Subscription dates
+        subscriptionStartDate: now,
+        subscriptionEndDate,
+        subscriptionStatus: 'ACTIVE',
+        
+        // Activation tracking
+        activatedAt: now,
+        activatedBy: adminId,
       },
     });
+
+    // Update or create CompanySubscription record
+    if (company.subscription) {
+      // Update existing subscription
+      await tx.companySubscription.update({
+        where: { id: company.subscription.id },
+        data: {
+          status: 'ACTIVE',
+          paymentStatus: 'MANUAL_APPROVED',
+          paymentProvider: 'MANUAL',
+          subscriptionStartDate: now,
+          subscriptionEndDate,
+          nextBillingDate: subscriptionEndDate,
+          activatedAt: now,
+          metadata: {
+            ...company.subscription.metadata,
+            manuallyActivatedAt: now.toISOString(),
+            manuallyActivatedBy: adminId,
+            paymentMethod: data.paymentMethod || 'MANUAL',
+            paymentReference: data.paymentReference || 'MANUAL_ADMIN_ACTIVATION',
+          },
+        },
+      });
+    }
 
     // If there's a pending activation request, approve it
     const pendingRequest = await tx.activationRequest.findFirst({
@@ -435,7 +515,7 @@ const activateCompanySubscription = async (companyId, data, adminId) => {
         data: {
           status: 'APPROVED',
           reviewedBy: adminId,
-          reviewedAt: new Date(),
+          reviewedAt: now,
         },
       });
     }
@@ -450,14 +530,16 @@ const activateCompanySubscription = async (companyId, data, adminId) => {
         entityId: companyId,
         metadata: {
           plan: data.plan,
+          planName: selectedPlanConfig.name,
           durationDays,
-          paymentMethod: data.paymentMethod,
-          paymentReference: data.paymentReference,
+          branchLimit: selectedPlanConfig.branchLimit,
+          paymentMethod: data.paymentMethod || 'MANUAL',
+          paymentReference: data.paymentReference || 'MANUAL_ADMIN_ACTIVATION',
         },
       },
     });
 
-    // Create notification for company
+    // Create notification for company admins
     const companyAdmins = await tx.user.findMany({
       where: { companyId, role: 'COMPANY_ADMIN' },
     });
@@ -469,7 +551,7 @@ const activateCompanySubscription = async (companyId, data, adminId) => {
           companyId,
           type: 'SYSTEM_ALERT',
           title: 'Subscription Activated',
-          message: `Your subscription has been activated! You can now create multiple branches and use all ResolveHub features.`,
+          message: `Your subscription has been activated! You can now create up to ${selectedPlanConfig.branchLimit} branches and use all ResolveHub features.`,
         },
       });
     }
@@ -477,20 +559,37 @@ const activateCompanySubscription = async (companyId, data, adminId) => {
     return updatedCompany;
   });
 
+  logger.info(
+    {
+      companyId,
+      companyName: company.name,
+      plan: data.plan,
+      adminId,
+      paymentReference: data.paymentReference,
+    },
+    'Super-admin manually activated company subscription'
+  );
+
   return updated;
 };
 
 /**
  * Super Admin: Lock dashboard
  */
-const lockCompanyDashboard = async (companyId, adminId) => {
+const lockCompanyDashboard = async (companyId, adminId, reason = 'Manual lock by super-admin') => {
   const company = await prisma.company.findUnique({ where: { id: companyId } });
   if (!company) throw new NotFoundError('Company not found');
 
+  const now = new Date();
+  
   const updated = await prisma.$transaction(async (tx) => {
     const updatedCompany = await tx.company.update({
       where: { id: companyId },
-      data: { isDashboardLocked: true },
+      data: {
+        isDashboardLocked: true,
+        isLocked: true,
+        lockReason: reason,
+      },
     });
 
     await tx.activityLog.create({
@@ -500,11 +599,34 @@ const lockCompanyDashboard = async (companyId, adminId) => {
         action: 'DASHBOARD_LOCKED',
         entity: 'Company',
         entityId: companyId,
+        metadata: { reason },
       },
     });
 
+    // Notify company admins
+    const companyAdmins = await tx.user.findMany({
+      where: { companyId, role: 'COMPANY_ADMIN' },
+    });
+
+    for (const admin of companyAdmins) {
+      await tx.notification.create({
+        data: {
+          userId: admin.id,
+          companyId,
+          type: 'SYSTEM_ALERT',
+          title: 'Dashboard Locked',
+          message: `Your dashboard has been locked. Reason: ${reason}. Please contact support if this is an error.`,
+        },
+      });
+    }
+
     return updatedCompany;
   });
+
+  logger.info(
+    { companyId, companyName: company.name, reason, adminId },
+    'Dashboard locked by super-admin'
+  );
 
   return updated;
 };
@@ -519,7 +641,11 @@ const unlockCompanyDashboard = async (companyId, adminId) => {
   const updated = await prisma.$transaction(async (tx) => {
     const updatedCompany = await tx.company.update({
       where: { id: companyId },
-      data: { isDashboardLocked: false },
+      data: {
+        isDashboardLocked: false,
+        isLocked: false,
+        lockReason: null,
+      },
     });
 
     await tx.activityLog.create({
@@ -532,28 +658,104 @@ const unlockCompanyDashboard = async (companyId, adminId) => {
       },
     });
 
+    // Notify company admins
+    const companyAdmins = await tx.user.findMany({
+      where: { companyId, role: 'COMPANY_ADMIN' },
+    });
+
+    for (const admin of companyAdmins) {
+      await tx.notification.create({
+        data: {
+          userId: admin.id,
+          companyId,
+          type: 'SYSTEM_ALERT',
+          title: 'Dashboard Unlocked',
+          message: `Your dashboard has been unlocked. You can now access all features.`,
+        },
+      });
+    }
+
     return updatedCompany;
   });
+
+  logger.info(
+    { companyId, companyName: company.name, adminId },
+    'Dashboard unlocked by super-admin'
+  );
 
   return updated;
 };
 
 /**
  * Super Admin: Extend trial
+ * 
+ * Extends the trial period and ensures company remains accessible.
+ * Updates Company and CompanySubscription records.
  */
 const extendCompanyTrial = async (companyId, days, adminId) => {
-  const company = await prisma.company.findUnique({ where: { id: companyId } });
+  const company = await prisma.company.findUnique({
+    where: { id: companyId },
+    include: { subscription: true },
+  });
+
   if (!company) throw new NotFoundError('Company not found');
 
+  // Calculate new trial end date
   let newTrialEndDate = company.trialEndDate ? new Date(company.trialEndDate) : new Date();
   newTrialEndDate.setDate(newTrialEndDate.getDate() + days);
 
+  const now = new Date();
+  
+  // Set trial start date if not already set
+  const trialStartDate = company.trialStartDate || now;
+
   const updated = await prisma.$transaction(async (tx) => {
+    // Update Company record
     const updatedCompany = await tx.company.update({
       where: { id: companyId },
-      data: { trialEndDate: newTrialEndDate },
+      data: {
+        // Ensure company is active and accessible
+        status: 'APPROVED',
+        isActive: true,
+        isDashboardLocked: false,
+        isLocked: false,
+        lockReason: null,
+        
+        // Trial dates
+        trialStartDate,
+        trialEndDate: newTrialEndDate,
+        
+        // Keep as trial subscription
+        plan: 'STARTER',
+        planName: 'Free Trial',
+        subscriptionStatus: 'TRIAL',
+        paymentStatus: 'TRIAL',
+        branchLimit: 1,
+        
+        // Track extension
+        approvedAt: company.approvedAt || now,
+      },
     });
 
+    // Update CompanySubscription if exists
+    if (company.subscription) {
+      await tx.companySubscription.update({
+        where: { id: company.subscription.id },
+        data: {
+          status: 'TRIALING',
+          trialStartedAt: trialStartDate,
+          trialEndsAt: newTrialEndDate,
+          metadata: {
+            ...company.subscription.metadata,
+            trialExtendedAt: now.toISOString(),
+            trialExtendedBy: adminId,
+            trialExtensionDays: days,
+          },
+        },
+      });
+    }
+
+    // Log the action
     await tx.activityLog.create({
       data: {
         userId: adminId,
@@ -561,12 +763,43 @@ const extendCompanyTrial = async (companyId, days, adminId) => {
         action: 'TRIAL_EXTENDED',
         entity: 'Company',
         entityId: companyId,
-        metadata: { daysAdded: days },
+        metadata: { 
+          daysAdded: days,
+          newTrialEndDate: newTrialEndDate.toISOString(),
+        },
       },
     });
 
+    // Notify company admins
+    const companyAdmins = await tx.user.findMany({
+      where: { companyId, role: 'COMPANY_ADMIN' },
+    });
+
+    for (const admin of companyAdmins) {
+      await tx.notification.create({
+        data: {
+          userId: admin.id,
+          companyId,
+          type: 'SYSTEM_ALERT',
+          title: 'Trial Extended',
+          message: `Your trial has been extended by ${days} days. New trial end date: ${newTrialEndDate.toLocaleDateString()}`,
+        },
+      });
+    }
+
     return updatedCompany;
   });
+
+  logger.info(
+    {
+      companyId,
+      companyName: company.name,
+      daysAdded: days,
+      newTrialEndDate,
+      adminId,
+    },
+    'Super-admin extended company trial'
+  );
 
   return updated;
 };

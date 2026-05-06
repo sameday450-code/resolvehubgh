@@ -199,15 +199,19 @@ const approveCompany = async (companyId, adminId) => {
       where: { id: companyId },
       data: {
         status: 'APPROVED',
+        isActive: true,
         approvedAt: new Date(),
         rejectionReason: null,
         // Start 14-day free trial
         trialStartDate,
         trialEndDate,
+        subscriptionStatus: 'TRIAL',
         paymentStatus: 'UNPAID',
         paymentProvider: 'MANUAL',
         isDashboardLocked: false,
+        isLocked: false,
         branchLimit: 1, // Only 1 branch during trial
+        planName: 'Free Trial',
       },
     });
 
