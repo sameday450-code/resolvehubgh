@@ -158,9 +158,13 @@ export default function PublicLayout() {
         <Outlet />
       </main>
       <footer 
-        className="border-t relative overflow-hidden bg-cover bg-center bg-no-repeat"
+        className="relative overflow-hidden border-t"
         style={{
-          backgroundImage: 'linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.4) 100%), url(/footer-bg.png)',
+          backgroundImage: 'linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.4) 100%), url(\'/footer-bg.png\')',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+          backgroundRepeat: 'no-repeat',
         }}
       >
         <div className="container mx-auto px-4 py-12 relative z-10">

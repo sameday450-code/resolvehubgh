@@ -121,9 +121,13 @@ export default function LandingPage() {
       />
       {/* Hero Section */}
       <section 
-        className="relative overflow-hidden min-h-[95vh] flex items-center bg-cover bg-center bg-no-repeat"
+        className="relative overflow-hidden min-h-screen flex items-center justify-center"
         style={{
-          backgroundImage: 'linear-gradient(135deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.35) 100%), url(/herobg.png)',
+          backgroundImage: 'linear-gradient(135deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.35) 100%), url(\'/herobg.png\')',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+          backgroundRepeat: 'no-repeat',
         }}
       >
         <div className="container mx-auto px-4 relative z-10">
