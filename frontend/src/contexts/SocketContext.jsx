@@ -6,10 +6,9 @@ const SocketContext = createContext(null);
 
 // Get backend URL from environment or use window.location.origin for dev
 const getBackendUrl = () => {
-  const backendUrl = import.meta.env.VITE_API_URL;
-  if (backendUrl) {
-    // Remove /api from the end if present (socket.io needs just the base URL)
-    return backendUrl.replace('/api', '');
+  const socketUrl = import.meta.env.VITE_SOCKET_URL;
+  if (socketUrl) {
+    return socketUrl;
   }
   // For development, use window.location.origin
   return window.location.origin;
