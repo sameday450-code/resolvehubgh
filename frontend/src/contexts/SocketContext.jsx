@@ -4,6 +4,16 @@ import { useAuth } from './AuthContext';
 
 const SocketContext = createContext(null);
 
+// Get backend URL from environment or use window.location.origin for dev
+const getBackendUrl = () => {
+  const backendUrl = import.meta.env.VITE_API_URL;
+  if (backendUrl && backendUrl !== '/api') {
+    return backendUrl;
+  }
+  // For development, use window.location.origin
+  return window.location.origin;
+};
+
 export function SocketProvider({ children }) {
   const { user, isAuthenticated } = useAuth();
   const [socket, setSocket] = useState(null);
@@ -22,7 +32,8 @@ export function SocketProvider({ children }) {
     }
 
     const token = localStorage.getItem('accessToken');
-    const socketInstance = io(window.location.origin, {
+    const backendUrl = getBackendUrl();
+    const socketInstance = io(backendUrl, {
       auth: { token },
       transports: ['websocket', 'polling'],
       reconnection: true,

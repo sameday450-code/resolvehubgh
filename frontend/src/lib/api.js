@@ -1,6 +1,21 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+// Get API URL from environment, fallback to /api for dev
+const getApiUrl = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
+  // Only use /api if we're in development (no VITE_API_URL set)
+  if (!apiUrl) {
+    return '/api';
+  }
+  // If it's just '/api', use it for dev
+  if (apiUrl === '/api') {
+    return '/api';
+  }
+  // Otherwise use the full backend URL (production)
+  return apiUrl;
+};
+
+const API_URL = getApiUrl();
 
 const api = axios.create({
   baseURL: API_URL,
