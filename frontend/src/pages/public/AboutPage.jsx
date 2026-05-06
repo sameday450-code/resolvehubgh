@@ -86,32 +86,37 @@ export default function AboutPage() {
       </div>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 md:py-40 pt-20">
+      <section 
+        className="relative overflow-hidden py-20 md:py-40 pt-20 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: 'linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.4) 100%), url(/about-bg.png)',
+        }}
+      >
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <div className="mb-6 flex justify-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 backdrop-blur-sm">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-primary">About Our Story</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm hover:bg-white/20 transition-colors">
+                <Sparkles className="h-4 w-4 text-white" />
+                <span className="text-sm font-medium text-white">About Our Story</span>
               </div>
             </div>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 leading-tight">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 leading-tight text-white drop-shadow-lg">
               Capture Every Complaint.{' '}
-              <span className="bg-gradient-to-r from-primary via-blue-500 to-purple-600 bg-clip-text text-transparent animate-gradient">
+              <span className="text-yellow-300 drop-shadow-lg">
                 Across Every Location.
               </span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto mb-10 font-light">
+            <p className="text-lg md:text-xl text-white/90 leading-relaxed max-w-3xl mx-auto mb-10 font-light drop-shadow-md">
               Customer complaints slip through the cracks. Responses take too long. Accountability gets lost across teams. ResolveHub stops that. We give multi-location businesses real-time visibility into every complaint, and the tools to respond immediately.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button size="lg" className="shadow-lg shadow-primary/25 px-8 h-12 group" asChild>
+              <Button size="lg" className="shadow-lg bg-white text-primary hover:bg-white/90 px-8 h-12 group font-semibold" asChild>
                 <Link to="/register">
                   Get Started Free
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="px-8 h-12" asChild>
+              <Button size="lg" variant="outline" className="px-8 h-12 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm" asChild>
                 <Link to="/contact">Learn More</Link>
               </Button>
             </div>

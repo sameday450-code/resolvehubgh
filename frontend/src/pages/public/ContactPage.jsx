@@ -86,38 +86,38 @@ export default function ContactPage() {
         canonical="https://getresolvehub.com/contact"
       />
       {/* Hero */}
-      <section className="relative pt-20 pb-16 md:pt-28 md:pb-24 overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[150px]" />
-          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[120px]" />
-        </div>
-
-        <div className="container mx-auto px-4 text-center">
+      <section 
+        className="relative pt-20 pb-16 md:pt-28 md:pb-24 overflow-hidden bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: 'linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.4) 100%), url(/contact-bg.png)',
+        }}
+      >
+        <div className="container mx-auto px-4 text-center relative z-10">
           {isSalesInquiry ? (
             <>
-              <Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-primary/5 border-primary/10 text-primary">
+              <Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-white/10 border-white/20 text-white hover:bg-white/20 transition-colors">
                 <Zap className="mr-1.5 h-3 w-3" />
                 Custom Enterprise Plan
               </Badge>
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-5">
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-5 text-white drop-shadow-lg">
                 Let&apos;s Talk About Your{' '}
-                <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Needs</span>
+                <span className="text-yellow-300 drop-shadow-lg">Needs</span>
               </h1>
-              <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+              <p className="text-white/90 text-base md:text-lg max-w-2xl mx-auto leading-relaxed drop-shadow-md">
                 Tell us about your business and your requirements. Our sales team will design a custom plan that fits your organization.
               </p>
             </>
           ) : (
             <>
-              <Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-primary/5 border-primary/10 text-primary">
+              <Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-white/10 border-white/20 text-white hover:bg-white/20 transition-colors">
                 <MessageSquare className="mr-1.5 h-3 w-3" />
                 Get in Touch
               </Badge>
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-5">
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-5 text-white drop-shadow-lg">
                 Let&apos;s Start a{' '}
-                <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Conversation</span>
+                <span className="text-yellow-300 drop-shadow-lg">Conversation</span>
               </h1>
-              <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+              <p className="text-white/90 text-base md:text-lg max-w-2xl mx-auto leading-relaxed drop-shadow-md">
                 Have a question about ResolveHub? Want to explore how we can help your business? We&apos;d love to hear from you.
               </p>
             </>
