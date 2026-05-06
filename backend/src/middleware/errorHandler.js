@@ -6,6 +6,17 @@ const errorHandler = (err, req, res, _next) => {
   let message = err.message || 'Internal server error';
   let code = err.code || 'INTERNAL_ERROR';
 
+  // Log all errors for debugging
+  if (!(err instanceof AppError) || statusCode >= 500) {
+    logger.error({ 
+      error: err.message, 
+      stack: err.stack, 
+      path: req.path, 
+      method: req.method,
+      origin: req.headers.origin,
+    }, 'Error occurred');
+  }
+
   // Prisma known errors
   if (err.code === 'P2002') {
     statusCode = 409;
@@ -46,11 +57,6 @@ const errorHandler = (err, req, res, _next) => {
     statusCode = 400;
     message = 'Unexpected file field';
     code = 'UNEXPECTED_FILE';
-  }
-
-  // Log non-operational errors
-  if (!(err instanceof AppError) && statusCode === 500) {
-    logger.error({ err, path: req.path, method: req.method }, 'Unhandled error');
   }
 
   res.status(statusCode).json({

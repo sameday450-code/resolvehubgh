@@ -103,7 +103,7 @@ app.use(cors({
   optionsSuccessStatus: 200,
 }));
 
-// Explicit OPTIONS handler for all routes (backup for preflight requests)
+// Explicit OPTIONS handler for all routes (MUST be before rate limiting)
 app.options('*', cors({
   origin: (origin, callback) => {
     if (!origin || config.nodeEnv === 'development' || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
@@ -115,6 +115,22 @@ app.options('*', cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200,
+}));
+
+// Dedicated CORS middleware for auth routes (extra protection)
+app.use('/api/auth/', cors({
+  origin: (origin, callback) => {
+    if (!origin || config.nodeEnv === 'development' || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Length', 'X-JSON-Response'],
   optionsSuccessStatus: 200,
 }));
 
@@ -146,7 +162,8 @@ const googleAuthLimiter = rateLimit({
   skip: (req) => req.method === 'OPTIONS', // Skip preflight requests
   message: { success: false, message: 'Too many login attempts. Please try again in 15 minutes.' },
 });
-app.use('/api/auth/google', googleAuthLimiter);
+// Only apply to POST requests, not OPTIONS
+app.post('/api/auth/google', googleAuthLimiter);
 
 // Body parsing
 // Stripe webhook must receive the raw body — register BEFORE express.json()
@@ -176,6 +193,17 @@ app.get('/api/health', (req, res) => {
     success: true,
     message: 'API is running',
     timestamp: new Date().toISOString(),
+    environment: config.nodeEnv,
+  });
+});
+
+// CORS test endpoint - verify CORS headers are being sent
+app.get('/api/cors-test', (req, res) => {
+  logger.info({ origin: req.headers.origin }, 'CORS test endpoint called');
+  res.json({
+    success: true,
+    message: 'CORS is working correctly',
+    origin: req.headers.origin,
     environment: config.nodeEnv,
   });
 });
