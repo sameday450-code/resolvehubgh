@@ -157,43 +157,48 @@ export default function PublicLayout() {
       <main className="flex-1">
         <Outlet />
       </main>
-      <footer className="border-t bg-muted/40">
-        <div className="container mx-auto px-4 py-12">
+      <footer 
+        className="border-t relative overflow-hidden bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: 'linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.4) 100%), url(/footer-bg.png)',
+        }}
+      >
+        <div className="container mx-auto px-4 py-12 relative z-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-3">
                 <img src="/logo.png" alt="ResolveHub" className="h-6 w-6" />
-                <span className="text-lg font-bold">ResolveHub</span>
+                <span className="text-lg font-bold text-white">ResolveHub</span>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-white/80">
                 Real-time QR complaint and feedback reporting for modern businesses.
               </p>
             </div>
             <div>
-              <h4 className="text-sm font-semibold mb-3">Product</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#features" className="hover:text-foreground">Features</a></li>
-                <li><a href="#pricing" className="hover:text-foreground">Pricing</a></li>
-                <li><a href="#faq" className="hover:text-foreground">FAQ</a></li>
+              <h4 className="text-sm font-semibold mb-3 text-white">Product</h4>
+              <ul className="space-y-2 text-sm text-white/75">
+                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
+                <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
+                <li><a href="#faq" className="hover:text-white transition-colors">FAQ</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-semibold mb-3">Company</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/about" className="hover:text-foreground">About</Link></li>
-                <li><Link to="/contact" className="hover:text-foreground">Contact</Link></li>
-                <li><a href="#" className="hover:text-foreground">Blog</a></li>
+              <h4 className="text-sm font-semibold mb-3 text-white">Company</h4>
+              <ul className="space-y-2 text-sm text-white/75">
+                <li><Link to="/about" className="hover:text-white transition-colors">About</Link></li>
+                <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
+                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-semibold mb-3">Legal</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-foreground">Terms of Service</a></li>
+              <h4 className="text-sm font-semibold mb-3 text-white">Legal</h4>
+              <ul className="space-y-2 text-sm text-white/75">
+                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
               </ul>
             </div>
           </div>
-          <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
+          <div className="mt-8 pt-8 border-t border-white/20 text-center text-sm text-white/70">
             &copy; {new Date().getFullYear()} ResolveHub. All rights reserved.
           </div>
         </div>

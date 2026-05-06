@@ -120,57 +120,53 @@ export default function LandingPage() {
         ogImage="https://getresolvehub.com/og-image.png"
       />
       {/* Hero Section */}
-      <section className="relative overflow-hidden min-h-[90vh] flex items-center">
-        {/* Background image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/hero-bg.png')" }}
-        />
-        {/* Overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/60 to-transparent dark:from-background/90 dark:via-background/70 dark:to-background/30" />
-        <div className="absolute inset-0 bg-gradient-to-t from-white/60 via-transparent to-white/40 dark:from-background/60 dark:via-transparent dark:to-background/40" />
-
+      <section 
+        className="relative overflow-hidden min-h-[95vh] flex items-center bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: 'linear-gradient(135deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.35) 100%), url(/herobg.png)',
+        }}
+      >
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-2xl">
-            <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-xs font-medium backdrop-blur-sm bg-white/70 dark:bg-background/70 border border-primary/10 shadow-sm">
-              <Zap className="mr-1.5 h-3 w-3 text-primary" />
+          <div className="max-w-3xl">
+            <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-xs font-semibold backdrop-blur-md bg-white/15 dark:bg-white/10 border border-white/30 text-white hover:bg-white/25 transition-colors">
+              <Zap className="mr-1.5 h-3 w-3" />
               Trusted by growing businesses across Ghana
             </Badge>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-[1.1]">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 leading-[1.1] text-white drop-shadow-lg">
               Capture Every Customer Complaint{' '}
-              <span className="text-primary bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Before It Escalates</span>
+              <span className="text-yellow-300 drop-shadow-lg">Before It Escalates</span>
             </h1>
-            <p className="text-base md:text-lg text-muted-foreground mb-10 max-w-xl leading-relaxed">
-              Get ResolveHub: A QR-based complaint management system that helps you capture, track, and resolve customer complaints faster. Perfect for multi-branch businesses looking to streamline feedback collection and improve service quality.
+            <p className="text-lg md:text-xl text-white/90 mb-12 max-w-2xl leading-relaxed drop-shadow-md font-light">
+              Get ResolveHub: A QR-based complaint management system that helps you capture, track, and resolve customer complaints faster. Perfect for multi-branch businesses looking to streamline feedback collection and improve service quality across all locations.
             </p>
-            <div className="flex flex-col sm:flex-row items-start gap-4">
-              <Button size="lg" className="shadow-lg shadow-primary/25 px-8 h-12 text-base" asChild>
+            <div className="flex flex-col sm:flex-row items-start gap-4 mb-14">
+              <Button size="lg" className="shadow-2xl shadow-primary/40 px-8 h-13 text-base bg-white text-primary hover:bg-white/95 font-semibold rounded-xl" asChild>
                 <Link to="/register">
                   Start Free 14-Day Trial
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="backdrop-blur-sm bg-white/50 dark:bg-background/50 h-12 px-8 text-base" asChild>
+              <Button size="lg" className="backdrop-blur-md bg-white/15 border-2 border-white text-white hover:bg-white/25 h-13 px-8 text-base font-semibold rounded-xl" asChild>
                 <a href="#features">
-                  Watch Live Demo
+                  Watch Demo
                 </a>
               </Button>
             </div>
 
             {/* Stats bar */}
-            <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
                 { icon: TrendingUp, title: 'Real-Time Insights', label: 'Respond to customer issues instantly' },
                 { icon: Rocket, title: 'Instant Setup', label: 'Start capturing feedback in minutes' },
-                { icon: Building2, title: 'Multi-Branch Management', label: 'Manage all locations from one place' },
+                { icon: Building2, title: 'Multi-Branch', label: 'Manage all locations from one place' },
                 { icon: Shield, title: '24/7 Availability', label: 'Reliable service when you need it' },
               ].map((stat) => (
-                <div key={stat.label} className="backdrop-blur-sm bg-white/50 dark:bg-background/50 rounded-xl px-4 py-3 border border-white/60 dark:border-border/30 shadow-sm">
+                <div key={stat.label} className="backdrop-blur-md bg-white/12 rounded-xl px-4 py-3.5 border border-white/20 shadow-xl hover:bg-white/18 transition-all duration-300">
                   <div className="flex items-center gap-2 mb-2">
-                    <stat.icon className="h-5 w-5 text-primary" />
-                    <p className="font-semibold text-foreground text-sm">{stat.title}</p>
+                    <stat.icon className="h-5 w-5 text-yellow-300" />
+                    <p className="font-semibold text-white text-sm">{stat.title}</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">{stat.label}</p>
+                  <p className="text-xs text-white/75">{stat.label}</p>
                 </div>
               ))}
             </div>
