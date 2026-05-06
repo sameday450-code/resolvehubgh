@@ -144,27 +144,36 @@ export default function LandingPage() {
               Get ResolveHub: A QR-based complaint management system that helps you capture, track, and resolve customer complaints faster. Perfect for multi-branch businesses looking to streamline feedback collection and improve service quality across all locations.
             </p>
             <div className="flex flex-col sm:flex-row items-start gap-6 mb-14">
-              <div className="group">
-                <Button 
-                  size="lg" 
-                  className="relative overflow-hidden shadow-2xl shadow-white/30 px-8 h-14 text-base bg-gradient-to-r from-white via-white to-white/95 text-primary hover:from-white hover:via-white hover:to-white font-bold rounded-xl transition-all duration-300 hover:shadow-3xl hover:shadow-white/40 hover:scale-105 active:scale-95 group-hover:gap-3"
-                  asChild
+              <Button 
+                asChild
+                className="!h-14 !px-8 !text-base !font-bold !rounded-lg !bg-gradient-to-r !from-white !to-white/90 !text-primary !shadow-2xl !hover:shadow-white/50 !transition-all !duration-300"
+                style={{
+                  boxShadow: '0 20px 25px -5px rgba(255, 255, 255, 0.3)',
+                }}
+              >
+                <Link 
+                  to="/register" 
+                  className="inline-flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-transform duration-200"
+                  style={{ transform: 'scale(1)' }}
                 >
-                  <Link to="/register" className="flex items-center justify-center gap-2">
-                    <span>Start Free 14-Day Trial</span>
-                    <ArrowRight className="h-5 w-5 transition-all duration-300 group-hover:translate-x-1" />
-                  </Link>
-                </Button>
-                <div className="absolute inset-0 h-14 rounded-xl bg-gradient-to-r from-white to-white/95 opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300" />
-              </div>
+                  <span>Start Free 14-Day Trial</span>
+                  <ArrowRight className="h-5 w-5 transition-all duration-300 group-hover:translate-x-1" />
+                </Link>
+              </Button>
               
               <Button 
-                size="lg" 
-                className="relative overflow-hidden backdrop-blur-sm bg-gradient-to-r from-white/20 via-white/15 to-white/10 border-2 border-white/60 hover:border-white text-white hover:bg-gradient-to-r hover:from-white/30 hover:via-white/25 hover:to-white/15 h-14 px-8 text-base font-bold rounded-xl transition-all duration-300 hover:shadow-2xl hover:shadow-white/20 hover:scale-105 active:scale-95 group/demo"
                 asChild
+                className="!h-14 !px-8 !text-base !font-bold !rounded-lg !border-2 !border-white !bg-white/10 !text-white !backdrop-blur-md hover:!bg-white/20 !transition-all !duration-300"
+                style={{
+                  boxShadow: '0 0 20px rgba(255, 255, 255, 0.1)',
+                }}
               >
-                <a href="#features" className="flex items-center justify-center gap-2 group/link">
-                  <span>▶</span>
+                <a 
+                  href="#features" 
+                  className="inline-flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-transform duration-200"
+                  style={{ transform: 'scale(1)' }}
+                >
+                  <span className="text-lg">▶</span>
                   <span>Watch Demo</span>
                 </a>
               </Button>
