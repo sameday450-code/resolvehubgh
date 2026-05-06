@@ -42,11 +42,13 @@ const getAllowedOrigins = () => {
     return ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:5173', '*'];
   }
   
-  // Production: specific frontend URLs
+  // Production: use configured origins (already includes all variants from config)
   const origins = Array.isArray(config.corsOrigins) ? config.corsOrigins : [config.corsOrigins];
   
-  // Add all frontend variants
+  // Create a set to avoid duplicates
   const allOrigins = new Set(origins);
+  
+  // Add common production variants if not already present
   allOrigins.add('https://getresolvehub.com');
   allOrigins.add('https://www.getresolvehub.com');
   allOrigins.add('https://resolvehub-frontend.vercel.app');
@@ -55,6 +57,8 @@ const getAllowedOrigins = () => {
 };
 
 const allowedOrigins = getAllowedOrigins();
+
+logger.info({ allowedOrigins, nodeEnv: config.nodeEnv }, 'CORS configuration initialized');
 
 // Socket.IO setup with proper CORS
 const io = new Server(server, {
@@ -76,13 +80,33 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 
-// CORS middleware with support for multiple origins
+// CORS middleware with support for multiple origins - apply EARLY
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    if (config.nodeEnv === 'development' || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+    const isDev = config.nodeEnv === 'development';
+    const isAllowed = allowedOrigins.includes(origin) || allowedOrigins.includes('*');
+    
+    if (isDev || isAllowed) {
+      callback(null, true);
+    } else {
+      logger.warn({ origin, allowedOrigins }, 'CORS request from disallowed origin');
+      callback(new Error('Not allowed by CORS'), false);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Length', 'X-JSON-Response'],
+  optionsSuccessStatus: 200,
+}));
+
+// Explicit OPTIONS handler for all routes (backup for preflight requests)
+app.options('*', cors({
+  origin: (origin, callback) => {
+    if (!origin || config.nodeEnv === 'development' || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'), false);
@@ -94,29 +118,32 @@ app.use(cors({
   optionsSuccessStatus: 200,
 }));
 
-// Rate limiting
+// Rate limiting - skip OPTIONS preflight requests
 const limiter = rateLimit({
   windowMs: config.rateLimit.windowMs,
   max: config.rateLimit.max,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.method === 'OPTIONS',
   message: { success: false, message: 'Too many requests, please try again later.' },
 });
 app.use('/api/', limiter);
 
-// Stricter rate limit for public complaint submission
+// Stricter rate limit for public complaint submission - skip OPTIONS
 const complaintLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 20,
+  skip: (req) => req.method === 'OPTIONS',
   message: { success: false, message: 'Too many submissions. Please try again later.' },
 });
 app.use('/api/complaints/public', complaintLimiter);
 
-// Stricter rate limit for Google auth (prevent brute force attacks)
+// Stricter rate limit for Google auth (prevent brute force attacks) - skip OPTIONS
 const googleAuthLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10, // 10 attempts per 15 minutes per IP
   skipSuccessfulRequests: true, // Don't count successful attempts
+  skip: (req) => req.method === 'OPTIONS', // Skip preflight requests
   message: { success: false, message: 'Too many login attempts. Please try again in 15 minutes.' },
 });
 app.use('/api/auth/google', googleAuthLimiter);

@@ -8,9 +8,15 @@ const parseCorsOrigins = () => {
   const corsOriginEnv = process.env.CORS_ORIGIN || process.env.FRONTEND_URL;
   
   if (!corsOriginEnv) {
-    return process.env.NODE_ENV === 'production'
-      ? 'https://getresolvehub.com'
-      : '*';
+    // Production defaults to getresolvehub.com with all variants
+    if (process.env.NODE_ENV === 'production') {
+      return [
+        'https://getresolvehub.com',
+        'https://www.getresolvehub.com',
+        'https://resolvehub-frontend.vercel.app'
+      ];
+    }
+    return '*';
   }
 
   // Try parsing as JSON array
