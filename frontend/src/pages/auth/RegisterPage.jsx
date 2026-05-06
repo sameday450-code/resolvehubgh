@@ -96,13 +96,29 @@ export default function RegisterPage() {
           navigate('/dashboard');
         }
       } catch (err) {
-        toast.error(err.response?.data?.message || 'Google sign-up failed');
+        // Display more specific error messages
+        const errorMessage = err.response?.data?.message;
+        if (errorMessage?.includes('pending approval')) {
+          toast.error('Your account is pending admin approval. You will be notified once approved.');
+        } else if (errorMessage?.includes('deactivated')) {
+          toast.error('Your account has been deactivated. Please contact support.');
+        } else if (errorMessage?.includes('rejected')) {
+          toast.error('Your account registration has been rejected.');
+        } else if (errorMessage?.includes('suspended')) {
+          toast.error('Your account has been suspended. Please contact support.');
+        } else if (errorMessage?.includes('Google token')) {
+          toast.error('Google authentication failed. Please try again.');
+        } else if (errorMessage?.includes('Too many')) {
+          toast.error('Too many sign-up attempts. Please wait 15 minutes and try again.');
+        } else {
+          toast.error(errorMessage || 'Google sign-up failed. Please try again.');
+        }
       } finally {
         setGoogleLoading(false);
       }
     },
     onError: () => {
-      toast.error('Google sign-up failed');
+      toast.error('Google sign-up was cancelled. Please try again.');
       setGoogleLoading(false);
     },
   });

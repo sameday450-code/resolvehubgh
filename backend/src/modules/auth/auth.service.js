@@ -505,21 +505,93 @@ const getProfile = async (userId) => {
   };
 };
 
+const fetchGoogleUserInfo = async (accessToken, maxRetries = 3) => {
+  const logger = require('../../config/logger');
+  const delayMs = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  let lastError;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      logger.debug({ attempt, maxRetries }, 'Fetching Google user info');
+      
+      // Use the newer v2 endpoint (more stable, less likely to be deprecated)
+      const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        timeout: 5000, // 5 second timeout
+      });
+
+      if (!res.ok) {
+        const errorBody = await res.text();
+        logger.warn(
+          { status: res.status, body: errorBody, attempt },
+          'Google API returned error'
+        );
+        
+        // 401/403 indicates invalid token, don't retry
+        if (res.status === 401 || res.status === 403) {
+          throw new UnauthorizedError('Invalid Google token');
+        }
+        
+        // For other errors, retry with backoff
+        lastError = new Error(`Google API error: ${res.status}`);
+        if (attempt < maxRetries) {
+          const backoffMs = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+          logger.debug({ backoffMs }, 'Retrying after backoff');
+          await delayMs(backoffMs);
+          continue;
+        }
+      }
+
+      const payload = await res.json();
+      
+      if (!payload.email) {
+        logger.warn({ payload }, 'Google payload missing email field');
+        throw new UnauthorizedError('Invalid Google token - missing email');
+      }
+
+      logger.info({ googleId: payload.id, email: payload.email }, 'Google auth successful');
+      return payload;
+    } catch (err) {
+      lastError = err;
+      
+      // Network errors are retryable
+      if (err.code === 'ECONNREFUSED' || err.code === 'ETIMEDOUT' || err.code === 'ENOTFOUND') {
+        logger.warn({ error: err.message, attempt }, 'Network error fetching Google info, retrying');
+        if (attempt < maxRetries) {
+          const backoffMs = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+          await delayMs(backoffMs);
+          continue;
+        }
+      }
+      
+      // Non-network errors should fail immediately
+      if (err instanceof UnauthorizedError) {
+        throw err;
+      }
+      
+      // For other errors, retry
+      if (attempt < maxRetries) {
+        logger.warn({ error: err.message, attempt }, 'Error fetching Google info, retrying');
+        const backoffMs = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+        await delayMs(backoffMs);
+        continue;
+      }
+    }
+  }
+
+  // All retries exhausted
+  logger.error({ error: lastError?.message }, 'Failed to fetch Google user info after retries');
+  throw new UnauthorizedError('Failed to verify Google token. Please try again.');
+};
+
 const googleAuth = async (accessToken) => {
-  const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-
-  if (!res.ok) {
-    throw new UnauthorizedError('Invalid Google token');
-  }
-
-  const payload = await res.json();
-  if (!payload.email) {
-    throw new UnauthorizedError('Invalid Google token');
-  }
-
-  const { sub: googleId, email, name, picture } = payload;
+  const logger = require('../../config/logger');
+  
+  try {
+    logger.info('Starting Google authentication');
+    
+    const payload = await fetchGoogleUserInfo(accessToken);
+    const { id: googleId, email, name, picture } = payload;
 
   // Check if user exists by googleId or email
   let user = await prisma.user.findFirst({
@@ -534,8 +606,11 @@ const googleAuth = async (accessToken) => {
   });
 
   if (user) {
+    logger.debug({ userId: user.id, email }, 'Existing user found');
+    
     // Link Google account if user exists by email but not yet linked
     if (!user.googleId) {
+      logger.info({ userId: user.id }, 'Linking Google account to existing user');
       user = await prisma.user.update({
         where: { id: user.id },
         data: { googleId, authProvider: 'google', avatarUrl: user.avatarUrl || picture },
@@ -548,27 +623,34 @@ const googleAuth = async (accessToken) => {
     }
 
     if (!user.isActive) {
+      logger.warn({ userId: user.id }, 'User account is deactivated');
       throw new ForbiddenError('Your account is deactivated');
     }
 
     // Check company status for company users
     if (user.role !== 'SUPER_ADMIN') {
       if (!user.company) {
+        logger.error({ userId: user.id }, 'User has no company associated');
         throw new ForbiddenError('No company associated with this account');
       }
       if (user.company.status === 'PENDING') {
+        logger.info({ userId: user.id, companyId: user.company.id }, 'Company pending approval');
         throw new ForbiddenError(
           'Your company account is pending approval. You will be notified once approved.'
         );
       }
       if (user.company.status === 'REJECTED') {
+        logger.warn({ userId: user.id, companyId: user.company.id }, 'Company rejected');
         throw new ForbiddenError('Your company registration has been rejected.');
       }
       if (user.company.status === 'SUSPENDED') {
+        logger.warn({ userId: user.id, companyId: user.company.id }, 'Company suspended');
         throw new ForbiddenError('Your company account has been suspended. Contact support.');
       }
     }
   } else {
+    logger.info({ email }, 'New user - creating company and user via Google');
+    
     // Create new company + user via Google sign-up
     const companyName = name ? `${name}'s Company` : 'My Company';
     let slug = generateSlug(companyName);
@@ -625,6 +707,7 @@ const googleAuth = async (accessToken) => {
         });
       }
 
+      logger.info({ companyId: company.id, userId: newUser.id }, 'New company and user created via Google');
       return { company, user: newUser };
     });
 
@@ -655,6 +738,8 @@ const googleAuth = async (accessToken) => {
     data: { lastLoginAt: new Date() },
   });
 
+  logger.info({ userId: user.id, email: user.email }, 'Google authentication completed successfully');
+
   return {
     accessToken: jwtAccessToken,
     refreshToken,
@@ -666,8 +751,14 @@ const googleAuth = async (accessToken) => {
       avatarUrl: user.avatarUrl,
       company: user.company,
     },
-    isNewUser: !user.company?.status || user.company.status === 'PENDING',
+    // Fixed logic: isNewUser = user just created (no prior status), NOT user whose company is pending
+    isNewUser: !user.company,
   };
+  } catch (err) {
+    const logger = require('../../config/logger');
+    logger.error({ error: err.message, stack: err.stack }, 'Google authentication failed');
+    throw err;
+  }
 };
 
 module.exports = {

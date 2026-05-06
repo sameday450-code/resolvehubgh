@@ -71,7 +71,9 @@ const getProfile = async (req, res, next) => {
 };
 
 const googleAuth = async (req, res, next) => {
+  const logger = require('../../config/logger');
   try {
+    logger.debug({ ip: req.ip }, 'Google auth request received');
     const result = await authService.googleAuth(req.body.accessToken);
 
     if (result.isNewUser) {
@@ -87,8 +89,11 @@ const googleAuth = async (req, res, next) => {
       }
     }
 
+    logger.info({ userId: result.user.id, email: result.user.email }, 'Google authentication successful');
     return response.success(res, result, 'Google authentication successful');
   } catch (err) {
+    const logger = require('../../config/logger');
+    logger.error({ error: err.message, stack: err.stack, body: req.body }, 'Google authentication failed');
     next(err);
   }
 };

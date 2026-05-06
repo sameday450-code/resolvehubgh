@@ -112,6 +112,15 @@ const complaintLimiter = rateLimit({
 });
 app.use('/api/complaints/public', complaintLimiter);
 
+// Stricter rate limit for Google auth (prevent brute force attacks)
+const googleAuthLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // 10 attempts per 15 minutes per IP
+  skipSuccessfulRequests: true, // Don't count successful attempts
+  message: { success: false, message: 'Too many login attempts. Please try again in 15 minutes.' },
+});
+app.use('/api/auth/google', googleAuthLimiter);
+
 // Body parsing
 // Stripe webhook must receive the raw body — register BEFORE express.json()
 app.post(
