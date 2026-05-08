@@ -8,7 +8,7 @@ export default function InvalidQR() {
   const message = state?.message || 'This QR code is either invalid, expired, or has been disabled. Please check the QR code and try again, or contact the business directly.';
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center px-4">
       <Card className="max-w-md w-full">
         <CardContent className="pt-8 pb-8 text-center">
           <div className="h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
@@ -29,7 +29,8 @@ export default function InvalidQR() {
             </Link>
           </div>
 
-          <p className="text-xs text-muted-foreground mt-8">
+          <p className="text-xs text-muted-foreground mt-8 flex items-center justify-center gap-1.5">
+            <img src="/logo.png" alt="ResolveHub" className="h-4 w-4 inline opacity-60" />
             Powered by <span className="font-semibold">ResolveHub</span>
           </p>
         </CardContent>

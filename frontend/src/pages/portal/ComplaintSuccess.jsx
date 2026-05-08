@@ -18,7 +18,7 @@ export default function ComplaintSuccess() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center px-4">
       <Card className="max-w-md w-full">
         <CardContent className="pt-8 pb-8 text-center">
           <div className="h-16 w-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
@@ -27,7 +27,7 @@ export default function ComplaintSuccess() {
 
           <h1 className="text-2xl font-bold mb-2">Thank You!</h1>
           <p className="text-muted-foreground mb-6">
-            Your feedback has been submitted successfully. Our team will review it and take appropriate action.
+            Thank you. Your feedback has been submitted successfully. Our team will review it and take appropriate action.
           </p>
 
           {refNumber && (
@@ -58,7 +58,8 @@ export default function ComplaintSuccess() {
             </Link>
           </div>
 
-          <p className="text-xs text-muted-foreground mt-8">
+          <p className="text-xs text-muted-foreground mt-8 flex items-center justify-center gap-1.5">
+            <img src="/logo.png" alt="ResolveHub" className="h-4 w-4 inline opacity-60" />
             Powered by <span className="font-semibold">ResolveHub</span>
           </p>
         </CardContent>

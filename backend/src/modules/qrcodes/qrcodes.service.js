@@ -177,9 +177,9 @@ const resolvePublicQR = async (publicSlug) => {
   });
 
   if (!qrCode) throw new NotFoundError('Invalid complaint QR code.');
-  if (qrCode.status === 'DISABLED') throw new BadRequestError('This complaint QR code is currently disabled.');
+  if (qrCode.status === 'DISABLED') throw new BadRequestError('This feedback portal is currently unavailable.');
   if (qrCode.status === 'EXPIRED') throw new BadRequestError('This QR code has expired.');
-  if (qrCode.company.status !== 'APPROVED') throw new BadRequestError('Company account is inactive.');
+  if (qrCode.company.status !== 'APPROVED') throw new BadRequestError('This feedback portal is currently unavailable.');
 
   // Update scan count
   await prisma.qRCode.update({
@@ -200,9 +200,9 @@ const resolvePublicQR = async (publicSlug) => {
   return {
     company: {
       name: qrCode.company.name,
-      logoUrl: qrCode.company.logoUrl,
-      brandColor: qrCode.company.brandColor,
-      welcomeMessage: qrCode.company.settings?.customWelcomeMessage,
+      logoUrl: qrCode.company.logoUrl || null,
+      brandColor: qrCode.company.brandColor || null,
+      welcomeMessage: qrCode.company.settings?.customWelcomeMessage || null,
       allowAnonymous: qrCode.company.settings?.allowAnonymous ?? true,
     },
     qrCode: {
@@ -213,6 +213,7 @@ const resolvePublicQR = async (publicSlug) => {
       complaintPoint: qrCode.complaintPoint,
     },
     categories,
+    privacyNoticeRequired: true,
   };
 };
 
