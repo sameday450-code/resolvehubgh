@@ -66,8 +66,8 @@ export default function RegisterPage() {
         toast.success('Your 14-day free trial is active! You can log in now.');
         navigate('/login?trial=activated');
       } else {
-        toast.success('Registration successful! Your company is pending approval.');
-        navigate('/login');
+        toast.success('Registration successful! Waiting for admin approval...');
+        navigate(`/pending-approval?company=${encodeURIComponent(form.companyName)}&email=${encodeURIComponent(form.email)}`);
       }
     } catch (err) {
       const data = err.response?.data;
@@ -89,8 +89,10 @@ export default function RegisterPage() {
       try {
         const result = await googleLogin(tokenResponse.access_token);
         if (result.isNewUser) {
-          toast.success('Registration successful! Your company is pending approval.');
-          navigate('/login');
+          toast.success('Registration successful! Waiting for admin approval...');
+          const companyName = result.company?.name || 'Your Company';
+          const email = result.user?.email || '';
+          navigate(`/pending-approval?company=${encodeURIComponent(companyName)}&email=${encodeURIComponent(email)}`);
         } else {
           toast.success('Welcome back!');
           navigate('/dashboard');

@@ -146,8 +146,8 @@ export default function EnterpriseRegisterPage() {
         toast.success('Account created! Redirecting to payment...');
         navigate('/pending-payment');
       } else {
-        toast.success('Registration successful!');
-        navigate('/login');
+        toast.success('Registration successful! Waiting for admin approval...');
+        navigate(`/pending-approval?company=${encodeURIComponent(form.companyName)}&email=${encodeURIComponent(form.email)}`);
       }
     } catch (err) {
       const data = err.response?.data;
