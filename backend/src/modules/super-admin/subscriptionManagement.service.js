@@ -242,19 +242,30 @@ const extendTrial = async (companyId, adminId, additionalDays = 7, reason = '') 
 
   newTrialEndDate.setDate(newTrialEndDate.getDate() + additionalDays);
 
-  const updated = await prisma.companySubscription.update({
-    where: { companyId },
-    data: {
-      trialEndsAt: newTrialEndDate,
-      metadata: {
-        ...subscription.metadata,
-        trialExtendedAt: new Date().toISOString(),
-        trialExtendedBy: adminId,
-        trialExtensionDays: additionalDays,
-        trialExtensionReason: reason,
+  // Update both companySubscription.trialEndsAt and company.trialEndDate so that
+  // billingGuard, dashboardLockGuard, and getCompanySubscriptionInfo all agree.
+  const [updated] = await prisma.$transaction([
+    prisma.companySubscription.update({
+      where: { companyId },
+      data: {
+        trialEndsAt: newTrialEndDate,
+        metadata: {
+          ...subscription.metadata,
+          trialExtendedAt: new Date().toISOString(),
+          trialExtendedBy: adminId,
+          trialExtensionDays: additionalDays,
+          trialExtensionReason: reason,
+        },
       },
-    },
-  });
+    }),
+    prisma.company.update({
+      where: { id: companyId },
+      data: {
+        trialEndDate: newTrialEndDate,
+        isDashboardLocked: false,
+      },
+    }),
+  ]);
 
   logger.info(
     {

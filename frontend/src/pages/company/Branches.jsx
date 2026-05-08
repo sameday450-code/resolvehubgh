@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { branchAPI } from '../../lib/api';
+import { branchAPI, subscriptionAPI } from '../../lib/api';
 import { PageLoading, ErrorState, EmptyState, BillingLockedBanner } from '../../components/shared';
 import { useBillingErrorHandler } from '../../hooks/useBillingError';
 import { useAuth } from '../../contexts/AuthContext';
@@ -20,7 +20,7 @@ import {
 export default function Branches() {
   const queryClient = useQueryClient();
   const { billingError, clearError } = useBillingErrorHandler();
-  const { canAccess, isBillingRequired, subscriptionStatus, isTrialing, isTrialExpired } = useAuth();
+  const { canAccess, isBillingRequired, subscriptionStatus, isTrialExpired } = useAuth();
   
   const [showCreate, setShowCreate] = useState(false);
   const [showPoints, setShowPoints] = useState(null);
@@ -35,23 +35,30 @@ export default function Branches() {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['branches'],
     queryFn: () => branchAPI.getAll({ limit: 100 }),
-    onError: (err) => {
-      if (err.response?.status === 402) {
-        // Billing error will be handled by banner
-      }
-    },
+  });
+
+  // Fetch real branchLimit and trial status from the server — never rely on hardcoded values
+  const { data: companyInfoData } = useQuery({
+    queryKey: ['subscription-info'],
+    queryFn: () => subscriptionAPI.getCompanySubscriptionInfo(),
   });
 
   const canCreateBranch = canAccess('write');
   const canDeleteBranch = canAccess('delete');
 
   const branches = data?.data?.data || [];
-  const isTrialLimitReached = isTrialing && !isTrialExpired && branches.length >= 1;
+  const companyInfo = companyInfoData?.data;
+  // Use real branchLimit from the DB; fall back to 1 only if data not yet loaded
+  const branchLimit = companyInfo?.branchLimit ?? null;
+  // Block the button when the real limit is reached — no hardcoded status checks
+  const isAtBranchLimit = branchLimit !== null && branches.length >= branchLimit;
 
   const createMutation = useMutation({
     mutationFn: (data) => branchAPI.create(data),
     onSuccess: () => {
+      // Refresh branch list AND subscription info so branchLimit check stays accurate
       queryClient.invalidateQueries(['branches']);
+      queryClient.invalidateQueries(['subscription-info']);
       setShowCreate(false);
       resetForm();
       setFormError('');
@@ -163,10 +170,10 @@ export default function Branches() {
             Trial expired —{' '}
             <a href="/company/billing" className="underline font-medium">Activate a subscription</a>
           </p>
-        ) : isTrialLimitReached ? (
+        ) : isAtBranchLimit ? (
           <p className="text-sm text-muted-foreground">
-            Your free trial allows only 1 branch.{' '}
-            <a href="/company/billing" className="text-violet-600 dark:text-violet-400 underline font-medium">Upgrade to add more</a>
+            Your current plan allows only {branchLimit} branch{branchLimit !== 1 ? 'es' : ''}.{' '}
+            <a href="/company/billing" className="text-violet-600 dark:text-violet-400 underline font-medium">Upgrade your subscription to add more branches.</a>
           </p>
         ) : (
           <Button
@@ -186,10 +193,12 @@ export default function Branches() {
           title="No branches yet"
           description="Create your first branch to start generating QR codes and receiving complaints."
           action={
-            <Button onClick={() => setShowCreate(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Branch
-            </Button>
+            !isTrialExpired && !isAtBranchLimit ? (
+              <Button onClick={() => setShowCreate(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Branch
+              </Button>
+            ) : null
           }
         />
       ) : (

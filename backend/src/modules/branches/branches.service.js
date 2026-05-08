@@ -89,19 +89,19 @@ const createBranch = async (companyId, data) => {
         'Your free trial has expired. Please activate a subscription.'
       );
     }
-    // Trial active — enforce 1 branch limit
-    const branchCount = await prisma.branch.count({ where: { companyId } });
-    if (branchCount >= 1) {
-      throw new BadRequestError(
-        'Your free trial allows only 1 branch. Upgrade to add more branches.'
-      );
-    }
-  } else if (subStatus === 'ACTIVE') {
-    // Paid subscription — use company.branchLimit
+    // Trial active — enforce branch limit from company record
     const branchCount = await prisma.branch.count({ where: { companyId } });
     if (branchCount >= company.branchLimit) {
       throw new BadRequestError(
-        `You have reached your branch limit (${company.branchLimit}). Please upgrade your plan to add more branches.`
+        `Your current plan allows only ${company.branchLimit} branch${company.branchLimit !== 1 ? 'es' : ''}. Upgrade your subscription to add more branches.`
+      );
+    }
+  } else if (subStatus === 'ACTIVE') {
+    // Paid subscription — enforce branch limit from company record
+    const branchCount = await prisma.branch.count({ where: { companyId } });
+    if (branchCount >= company.branchLimit) {
+      throw new BadRequestError(
+        `Your current plan allows only ${company.branchLimit} branch${company.branchLimit !== 1 ? 'es' : ''}. Upgrade your subscription to add more branches.`
       );
     }
   } else {

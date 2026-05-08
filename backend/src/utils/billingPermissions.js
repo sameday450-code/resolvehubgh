@@ -11,16 +11,18 @@ const CAPABILITY_MATRIX = {
   TRIALING: {
     // Active trial (not expired)
     read: true,
+    write: true,  // alias for create+update in billingGuard('write') routes
     create: true,
     update: true,
     delete: false, // Limited - can't delete core data
-    branchLimit: 5, // Feature-gated on branch count
+    branchLimit: 5, // Feature-gated on branch count (real limit is on company.branchLimit)
     staffLimit: 10,
     message: 'Your free trial is active. You have limited features.',
   },
   ACTIVE: {
     // Paid subscription is active
     read: true,
+    write: true,
     create: true,
     update: true,
     delete: true,
@@ -31,6 +33,7 @@ const CAPABILITY_MATRIX = {
   PENDING_PAYMENT: {
     // Payment failed or pending
     read: true,
+    write: false,
     create: false,
     update: true, // Can update but not create
     delete: false,
@@ -42,6 +45,7 @@ const CAPABILITY_MATRIX = {
   EXPIRED: {
     // Subscription period ended, not renewed
     read: false,
+    write: false,
     create: false,
     update: false,
     delete: false,
@@ -53,6 +57,7 @@ const CAPABILITY_MATRIX = {
   PAST_DUE: {
     // Payment overdue
     read: true, // Can still read own data
+    write: false,
     create: false,
     update: false, // Can't make changes
     delete: false,
@@ -64,6 +69,7 @@ const CAPABILITY_MATRIX = {
   CANCELLED: {
     // Customer cancelled subscription
     read: false,
+    write: false,
     create: false,
     update: false,
     delete: false,
@@ -75,6 +81,7 @@ const CAPABILITY_MATRIX = {
   PENDING_ACTIVATION: {
     // Subscription created but not yet activated
     read: false,
+    write: false,
     create: false,
     update: false,
     delete: false,
