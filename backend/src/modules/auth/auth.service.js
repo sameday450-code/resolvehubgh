@@ -78,6 +78,9 @@ const register = async (data) => {
           slug,
           email: data.email,
           phone: data.adminPhone,
+          contactEmail: data.email, // Company contact email from registration
+          contactPhone: data.adminPhone, // Company contact phone from registration
+          website: data.website || null, // Company website if provided
           industry: data.industry,
           country: data.country,
           city: data.city,

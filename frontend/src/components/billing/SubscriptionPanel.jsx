@@ -244,7 +244,13 @@ export default function SubscriptionPanel({ companyId }) {
   const sub = subscriptionData?.data;
   if (!sub) return null;
 
-  const paymentStatusInfo = paymentStatusConfig[sub.paymentStatus] || paymentStatusConfig.UNPAID;
+  // Determine payment status display based on subscription status
+  let displayPaymentStatus = sub.paymentStatus;
+  if (sub.subscriptionStatus === 'TRIAL') {
+    displayPaymentStatus = 'TRIAL';
+  }
+  
+  const paymentStatusInfo = paymentStatusConfig[displayPaymentStatus] || paymentStatusConfig.UNPAID;
   const daysLeft = sub.daysRemaining ?? 0;
 
   return (

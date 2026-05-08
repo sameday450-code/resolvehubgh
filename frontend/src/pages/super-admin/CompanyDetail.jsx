@@ -14,7 +14,7 @@ import SubscriptionPanel from '../../components/billing/SubscriptionPanel';
 import toast from 'react-hot-toast';
 
 const statusConfig = {
-  ACTIVE: { bg: 'bg-emerald-500/10', text: 'text-emerald-600', dot: 'bg-emerald-500', label: 'Active' },
+  APPROVED: { bg: 'bg-emerald-500/10', text: 'text-emerald-600', dot: 'bg-emerald-500', label: 'Approved' },
   PENDING: { bg: 'bg-amber-500/10', text: 'text-amber-600', dot: 'bg-amber-500', label: 'Pending' },
   SUSPENDED: { bg: 'bg-red-500/10', text: 'text-red-600', dot: 'bg-red-500', label: 'Suspended' },
   REJECTED: { bg: 'bg-gray-500/10', text: 'text-gray-600', dot: 'bg-gray-400', label: 'Rejected' },
@@ -108,7 +108,7 @@ export default function SACompanyDetail() {
                   </Button>
                 </>
               )}
-              {company.status === 'ACTIVE' && (
+              {company.status === 'APPROVED' && (
                 <Button variant="destructive" onClick={() => suspendMutation.mutate()} disabled={suspendMutation.isPending} className="rounded-xl">
                   <Pause className="mr-2 h-4 w-4" /> Suspend
                 </Button>

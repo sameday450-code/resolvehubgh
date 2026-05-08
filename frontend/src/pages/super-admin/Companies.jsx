@@ -32,7 +32,7 @@ const statusOptions = [
 ];
 
 const statusConfig = {
-  ACTIVE: { bg: 'bg-emerald-500/10', text: 'text-emerald-600', dot: 'bg-emerald-500' },
+  APPROVED: { bg: 'bg-emerald-500/10', text: 'text-emerald-600', dot: 'bg-emerald-500' },
   PENDING: { bg: 'bg-amber-500/10', text: 'text-amber-600', dot: 'bg-amber-500' },
   SUSPENDED: { bg: 'bg-red-500/10', text: 'text-red-600', dot: 'bg-red-500' },
   REJECTED: { bg: 'bg-gray-500/10', text: 'text-gray-600', dot: 'bg-gray-400' },
@@ -193,7 +193,7 @@ export default function SACompanies() {
                                 </DropdownMenuItem>
                               </>
                             )}
-                            {company.status === 'ACTIVE' && (
+                            {company.status === 'APPROVED' && (
                               <DropdownMenuItem onClick={() => suspendMutation.mutate({ id: company.id, reason: 'Policy violation' })} className="text-destructive cursor-pointer rounded-lg">
                                 <Pause className="mr-2 h-4 w-4" /> Suspend
                               </DropdownMenuItem>

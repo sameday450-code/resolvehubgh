@@ -14,7 +14,11 @@ export function formatDate(date) {
 }
 
 export function formatDateTime(date) {
-  return new Date(date).toLocaleString('en-US', {
+  if (!date) return 'Not available';
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return 'Not available';
+  
+  return d.toLocaleString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',

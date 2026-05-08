@@ -181,6 +181,9 @@ model Company {
   slug            String        @unique
   email           String        @unique
   phone           String?
+  contactEmail    String?       // Company contact email (separate from admin email)
+  contactPhone    String?       // Company contact phone (separate from admin phone)
+  website         String?       // Company website URL
   industry        String?
   country         String        @default("Ghana")
   city            String?

@@ -181,7 +181,28 @@ const getCompanyDetail = async (companyId) => {
     _count: { id: true },
   });
 
-  return { ...company, complaintStats };
+  // Transform response to include all necessary fields with correct names
+  return {
+    ...company,
+    complaintStats,
+    // Ensure contact fields are mapped correctly
+    contactEmail: company.contactEmail || company.email,
+    contactPhone: company.contactPhone || company.phone,
+    website: company.website || null,
+    // Ensure subscription fields are present
+    plan: company.plan || 'STARTER',
+    planName: company.planName || 'Free Trial',
+    subscriptionStatus: company.subscriptionStatus || 'TRIAL',
+    paymentStatus: company.paymentStatus || 'UNPAID',
+    branchLimit: company.branchLimit || 1,
+    trialStartDate: company.trialStartDate,
+    trialEndDate: company.trialEndDate,
+    subscriptionStartDate: company.subscriptionStartDate,
+    subscriptionEndDate: company.subscriptionEndDate,
+    isActive: company.isActive || false,
+    isLocked: company.isLocked || false,
+    isDashboardLocked: company.isDashboardLocked || false,
+  };
 };
 
 const approveCompany = async (companyId, adminId) => {
