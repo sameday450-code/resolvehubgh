@@ -215,6 +215,45 @@ const approveCompany = async (companyId, adminId) => {
       },
     });
 
+    // FIX: Also update or create CompanySubscription with TRIALING status
+    // This ensures billing guard checks pass for read operations
+    let existingSubscription = await tx.companySubscription.findUnique({
+      where: { companyId },
+    });
+
+    if (existingSubscription) {
+      // Update existing subscription to TRIALING
+      await tx.companySubscription.update({
+        where: { companyId },
+        data: {
+          status: 'TRIALING',
+          trialStartedAt: trialStartDate,
+          trialEndsAt: trialEndDate,
+          activatedAt: trialStartDate,
+        },
+      });
+    } else {
+      // Create new subscription with TRIALING status if it doesn't exist
+      const starterPlan = await tx.subscriptionPlan.findUnique({
+        where: { planType: 'STARTER_TRIAL' },
+      });
+      
+      if (starterPlan) {
+        await tx.companySubscription.create({
+          data: {
+            companyId,
+            subscriptionPlanId: starterPlan.id,
+            status: 'TRIALING',
+            trialStartedAt: trialStartDate,
+            trialEndsAt: trialEndDate,
+            activatedAt: trialStartDate,
+            paymentStatus: 'UNPAID',
+            paymentProvider: 'MANUAL',
+          },
+        });
+      }
+    }
+
     await tx.approvalActionLog.create({
       data: {
         companyId,

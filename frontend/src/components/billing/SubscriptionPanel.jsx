@@ -79,7 +79,7 @@ const ActivationModal = ({ companyId, onSuccess }) => {
           <Zap className="mr-2 h-4 w-4" /> Activate Subscription
         </Button>
       </DialogTrigger>
-      <DialogContent className="rounded-2xl max-w-md">
+      <DialogContent className="w-[95vw] sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl">
         <DialogHeader>
           <DialogTitle>Activate Subscription</DialogTitle>
           <DialogDescription>
@@ -87,7 +87,7 @@ const ActivationModal = ({ companyId, onSuccess }) => {
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 pr-2">
           <div>
             <label className="text-sm font-medium">Plan</label>
             <select
