@@ -2,6 +2,8 @@ const { Router } = require('express');
 const subscriptionController = require('./subscription.controller');
 const { authenticate, authorize, tenantGuard } = require('../../middleware/auth');
 const { validate } = require('../../middleware/validate');
+const upload = require('../../middleware/upload');
+const uploadService = require('../uploads/uploads.service');
 const { activateTrialSchema } = require('./subscription.validation');
 
 const router = Router();
@@ -34,7 +36,21 @@ router.post(
   authenticate,
   authorize('COMPANY_ADMIN'),
   tenantGuard,
-  subscriptionController.submitActivationRequest
+  upload.single('proofOfPayment'),
+  async (req, res, next) => {
+    try {
+      // Upload proof file if provided
+      let proofOfPaymentUrl = null;
+      if (req.file) {
+        const results = await uploadService.uploadFiles([req.file], 'payment-proofs');
+        proofOfPaymentUrl = results[0]?.url || null;
+      }
+      req.body.proofOfPaymentUrl = proofOfPaymentUrl;
+      return subscriptionController.submitActivationRequest(req, res, next);
+    } catch (err) {
+      next(err);
+    }
+  }
 );
 
 /**

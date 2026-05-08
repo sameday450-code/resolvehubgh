@@ -91,6 +91,7 @@ enum SubscriptionStatus {
 enum PaymentGateway {
   PAYSTACK
   STRIPE
+  MANUAL
 }
 
 enum PaymentStatus {
@@ -717,11 +718,18 @@ model ActivationRequest {
   selectedPlan       String   @default("STARTER") // STARTER, ENTERPRISE, CUSTOM
   amountPaid         Float
   paymentMethod      String   // "MOBILE_MONEY", "BANK_TRANSFER"
-  paymentReference   String   // Reference from payment provider or bank
+  // Mobile Money fields
+  network            String?  // MTN, TELECEL, AIRTELTIGO
+  paymentPhoneNumber String?  // Phone number used for mobile money
+  transactionId      String?  // Mobile money transaction ID
+  // Bank Transfer fields
+  bankName           String?  // Bank name for bank transfer
+  accountNameUsed    String?  // Account name used for bank transfer
+  paymentReference   String   // Reference from payment provider or bank (Reference Number for bank, fallback for momo)
   paymentDate        DateTime
   proofOfPaymentUrl  String?  // URL to uploaded proof
   note               String?  // Optional note from company
-  status             String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  status             String   @default("PENDING_REVIEW") // PENDING_REVIEW, APPROVED, REJECTED
   reviewedBy         String?  // Super Admin user ID who reviewed it
   reviewedAt         DateTime?
   rejectionReason    String?  // Reason if rejected

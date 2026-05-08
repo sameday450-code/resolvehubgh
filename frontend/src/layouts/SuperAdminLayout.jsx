@@ -16,6 +16,7 @@ import {
   Bell,
   Search,
   MessageSquareWarning,
+  CreditCard,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
@@ -32,6 +33,7 @@ const navItems = [
   { to: '/super-admin/approvals', icon: CheckCircle2, label: 'Approvals', priority: true },
   { to: '/super-admin/companies', icon: Building2, label: 'Companies' },
   { to: '/super-admin/sales-inquiries', icon: MessageSquareWarning, label: 'Sales Inquiries' },
+  { to: '/super-admin/payment-requests', icon: CreditCard, label: 'Payment Requests' },
   { to: '/super-admin/notifications', icon: Bell, label: 'Notifications', showBadge: true },
   { to: '/super-admin/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/super-admin/settings', icon: Settings, label: 'Settings' },

@@ -278,7 +278,7 @@ const requestActivation = async (companyId, data) => {
 
   // Check if there's already a pending request
   const existingPending = await prisma.activationRequest.findFirst({
-    where: { companyId, status: 'PENDING' },
+    where: { companyId, status: 'PENDING_REVIEW' },
   });
 
   if (existingPending) {
@@ -287,26 +287,35 @@ const requestActivation = async (companyId, data) => {
     );
   }
 
+  // Build create data with conditional fields per payment method
+  const createData = {
+    companyId,
+    selectedPlan: data.selectedPlan || 'STARTER',
+    amountPaid: parseFloat(data.amountPaid),
+    paymentMethod: data.paymentMethod, // MOBILE_MONEY or BANK_TRANSFER
+    paymentReference: data.paymentReference,
+    paymentDate: new Date(data.paymentDate),
+    proofOfPaymentUrl: data.proofOfPaymentUrl || null,
+    note: data.note || null,
+    status: 'PENDING_REVIEW',
+  };
+
+  if (data.paymentMethod === 'MOBILE_MONEY') {
+    createData.network = data.network || null;
+    createData.paymentPhoneNumber = data.paymentPhoneNumber || null;
+    createData.transactionId = data.transactionId || null;
+  } else if (data.paymentMethod === 'BANK_TRANSFER') {
+    createData.bankName = data.bankName || null;
+    createData.accountNameUsed = data.accountNameUsed || null;
+  }
+
   // Create activation request
-  const request = await prisma.activationRequest.create({
-    data: {
-      companyId,
-      selectedPlan: data.selectedPlan || 'STARTER',
-      amountPaid: parseFloat(data.amountPaid),
-      paymentMethod: data.paymentMethod, // MOBILE_MONEY or BANK_TRANSFER
-      paymentReference: data.paymentReference,
-      paymentDate: new Date(data.paymentDate),
-      proofOfPaymentUrl: data.proofOfPaymentUrl || null,
-      note: data.note || null,
-    },
-  });
+  const request = await prisma.activationRequest.create({ data: createData });
 
   // Update company payment status to PENDING
   await prisma.company.update({
     where: { id: companyId },
-    data: {
-      paymentStatus: 'PENDING',
-    },
+    data: { paymentStatus: 'PENDING' },
   });
 
   // Log action
@@ -809,7 +818,7 @@ const extendCompanyTrial = async (companyId, days, adminId) => {
  */
 const getAllActivationRequests = async (query) => {
   const { page = 1, limit = 20, status = null, companyId = null } = query;
-  const skip = (page - 1) * limit;
+  const skip = (Number(page) - 1) * Number(limit);
 
   const where = {};
   if (status) where.status = status;
@@ -819,10 +828,10 @@ const getAllActivationRequests = async (query) => {
     prisma.activationRequest.findMany({
       where,
       include: {
-        company: { select: { id: true, name: true, email: true } },
+        company: { select: { id: true, name: true, email: true, slug: true } },
       },
       skip,
-      take: limit,
+      take: Number(limit),
       orderBy: { createdAt: 'desc' },
     }),
     prisma.activationRequest.count({ where }),
@@ -831,10 +840,10 @@ const getAllActivationRequests = async (query) => {
   return {
     requests,
     pagination: {
-      page,
-      limit,
+      page: Number(page),
+      limit: Number(limit),
       total,
-      pages: Math.ceil(total / limit),
+      pages: Math.ceil(total / Number(limit)),
     },
   };
 };
@@ -845,38 +854,102 @@ const getAllActivationRequests = async (query) => {
 const approveActivationRequest = async (requestId, adminId) => {
   const request = await prisma.activationRequest.findUnique({
     where: { id: requestId },
-    include: { company: true },
+    include: { company: { include: { subscription: true } } },
   });
 
   if (!request) throw new NotFoundError('Activation request not found');
-  if (request.status !== 'PENDING') {
+  if (request.status !== 'PENDING_REVIEW') {
     throw new ConflictError('Only pending requests can be approved');
   }
+
+  const now = new Date();
+  const subscriptionEndDate = new Date(now);
+  subscriptionEndDate.setDate(subscriptionEndDate.getDate() + 30);
+
+  const planConfig = {
+    STARTER: { branchLimit: 2, name: 'Starter Plan' },
+    ENTERPRISE: { branchLimit: 5, name: 'Enterprise Plan' },
+    CUSTOM: { branchLimit: 10, name: 'Custom Plan' },
+  };
+  const selectedPlanConfig = planConfig[request.selectedPlan] || planConfig.STARTER;
 
   const updated = await prisma.$transaction(async (tx) => {
     // Update activation request
     const updatedRequest = await tx.activationRequest.update({
       where: { id: requestId },
-      data: {
-        status: 'APPROVED',
-        reviewedBy: adminId,
-        reviewedAt: new Date(),
-      },
+      data: { status: 'APPROVED', reviewedBy: adminId, reviewedAt: now },
     });
 
-    // Activate subscription
+    // Activate company fully
     await tx.company.update({
       where: { id: request.companyId },
       data: {
         plan: request.selectedPlan,
+        planName: selectedPlanConfig.name,
+        status: 'APPROVED',
+        isActive: true,
+        isDashboardLocked: false,
+        isLocked: false,
+        lockReason: null,
         paymentStatus: 'MANUAL_APPROVED',
         paymentProvider: 'MANUAL',
-        isDashboardLocked: false,
-        branchLimit: request.selectedPlan === 'STARTER' ? 2 : request.selectedPlan === 'ENTERPRISE' ? 5 : 10,
+        paymentMethod: request.paymentMethod,
+        paymentReference: request.paymentReference,
+        branchLimit: selectedPlanConfig.branchLimit,
+        subscriptionStartDate: now,
+        subscriptionEndDate,
+        subscriptionStatus: 'ACTIVE',
+        activatedAt: now,
+        activatedBy: adminId,
+        approvedAt: request.company.approvedAt || now,
       },
     });
 
-    // Notify company
+    // Update or create CompanySubscription
+    if (request.company.subscription) {
+      await tx.companySubscription.update({
+        where: { id: request.company.subscription.id },
+        data: {
+          status: 'ACTIVE',
+          paymentStatus: 'MANUAL_APPROVED',
+          paymentProvider: 'MANUAL',
+          gateway: 'MANUAL',
+          subscriptionStartDate: now,
+          subscriptionEndDate,
+          nextBillingDate: subscriptionEndDate,
+          activatedAt: now,
+          metadata: {
+            ...request.company.subscription.metadata,
+            approvedAt: now.toISOString(),
+            approvedBy: adminId,
+            activationRequestId: requestId,
+          },
+        },
+      });
+    }
+
+    // Create a transaction record
+    await tx.paymentTransaction.create({
+      data: {
+        companyId: request.companyId,
+        companySubscriptionId: request.company.subscription?.id || null,
+        gateway: 'MANUAL',
+        status: 'SUCCESS',
+        providerReference: `MANUAL-${requestId}`,
+        amount: Math.round(request.amountPaid * 100), // store in pesewas
+        currency: 'GHS',
+        paidAt: now,
+        metadata: {
+          activationRequestId: requestId,
+          paymentMethod: request.paymentMethod,
+          network: request.network,
+          transactionId: request.transactionId,
+          bankName: request.bankName,
+        },
+      },
+    });
+
+    // Notify company admins
     const companyAdmins = await tx.user.findMany({
       where: { companyId: request.companyId, role: 'COMPANY_ADMIN' },
     });
@@ -887,8 +960,8 @@ const approveActivationRequest = async (requestId, adminId) => {
           userId: admin.id,
           companyId: request.companyId,
           type: 'SYSTEM_ALERT',
-          title: 'Payment Approved',
-          message: `Your activation request has been approved! Your subscription is now active.`,
+          title: 'Payment Approved — Subscription Active',
+          message: `Your payment has been verified and your ${selectedPlanConfig.name} subscription is now active. You can now create up to ${selectedPlanConfig.branchLimit} branches.`,
         },
       });
     }
@@ -901,7 +974,7 @@ const approveActivationRequest = async (requestId, adminId) => {
         action: 'ACTIVATION_REQUEST_APPROVED',
         entity: 'ActivationRequest',
         entityId: requestId,
-        metadata: { companyName: request.company.name },
+        metadata: { companyName: request.company.name, plan: request.selectedPlan },
       },
     });
 
@@ -921,7 +994,7 @@ const rejectActivationRequest = async (requestId, adminId, reason) => {
   });
 
   if (!request) throw new NotFoundError('Activation request not found');
-  if (request.status !== 'PENDING') {
+  if (request.status !== 'PENDING_REVIEW') {
     throw new ConflictError('Only pending requests can be rejected');
   }
 
