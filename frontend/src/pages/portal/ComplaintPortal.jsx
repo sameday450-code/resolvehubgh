@@ -10,7 +10,7 @@ import { Badge } from '../../components/ui/badge';
 import { MessageSquare, Upload, X, AlertCircle, Send, Building2 } from 'lucide-react';
 
 export default function ComplaintPortal() {
-  const { slug } = useParams();
+  const { publicId } = useParams();
   const navigate = useNavigate();
   const [qrData, setQrData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,21 +31,22 @@ export default function ComplaintPortal() {
   useEffect(() => {
     const resolveQR = async () => {
       try {
-        const res = await qrCodeAPI.resolve(slug);
+        const res = await qrCodeAPI.resolve(publicId);
         const data = res.data?.data;
         if (!data) {
           navigate('/portal/invalid', { replace: true });
           return;
         }
         setQrData(data);
-      } catch {
-        navigate('/portal/invalid', { replace: true });
+      } catch (err) {
+        const message = err.response?.data?.message || undefined;
+        navigate('/portal/invalid', { replace: true, state: { message } });
       } finally {
         setLoading(false);
       }
     };
     resolveQR();
-  }, [slug, navigate]);
+  }, [publicId, navigate]);
 
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files || []);

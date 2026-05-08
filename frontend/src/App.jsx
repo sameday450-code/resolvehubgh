@@ -89,9 +89,9 @@ export default function App() {
       <Route path="/payment/callback" element={<PaymentCallbackPage />} />
 
       {/* Public complaint portal */}
-      <Route path="/c/:slug" element={<ComplaintPortal />} />
-      <Route path="/complaint-success" element={<ComplaintSuccess />} />
-      <Route path="/invalid-qr" element={<InvalidQR />} />
+      <Route path="/portal/:publicId" element={<ComplaintPortal />} />
+      <Route path="/portal/success" element={<ComplaintSuccess />} />
+      <Route path="/portal/invalid" element={<InvalidQR />} />
 
       {/* Super Admin routes */}
       <Route

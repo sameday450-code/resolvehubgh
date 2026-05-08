@@ -1,9 +1,12 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { AlertTriangle, Home } from 'lucide-react';
 
 export default function InvalidQR() {
+  const { state } = useLocation();
+  const message = state?.message || 'This QR code is either invalid, expired, or has been disabled. Please check the QR code and try again, or contact the business directly.';
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 flex items-center justify-center px-4">
       <Card className="max-w-md w-full">
@@ -14,7 +17,7 @@ export default function InvalidQR() {
 
           <h1 className="text-2xl font-bold mb-2">Invalid QR Code</h1>
           <p className="text-muted-foreground mb-6">
-            This QR code is either invalid, expired, or has been disabled. Please check the QR code and try again, or contact the business directly.
+            {message}
           </p>
 
           <div className="space-y-3">

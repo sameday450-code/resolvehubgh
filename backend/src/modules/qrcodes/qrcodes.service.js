@@ -20,7 +20,8 @@ const generateQRCode = async (companyId, data) => {
   }
 
   const publicSlug = generatePublicSlug();
-  const publicUrl = `${config.frontendUrl}/report/${publicSlug}`;
+  if (!publicSlug) throw new BadRequestError('QR code public identifier is missing.');
+  const publicUrl = `${config.frontendUrl}/portal/${publicSlug}`;
 
   // Generate QR code as data URL
   const qrDataUrl = await QRCode.toDataURL(publicUrl, {
@@ -45,7 +46,7 @@ const generateQRCode = async (companyId, data) => {
     },
   });
 
-  return qrCode;
+  return { ...qrCode, portalUrl: publicUrl };
 };
 
 const getQRCodes = async (companyId, query) => {
@@ -118,7 +119,7 @@ const regenerateQRCode = async (companyId, qrCodeId) => {
   if (!existing) throw new NotFoundError('QR code not found');
 
   const newPublicSlug = generatePublicSlug();
-  const publicUrl = `${config.frontendUrl}/report/${newPublicSlug}`;
+  const publicUrl = `${config.frontendUrl}/portal/${newPublicSlug}`;
 
   const qrDataUrl = await QRCode.toDataURL(publicUrl, {
     width: 400,
@@ -175,10 +176,10 @@ const resolvePublicQR = async (publicSlug) => {
     },
   });
 
-  if (!qrCode) return { valid: false, reason: 'invalid' };
-  if (qrCode.status === 'DISABLED') return { valid: false, reason: 'disabled' };
-  if (qrCode.status === 'EXPIRED') return { valid: false, reason: 'expired' };
-  if (qrCode.company.status !== 'APPROVED') return { valid: false, reason: 'company_inactive' };
+  if (!qrCode) throw new NotFoundError('Invalid complaint QR code.');
+  if (qrCode.status === 'DISABLED') throw new BadRequestError('This complaint QR code is currently disabled.');
+  if (qrCode.status === 'EXPIRED') throw new BadRequestError('This QR code has expired.');
+  if (qrCode.company.status !== 'APPROVED') throw new BadRequestError('Company account is inactive.');
 
   // Update scan count
   await prisma.qRCode.update({
@@ -197,27 +198,27 @@ const resolvePublicQR = async (publicSlug) => {
   });
 
   return {
-    valid: true,
-    data: {
-      company: {
-        name: qrCode.company.name,
-        logoUrl: qrCode.company.logoUrl,
-        brandColor: qrCode.company.brandColor,
-        welcomeMessage: qrCode.company.settings?.customWelcomeMessage,
-        allowAnonymous: qrCode.company.settings?.allowAnonymous ?? true,
-      },
+    company: {
+      name: qrCode.company.name,
+      logoUrl: qrCode.company.logoUrl,
+      brandColor: qrCode.company.brandColor,
+      welcomeMessage: qrCode.company.settings?.customWelcomeMessage,
+      allowAnonymous: qrCode.company.settings?.allowAnonymous ?? true,
+    },
+    qrCode: {
+      id: qrCode.id,
+      branchId: qrCode.branchId,
+      complaintPointId: qrCode.complaintPointId,
       branch: qrCode.branch,
       complaintPoint: qrCode.complaintPoint,
-      qrCodeId: qrCode.id,
-      companyId: qrCode.company.id,
-      categories,
     },
+    categories,
   };
 };
 
 // Generate QR as SVG string
 const getQRCodeSVG = async (publicSlug) => {
-  const publicUrl = `${config.frontendUrl}/report/${publicSlug}`;
+  const publicUrl = `${config.frontendUrl}/portal/${publicSlug}`;
   return QRCode.toString(publicUrl, {
     type: 'svg',
     width: 400,

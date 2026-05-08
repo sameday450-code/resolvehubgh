@@ -71,13 +71,13 @@ export default function QRCodes() {
 
   const handleDownloadPNG = async (qr) => {
     try {
-      const res = await qrCodeAPI.downloadSVG(qr.id);
+      const res = await qrCodeAPI.downloadSVG(qr.publicSlug);
       const svgData = res.data?.data || res.data;
       const blob = new Blob([svgData], { type: 'image/svg+xml' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `qr-${qr.code}.svg`;
+      a.download = `qr-${qr.publicSlug}.svg`;
       a.click();
       URL.revokeObjectURL(url);
     } catch {
@@ -87,7 +87,7 @@ export default function QRCodes() {
   };
 
   const copyLink = (qr) => {
-    const url = `${window.location.origin}/portal/${qr.slug}`;
+    const url = qr.portalUrl || `${window.location.origin}/portal/${qr.publicSlug}`;
     navigator.clipboard.writeText(url);
   };
 
@@ -239,7 +239,7 @@ export default function QRCodes() {
                 </div>
                 <div className="mt-2.5 pt-2.5 border-t border-border/30">
                   <a
-                    href={`/portal/${qr.slug}`}
+                    href={qr.portalUrl || `/portal/${qr.publicSlug}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs text-cyan-600 hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300 hover:underline inline-flex items-center gap-1 font-medium"
@@ -341,7 +341,7 @@ export default function QRCodes() {
                   <QrCode className="h-16 w-16 text-muted-foreground" />
                 </div>
               )}
-              <p className="text-xs text-muted-foreground font-mono">{previewQR.slug}</p>
+              <p className="text-xs text-muted-foreground font-mono">{previewQR.publicSlug}</p>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => handleDownloadPNG(previewQR)}>
                   <Download className="h-4 w-4 mr-1" /> Download
