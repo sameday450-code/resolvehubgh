@@ -30,36 +30,51 @@ export default function SACompanyDetail() {
     queryFn: () => superAdminAPI.getCompanyDetail(id),
   });
 
+  const invalidateAll = () => {
+    queryClient.invalidateQueries({ queryKey: ['sa-company', id] });
+    queryClient.invalidateQueries({ queryKey: ['company-subscription-admin', id] });
+    queryClient.invalidateQueries({ queryKey: ['sa-companies'] });
+    queryClient.invalidateQueries({ queryKey: ['sa-approvals'] });
+  };
+
   const approveMutation = useMutation({
     mutationFn: () => superAdminAPI.approveCompany(id),
-    onSuccess: () => { toast.success('Company approved'); queryClient.invalidateQueries({ queryKey: ['sa-company', id] }); },
-    onError: (err) => toast.error(err.response?.data?.message || 'Failed'),
+    onSuccess: () => { toast.success('Company approved successfully'); invalidateAll(); },
+    onError: (err) => toast.error(err.response?.data?.message || 'Failed to approve company'),
   });
 
   const rejectMutation = useMutation({
     mutationFn: () => superAdminAPI.rejectCompany(id, 'Does not meet platform requirements'),
-    onSuccess: () => { toast.success('Company rejected'); queryClient.invalidateQueries({ queryKey: ['sa-company', id] }); },
-    onError: (err) => toast.error(err.response?.data?.message || 'Failed'),
+    onSuccess: () => { toast.success('Company rejected'); invalidateAll(); },
+    onError: (err) => toast.error(err.response?.data?.message || 'Failed to reject company'),
   });
 
   const suspendMutation = useMutation({
     mutationFn: () => superAdminAPI.suspendCompany(id, 'Policy violation'),
-    onSuccess: () => { toast.success('Company suspended'); queryClient.invalidateQueries({ queryKey: ['sa-company', id] }); },
-    onError: (err) => toast.error(err.response?.data?.message || 'Failed'),
+    onSuccess: () => { toast.success('Company suspended'); invalidateAll(); },
+    onError: (err) => toast.error(err.response?.data?.message || 'Failed to suspend company'),
   });
 
   const reactivateMutation = useMutation({
     mutationFn: () => superAdminAPI.reactivateCompany(id),
-    onSuccess: () => { toast.success('Company reactivated'); queryClient.invalidateQueries({ queryKey: ['sa-company', id] }); },
-    onError: (err) => toast.error(err.response?.data?.message || 'Failed'),
+    onSuccess: () => { toast.success('Company reactivated'); invalidateAll(); },
+    onError: (err) => toast.error(err.response?.data?.message || 'Failed to reactivate company'),
   });
 
   if (isLoading) return <PageLoading />;
   if (error) return <ErrorState message={error.message} onRetry={refetch} />;
 
-  const company = data?.data;
+  // The API returns { success, data: {...company} }; Axios wraps in response.data
+  // So React Query data = axiosResponse, data.data = server JSON, data.data.data = actual company
+  const company = data?.data?.data;
   if (!company) return <ErrorState title="Company not found" />;
-  const sc = statusConfig[company.status] || statusConfig.REJECTED;
+
+  const sc = statusConfig[company.status] || {
+    bg: 'bg-muted/30',
+    text: 'text-muted-foreground',
+    dot: 'bg-gray-400',
+    label: company.status ? company.status.charAt(0) + company.status.slice(1).toLowerCase() : 'Unknown',
+  };
 
   const statCards = [
     { icon: Users, label: 'Users', value: company._count?.users ?? company.users?.length ?? 0, color: 'text-blue-600', bg: 'bg-blue-500/10' },
@@ -107,6 +122,11 @@ export default function SACompanyDetail() {
                     <XCircle className="mr-2 h-4 w-4" /> Reject
                   </Button>
                 </>
+              )}
+              {company.status === 'REJECTED' && (
+                <Button onClick={() => approveMutation.mutate()} disabled={approveMutation.isPending} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-600/20">
+                  <CheckCircle className="mr-2 h-4 w-4" /> Approve
+                </Button>
               )}
               {company.status === 'APPROVED' && (
                 <Button variant="destructive" onClick={() => suspendMutation.mutate()} disabled={suspendMutation.isPending} className="rounded-xl">
@@ -186,10 +206,10 @@ export default function SACompanyDetail() {
                   <div key={user.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/30 transition-colors">
                     <div className="flex items-center gap-3">
                       <div className="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-blue-600/10 to-indigo-600/10 text-primary text-xs font-bold">
-                        {user.name?.charAt(0) || '?'}
+                        {user.fullName?.charAt(0) || '?'}
                       </div>
                       <div>
-                        <p className="text-sm font-medium">{user.name}</p>
+                        <p className="text-sm font-medium">{user.fullName}</p>
                         <p className="text-xs text-muted-foreground">{user.email}</p>
                       </div>
                     </div>

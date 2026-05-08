@@ -32,10 +32,10 @@ const statusOptions = [
 ];
 
 const statusConfig = {
-  APPROVED: { bg: 'bg-emerald-500/10', text: 'text-emerald-600', dot: 'bg-emerald-500' },
-  PENDING: { bg: 'bg-amber-500/10', text: 'text-amber-600', dot: 'bg-amber-500' },
-  SUSPENDED: { bg: 'bg-red-500/10', text: 'text-red-600', dot: 'bg-red-500' },
-  REJECTED: { bg: 'bg-gray-500/10', text: 'text-gray-600', dot: 'bg-gray-400' },
+  APPROVED: { bg: 'bg-emerald-500/10', text: 'text-emerald-600', dot: 'bg-emerald-500', label: 'Approved' },
+  PENDING: { bg: 'bg-amber-500/10', text: 'text-amber-600', dot: 'bg-amber-500', label: 'Pending' },
+  SUSPENDED: { bg: 'bg-red-500/10', text: 'text-red-600', dot: 'bg-red-500', label: 'Suspended' },
+  REJECTED: { bg: 'bg-gray-500/10', text: 'text-gray-600', dot: 'bg-gray-400', label: 'Rejected' },
 };
 
 export default function SACompanies() {
@@ -138,7 +138,12 @@ export default function SACompanies() {
               </thead>
               <tbody className="divide-y">
                 {companies.map((company) => {
-                  const sc = statusConfig[company.status] || statusConfig.REJECTED;
+                  const sc = statusConfig[company.status] || {
+                    bg: 'bg-muted/30',
+                    text: 'text-muted-foreground',
+                    dot: 'bg-gray-400',
+                    label: company.status ? company.status.charAt(0) + company.status.slice(1).toLowerCase() : 'Unknown',
+                  };
                   return (
                     <tr key={company.id} className="hover:bg-muted/20 transition-colors group">
                       <td className="p-4">
@@ -148,7 +153,7 @@ export default function SACompanies() {
                           </div>
                           <div>
                             <p className="font-medium text-sm">{company.name}</p>
-                            <p className="text-xs text-muted-foreground">{company.contactEmail}</p>
+                            <p className="text-xs text-muted-foreground">{company.contactEmail || company.email}</p>
                           </div>
                         </div>
                       </td>
@@ -156,7 +161,7 @@ export default function SACompanies() {
                       <td className="p-4">
                         <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${sc.bg} ${sc.text}`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${sc.dot}`} />
-                          {company.status}
+                          {sc.label}
                         </span>
                       </td>
                       <td className="p-4 text-center text-muted-foreground hidden lg:table-cell">

@@ -729,7 +729,7 @@ const extendCompanyTrial = async (companyId, days, adminId) => {
         plan: 'STARTER',
         planName: 'Free Trial',
         subscriptionStatus: 'TRIAL',
-        paymentStatus: 'TRIAL',
+        paymentStatus: 'UNPAID',
         branchLimit: 1,
         
         // Track extension

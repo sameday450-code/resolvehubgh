@@ -222,6 +222,7 @@ const approveCompany = async (companyId, adminId) => {
         status: 'APPROVED',
         isActive: true,
         approvedAt: new Date(),
+        rejectedAt: null,
         rejectionReason: null,
         // Start 14-day free trial
         trialStartDate,
@@ -434,6 +435,7 @@ const reactivateCompany = async (companyId, adminId) => {
         status: 'APPROVED',
         approvedAt: new Date(),
         suspendedAt: null,
+        rejectedAt: null,
         rejectionReason: null,
       },
     });

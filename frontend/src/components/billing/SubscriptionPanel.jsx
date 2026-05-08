@@ -241,7 +241,9 @@ export default function SubscriptionPanel({ companyId }) {
 
   if (isLoading) return <div className="text-sm text-muted-foreground">Loading subscription info...</div>;
 
-  const sub = subscriptionData?.data;
+  // The API returns { success, data: {...} }; Axios wraps in response.data
+  // So React Query data = axiosResponse, data.data = server JSON, data.data.data = actual sub info
+  const sub = subscriptionData?.data?.data;
   if (!sub) return null;
 
   // Determine payment status display based on subscription status
