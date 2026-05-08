@@ -20,7 +20,7 @@ import {
 export default function Branches() {
   const queryClient = useQueryClient();
   const { billingError, clearError } = useBillingErrorHandler();
-  const { canAccess, isBillingRequired, subscriptionStatus } = useAuth();
+  const { canAccess, isBillingRequired, subscriptionStatus, isTrialing, isTrialExpired } = useAuth();
   
   const [showCreate, setShowCreate] = useState(false);
   const [showPoints, setShowPoints] = useState(null);
@@ -44,6 +44,9 @@ export default function Branches() {
 
   const canCreateBranch = canAccess('write');
   const canDeleteBranch = canAccess('delete');
+
+  const branches = data?.data?.data || [];
+  const isTrialLimitReached = isTrialing && !isTrialExpired && branches.length >= 1;
 
   const createMutation = useMutation({
     mutationFn: (data) => branchAPI.create(data),
@@ -136,8 +139,6 @@ export default function Branches() {
   if (isLoading) return <PageLoading />;
   if (isError) return <ErrorState message={error?.message} onRetry={refetch} />;
 
-  const branches = data?.data?.data || [];
-
   return (
     <div className="space-y-6">
       {/* Billing Locked Banner */}
@@ -157,14 +158,26 @@ export default function Branches() {
           <h1 className="text-3xl font-bold tracking-tight">Branches</h1>
           <p className="text-muted-foreground mt-1">Manage your locations and complaint points</p>
         </div>
-        <Button 
-          onClick={() => { resetForm(); setEditBranch(null); setShowCreate(true); }} 
-          disabled={!canCreateBranch}
-          className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 border-0"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Branch
-        </Button>
+        {isTrialExpired ? (
+          <p className="text-sm text-amber-600 dark:text-amber-400">
+            Trial expired —{' '}
+            <a href="/company/billing" className="underline font-medium">Activate a subscription</a>
+          </p>
+        ) : isTrialLimitReached ? (
+          <p className="text-sm text-muted-foreground">
+            Your free trial allows only 1 branch.{' '}
+            <a href="/company/billing" className="text-violet-600 dark:text-violet-400 underline font-medium">Upgrade to add more</a>
+          </p>
+        ) : (
+          <Button
+            onClick={() => { resetForm(); setEditBranch(null); setShowCreate(true); }}
+            disabled={!canCreateBranch}
+            className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 border-0"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Branch
+          </Button>
+        )}
       </div>
 
       {branches.length === 0 ? (

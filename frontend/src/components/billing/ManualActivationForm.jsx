@@ -272,7 +272,7 @@ export default function ManualActivationForm() {
               Mobile Money Details
             </h3>
             <div className="space-y-2">
-              <CopyField label="MTN Mobile Money" value="+233 20 123 4567" />
+              <CopyField label="MTN Mobile Money" value="+233 24 123 4567" />
               <CopyField label="Telecel Cash" value="+233 50 123 4567" />
               <CopyField label="Account Name" value="ResolveHub GH" />
             </div>

@@ -47,52 +47,66 @@ const createBranch = async (companyId, data) => {
   const slug = generateSlug(data.name);
   const code = data.code || generateBranchCode(data.name);
 
-  // Check subscription status and trial limits
+  // Fetch company with subscription for status enforcement
   const company = await prisma.company.findUnique({
     where: { id: companyId },
     select: {
       id: true,
-      paymentStatus: true,
+      isActive: true,
+      status: true,
       isDashboardLocked: true,
       branchLimit: true,
-      trialEndDate: true,
+      subscription: {
+        select: {
+          status: true,
+          trialEndsAt: true,
+        },
+      },
     },
   });
 
   if (!company) throw new NotFoundError('Company not found');
 
-  // Check if dashboard is locked
-  if (company.isDashboardLocked) {
-    throw new BadRequestError(
-      'Your trial has expired. Please activate your subscription to continue.'
-    );
+  // Company must be approved, active, and dashboard unlocked
+  if (company.status !== 'APPROVED' || !company.isActive || company.isDashboardLocked) {
+    throw new BadRequestError('Your company account is not active yet.');
   }
 
-  // Check if trial has expired
-  if (
-    company.trialEndDate &&
-    new Date(company.trialEndDate) < new Date() &&
-    company.paymentStatus !== 'MANUAL_APPROVED'
-  ) {
-    throw new BadRequestError(
-      'Your trial has expired. Please activate your subscription to continue.'
-    );
+  const sub = company.subscription;
+
+  // No subscription record — company was never fully activated
+  if (!sub) {
+    throw new BadRequestError('Your company account is not active yet.');
   }
 
-  // Count existing branches
-  const branchCount = await prisma.branch.count({ where: { companyId } });
+  const now = new Date();
+  const { status: subStatus, trialEndsAt } = sub;
 
-  // Check branch limit
-  if (branchCount >= company.branchLimit) {
-    if (company.branchLimit === 1) {
+  if (subStatus === 'TRIALING') {
+    // Check if trial has expired
+    if (trialEndsAt && new Date(trialEndsAt) < now) {
       throw new BadRequestError(
-        'Your free trial allows only 1 branch. Please activate your subscription to add more branches.'
+        'Your free trial has expired. Please activate a subscription.'
       );
-    } else {
+    }
+    // Trial active — enforce 1 branch limit
+    const branchCount = await prisma.branch.count({ where: { companyId } });
+    if (branchCount >= 1) {
+      throw new BadRequestError(
+        'Your free trial allows only 1 branch. Upgrade to add more branches.'
+      );
+    }
+  } else if (subStatus === 'ACTIVE') {
+    // Paid subscription — use company.branchLimit
+    const branchCount = await prisma.branch.count({ where: { companyId } });
+    if (branchCount >= company.branchLimit) {
       throw new BadRequestError(
         `You have reached your branch limit (${company.branchLimit}). Please upgrade your plan to add more branches.`
       );
     }
+  } else {
+    // PENDING_ACTIVATION, PENDING_PAYMENT, EXPIRED, CANCELLED, PAST_DUE
+    throw new BadRequestError('Your company account is not active yet.');
   }
 
   const branch = await prisma.branch.create({

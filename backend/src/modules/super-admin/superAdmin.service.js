@@ -255,25 +255,42 @@ const approveCompany = async (companyId, adminId) => {
         },
       });
     } else {
-      // Create new subscription with TRIALING status if it doesn't exist
-      const starterPlan = await tx.subscriptionPlan.findUnique({
+      // Ensure the STARTER_TRIAL plan exists — create it if missing so the
+      // subscription can always be created (subscriptionPlanId is required).
+      let starterPlan = await tx.subscriptionPlan.findFirst({
         where: { planType: 'STARTER_TRIAL' },
       });
-      
-      if (starterPlan) {
-        await tx.companySubscription.create({
+
+      if (!starterPlan) {
+        starterPlan = await tx.subscriptionPlan.create({
           data: {
-            companyId,
-            subscriptionPlanId: starterPlan.id,
-            status: 'TRIALING',
-            trialStartedAt: trialStartDate,
-            trialEndsAt: trialEndDate,
-            activatedAt: trialStartDate,
-            paymentStatus: 'UNPAID',
-            paymentProvider: 'MANUAL',
+            name: 'Free Trial',
+            slug: 'starter-trial',
+            planType: 'STARTER_TRIAL',
+            price: 0,
+            currency: 'GHS',
+            trialDays: 14,
+            maxBranches: 1,
+            maxQRCodes: 5,
+            maxStaff: 3,
+            features: ['1 Branch', 'QR Code Generation', 'Complaint Management'],
+            isActive: true,
           },
         });
       }
+
+      await tx.companySubscription.create({
+        data: {
+          companyId,
+          subscriptionPlanId: starterPlan.id,
+          status: 'TRIALING',
+          trialStartedAt: trialStartDate,
+          trialEndsAt: trialEndDate,
+          activatedAt: trialStartDate,
+          paymentStatus: 'UNPAID',
+          paymentProvider: 'MANUAL',
+        },
+      });
     }
 
     await tx.approvalActionLog.create({
