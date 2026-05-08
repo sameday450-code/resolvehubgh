@@ -3,6 +3,7 @@ const controller = require('./settings.controller');
 const { authenticate, authorize, tenantGuard } = require('../../middleware/auth');
 const billingGuard = require('../../middleware/billingGuard');
 const dashboardLockGuard = require('../../middleware/dashboardLockGuard');
+const upload = require('../../middleware/upload');
 
 const router = Router();
 
@@ -14,6 +15,7 @@ router.get('/staff', authenticate, authorize('COMPANY_ADMIN'), tenantGuard, dash
 // Write operations
 router.put('/profile', authenticate, authorize('COMPANY_ADMIN'), tenantGuard, dashboardLockGuard, billingGuard('write'), controller.updateProfile);
 router.put('/preferences', authenticate, authorize('COMPANY_ADMIN'), tenantGuard, dashboardLockGuard, billingGuard('write'), controller.updateSettings);
+router.put('/branding', authenticate, authorize('COMPANY_ADMIN'), tenantGuard, dashboardLockGuard, billingGuard('write'), upload.single('logo'), controller.updateBranding);
 router.post('/categories', authenticate, authorize('COMPANY_ADMIN'), tenantGuard, dashboardLockGuard, billingGuard('write'), controller.createCategory);
 router.post('/staff', authenticate, authorize('COMPANY_ADMIN'), tenantGuard, dashboardLockGuard, billingGuard('write'), controller.addStaff);
 router.patch('/staff/:id/status', authenticate, authorize('COMPANY_ADMIN'), tenantGuard, dashboardLockGuard, billingGuard('write'), controller.updateStaffStatus);

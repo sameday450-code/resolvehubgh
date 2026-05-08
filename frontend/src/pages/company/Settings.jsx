@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { settingsAPI, uploadAPI, subscriptionAPI, paymentsAPI } from '../../lib/api';
+import { settingsAPI, subscriptionAPI, paymentsAPI } from '../../lib/api';
 import { PageLoading, ErrorState } from '../../components/shared';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -170,26 +170,39 @@ function ProfileTab({ profile, queryClient }) {
 }
 
 function BrandingTab({ profile, queryClient }) {
-  const [primaryColor, setPrimaryColor] = useState(profile?.settings?.primaryColor || '#6366f1');
-  const [uploading, setUploading] = useState(false);
+  const [brandColor, setBrandColor] = useState(profile?.brandColor || '#2563eb');
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(profile?.logoUrl || null);
 
-  const updateMutation = useMutation({
-    mutationFn: (data) => settingsAPI.updatePreferences(data),
-    onSuccess: () => queryClient.invalidateQueries(['company-profile']),
+  const brandingMutation = useMutation({
+    mutationFn: (formData) => settingsAPI.updateBranding(formData),
+    onSuccess: (res) => {
+      const updated = res.data?.data;
+      // Refresh settings query so logo/color are in sync everywhere
+      queryClient.invalidateQueries({ queryKey: ['company-profile'] });
+      // Update preview in case it came from Cloudinary
+      if (updated?.logoUrl) setLogoPreview(updated.logoUrl);
+      if (updated?.brandColor) setBrandColor(updated.brandColor);
+      setLogoFile(null);
+      toast.success('Branding updated successfully');
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.message || 'Failed to save branding. Please try again.');
+    },
   });
 
-  const handleLogoUpload = async (e) => {
+  const handleLogoSelect = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploading(true);
-    try {
-      await uploadAPI.uploadLogo(file);
-      queryClient.invalidateQueries(['company-profile']);
-    } catch (err) {
-      console.error('Logo upload failed:', err);
-    } finally {
-      setUploading(false);
-    }
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+  };
+
+  const handleSave = () => {
+    const formData = new FormData();
+    formData.append('brandColor', brandColor);
+    if (logoFile) formData.append('logo', logoFile);
+    brandingMutation.mutate(formData);
   };
 
   return (
@@ -207,22 +220,25 @@ function BrandingTab({ profile, queryClient }) {
         <CardContent>
           <div className="flex items-center gap-6">
             <div className="h-24 w-24 rounded-xl border-2 border-dashed border-violet-200 dark:border-violet-800/50 flex items-center justify-center bg-gradient-to-br from-violet-50 to-purple-50/50 dark:from-violet-950/30 dark:to-purple-950/20 overflow-hidden">
-              {profile?.logoUrl ? (
-                <img src={profile.logoUrl} alt="Logo" className="h-full w-full object-contain" />
+              {logoPreview ? (
+                <img src={logoPreview} alt="Logo preview" className="h-full w-full object-contain" />
               ) : (
                 <Building2 className="h-8 w-8 text-muted-foreground" />
               )}
             </div>
             <div>
               <label className="cursor-pointer">
-                <Button variant="outline" asChild disabled={uploading}>
+                <Button variant="outline" asChild>
                   <span>
                     <Upload className="h-4 w-4 mr-2" />
-                    {uploading ? 'Uploading...' : 'Upload Logo'}
+                    {logoFile ? 'Change Logo' : 'Choose Logo'}
                   </span>
                 </Button>
-                <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
+                <input type="file" className="hidden" accept="image/*" onChange={handleLogoSelect} />
               </label>
+              {logoFile && (
+                <p className="text-xs text-muted-foreground mt-1">{logoFile.name} — click Save to upload</p>
+              )}
               <p className="text-xs text-muted-foreground mt-2">PNG, JPG up to 2MB. Recommended 200×200px.</p>
             </div>
           </div>
@@ -240,30 +256,47 @@ function BrandingTab({ profile, queryClient }) {
           <CardDescription>Customize the complaint portal appearance</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 mb-6">
             <div>
               <Label>Primary Color</Label>
               <div className="flex items-center gap-2 mt-1">
                 <input
                   type="color"
-                  value={primaryColor}
-                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  value={brandColor}
+                  onChange={(e) => setBrandColor(e.target.value)}
                   className="h-10 w-10 cursor-pointer rounded border"
                 />
                 <Input
-                  value={primaryColor}
-                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  value={brandColor}
+                  onChange={(e) => setBrandColor(e.target.value)}
                   className="w-32 font-mono"
+                  maxLength={7}
                 />
               </div>
             </div>
+            <div className="mt-6">
+              <div
+                className="h-10 w-24 rounded-md border flex items-center justify-center text-xs font-medium text-white shadow-sm"
+                style={{ backgroundColor: brandColor }}
+              >
+                Preview
+              </div>
+            </div>
           </div>
+
           <Button
-            className="mt-4 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white shadow-lg shadow-rose-500/25 border-0"
-            onClick={() => updateMutation.mutate({ primaryColor })}
-            disabled={updateMutation.isPending}
+            className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white shadow-lg shadow-rose-500/25 border-0"
+            onClick={handleSave}
+            disabled={brandingMutation.isPending}
           >
-            Save Branding
+            {brandingMutation.isPending ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Saving…
+              </>
+            ) : (
+              'Save Branding'
+            )}
           </Button>
         </CardContent>
       </Card>

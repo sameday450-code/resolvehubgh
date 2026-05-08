@@ -49,6 +49,14 @@ const initializeSocket = (io) => {
       });
     }
 
+    // Public portal branding room — no auth required; companyId validated by QR lookup on client
+    socket.on('join:public:company', (companyId) => {
+      if (companyId && typeof companyId === 'string' && companyId.length <= 64) {
+        socket.join(`public:company:${companyId}`);
+        logger.debug(`Public socket joined branding room for company: ${companyId}`);
+      }
+    });
+
     socket.on('disconnect', () => {
       if (user) {
         logger.debug(`User disconnected: ${user.userId}`);

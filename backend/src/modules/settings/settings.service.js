@@ -130,8 +130,20 @@ const updateStaffStatus = async (companyId, userId, isActive) => {
   });
 };
 
+const updateBranding = async (companyId, { brandColor, logoUrl }) => {
+  const updateData = {};
+  if (brandColor) updateData.brandColor = brandColor;
+  if (logoUrl) updateData.logoUrl = logoUrl;
+
+  return prisma.company.update({
+    where: { id: companyId },
+    data: updateData,
+    select: { id: true, logoUrl: true, brandColor: true, updatedAt: true },
+  });
+};
+
 module.exports = {
-  getSettings, updateCompanyProfile, updateSettings,
+  getSettings, updateCompanyProfile, updateSettings, updateBranding,
   getCategories, createCategory, deleteCategory,
   getStaff, addStaff, updateStaffStatus,
 };

@@ -185,6 +185,10 @@ export const settingsAPI = {
   get: () => api.get('/settings'),
   updateProfile: (data) => api.put('/settings/profile', data),
   updatePreferences: (data) => api.put('/settings/preferences', data),
+  updateBranding: (formData) =>
+    api.put('/settings/branding', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
   getCategories: () => api.get('/settings/categories'),
   createCategory: (data) => api.post('/settings/categories', data),
   deleteCategory: (id) => api.delete(`/settings/categories/${id}`),

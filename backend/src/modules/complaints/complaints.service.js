@@ -18,12 +18,24 @@ const submitComplaint = async (data, ip) => {
     },
   });
 
-  if (!qrCode || qrCode.status !== 'ACTIVE') {
-    throw new BadRequestError('Invalid or inactive QR code');
+  if (!qrCode) {
+    throw new BadRequestError('Invalid QR code.');
+  }
+
+  if (qrCode.status === 'DISABLED') {
+    throw new BadRequestError('This QR code is disabled.');
+  }
+
+  if (qrCode.status !== 'ACTIVE') {
+    throw new BadRequestError('Invalid or inactive QR code.');
   }
 
   if (qrCode.company.status !== 'APPROVED') {
-    throw new BadRequestError('Company is not active');
+    throw new BadRequestError('This company account is currently inactive.');
+  }
+
+  if (qrCode.company.isDashboardLocked) {
+    throw new BadRequestError('This company account is currently inactive.');
   }
 
   // Rate limiting check (per IP, max 10 complaints per hour)
@@ -46,21 +58,26 @@ const submitComplaint = async (data, ip) => {
       referenceNumber,
       companyId: qrCode.companyId,
       branchId: qrCode.branchId,
-      complaintPointId: qrCode.complaintPointId,
+      complaintPointId: qrCode.complaintPointId || null,
       qrCodeId: qrCode.id,
       categoryId: data.categoryId || null,
       type: data.type || 'COMPLAINT',
       title: data.title,
       description: data.description,
-      customerName: data.isAnonymous ? null : data.customerName,
-      customerEmail: data.isAnonymous ? null : data.customerEmail,
-      customerPhone: data.isAnonymous ? null : data.customerPhone,
+      customerName: data.isAnonymous ? null : (data.customerName || null),
+      customerEmail: data.isAnonymous ? null : (data.customerEmail || null),
+      customerPhone: data.isAnonymous ? null : (data.customerPhone || null),
       isAnonymous: data.isAnonymous || false,
       status: qrCode.company.settings?.autoAcknowledge ? 'ACKNOWLEDGED' : 'NEW',
       acknowledgedAt: qrCode.company.settings?.autoAcknowledge ? new Date() : null,
       submitterIp: ip,
     },
   });
+
+  // Save attachments if any were uploaded
+  if (Array.isArray(data.attachments) && data.attachments.length > 0) {
+    await addAttachments(complaint.id, data.attachments);
+  }
 
   // Create notification for company admins
   const companyAdmins = await prisma.user.findMany({
@@ -87,6 +104,7 @@ const submitComplaint = async (data, ip) => {
   return {
     referenceNumber: complaint.referenceNumber,
     status: complaint.status,
+    companyId: qrCode.companyId,
     companyName: qrCode.company.name,
     branchName: qrCode.branch.name,
   };

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { io } from 'socket.io-client';
 import { qrCodeAPI, complaintAPI, uploadAPI } from '../../lib/api';
 import { PageLoading } from '../../components/shared';
 import { Button } from '../../components/ui/button';
@@ -9,14 +10,23 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../..
 import { Badge } from '../../components/ui/badge';
 import { MessageSquare, Upload, X, AlertCircle, Send, ShieldCheck, ShieldX } from 'lucide-react';
 
+const DEFAULT_COLOR = '#2563eb';
+
+const getBackendSocketUrl = () => {
+  const url = import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_URL?.replace('/api', '') || window.location.origin;
+  return url;
+};
+
 export default function ComplaintPortal() {
   const { publicId } = useParams();
   const navigate = useNavigate();
   const [qrData, setQrData] = useState(null);
+  const [branding, setBranding] = useState({ logoUrl: null, brandColor: DEFAULT_COLOR });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [files, setFiles] = useState([]);
+  const socketRef = useRef(null);
   // 'pending' | 'accepted' | 'declined'
   const [consentStatus, setConsentStatus] = useState('pending');
   const [form, setForm] = useState({
@@ -40,6 +50,10 @@ export default function ComplaintPortal() {
           return;
         }
         setQrData(data);
+        setBranding({
+          logoUrl: data.company?.logoUrl || null,
+          brandColor: data.company?.brandColor || DEFAULT_COLOR,
+        });
       } catch (err) {
         const message = err.response?.data?.message || undefined;
         navigate('/portal/invalid', { replace: true, state: { message } });
@@ -49,6 +63,39 @@ export default function ComplaintPortal() {
     };
     resolveQR();
   }, [publicId, navigate]);
+
+  // Real-time branding updates via Socket.IO (unauthenticated public connection)
+  useEffect(() => {
+    if (!qrData?.qrCode?.id) return;
+    const companyId = qrData?.company?.id || qrData?.qrCode?.companyId;
+    if (!companyId) return;
+
+    const socket = io(getBackendSocketUrl(), {
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+    });
+
+    socket.on('connect', () => {
+      socket.emit('join:public:company', companyId);
+    });
+
+    socket.on('company:branding-updated', (payload) => {
+      setBranding({
+        logoUrl: payload.logoUrl || null,
+        brandColor: payload.brandColor || DEFAULT_COLOR,
+      });
+    });
+
+    socketRef.current = socket;
+    return () => {
+      socket.disconnect();
+    };
+  }, [qrData?.qrCode?.id]);
+
+  const color = branding.brandColor || DEFAULT_COLOR;
+  // Cache-busted logo URL using updatedAt from branding event or static
+  const logoSrc = branding.logoUrl ? branding.logoUrl : null;
 
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files || []);
@@ -71,42 +118,61 @@ export default function ComplaintPortal() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Validate QR context before submitting
+    if (!publicId || !qrData?.qrCode?.id || !qrData?.qrCode?.branchId) {
+      setError('Invalid QR portal. Please scan a valid QR code.');
+      return;
+    }
+
     setSubmitting(true);
 
     try {
-      // Upload attachments first if any
-      let attachmentUrls = [];
+      // Upload attachments first if any; upload service returns array of objects
+      let attachments = [];
       if (files.length > 0) {
         const formData = new FormData();
         files.forEach((file) => formData.append('files', file));
         const uploadRes = await uploadAPI.uploadComplaintFiles(formData);
-        attachmentUrls = uploadRes.data?.data?.urls || [];
+        attachments = uploadRes.data?.data || [];
       }
 
-      // Submit complaint
+      // Build payload — only include defined, non-empty values
       const payload = {
+        publicSlug: publicId,
         title: form.title,
         description: form.description,
         type: form.type,
-        categoryId: form.categoryId || undefined,
-        qrCodeId: qrData.qrCode.id,
-        branchId: qrData.qrCode.branchId,
-        complaintPointId: qrData.qrCode.complaintPointId || undefined,
         isAnonymous: form.isAnonymous,
-        attachments: attachmentUrls,
       };
 
+      if (form.categoryId) payload.categoryId = form.categoryId;
+      if (attachments.length > 0) payload.attachments = attachments;
+
       if (!form.isAnonymous) {
-        payload.customerName = form.customerName || undefined;
-        payload.customerEmail = form.customerEmail || undefined;
-        payload.customerPhone = form.customerPhone || undefined;
+        if (form.customerName) payload.customerName = form.customerName;
+        if (form.customerEmail) payload.customerEmail = form.customerEmail;
+        if (form.customerPhone) payload.customerPhone = form.customerPhone;
       }
 
       const res = await complaintAPI.submitPublic(payload);
       const refNumber = res.data?.data?.referenceNumber || '';
       navigate(`/portal/success?ref=${refNumber}`, { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to submit complaint. Please try again.');
+      const serverMsg = err.response?.data?.message || '';
+      if (serverMsg.toLowerCase().includes('invalid') && serverMsg.toLowerCase().includes('qr')) {
+        setError('Invalid QR code.');
+      } else if (serverMsg.toLowerCase().includes('disabled') || serverMsg.toLowerCase().includes('unavailable')) {
+        setError('This QR code is disabled.');
+      } else if (serverMsg.toLowerCase().includes('company') || serverMsg.toLowerCase().includes('not active')) {
+        setError('This company account is currently inactive.');
+      } else if (serverMsg.toLowerCase().includes('validation') || serverMsg.toLowerCase().includes('required')) {
+        setError('Please complete all required fields.');
+      } else if (serverMsg.toLowerCase().includes('too many')) {
+        setError(serverMsg);
+      } else {
+        setError('Unable to submit feedback. Please try again.');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -126,15 +192,18 @@ export default function ComplaintPortal() {
         <div className="w-full max-w-md">
           {/* Company branding above modal */}
           <div className="text-center mb-6">
-            {company?.logoUrl ? (
+            {logoSrc ? (
               <img
-                src={company.logoUrl}
-                alt={company.name}
+                src={logoSrc}
+                alt={company?.name}
                 className="h-16 w-16 mx-auto rounded-xl mb-3 object-contain border border-border shadow-sm bg-white p-1"
               />
             ) : (
-              <div className="h-16 w-16 mx-auto rounded-xl mb-3 bg-primary/10 flex items-center justify-center border border-border">
-                <span className="text-2xl font-bold text-primary">
+              <div
+                className="h-16 w-16 mx-auto rounded-xl mb-3 flex items-center justify-center border border-border"
+                style={{ backgroundColor: `${color}1a` }}
+              >
+                <span className="text-2xl font-bold" style={{ color }}>
                   {company?.name?.charAt(0) || 'R'}
                 </span>
               </div>
@@ -147,8 +216,8 @@ export default function ComplaintPortal() {
 
           <Card className="shadow-lg border-0">
             <CardHeader className="pb-4 text-center">
-              <div className="h-12 w-12 rounded-full bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center mx-auto mb-3">
-                <ShieldCheck className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <div className="h-12 w-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: `${color}1a` }}>
+                <ShieldCheck className="h-6 w-6" style={{ color }} />
               </div>
               <CardTitle className="text-lg">Privacy Notice</CardTitle>
             </CardHeader>
@@ -164,13 +233,15 @@ export default function ComplaintPortal() {
                 You may submit anonymously if you prefer not to share personal details.
               </p>
               <div className="flex flex-col gap-2 pt-1">
-                <Button
-                  className="w-full bg-primary hover:bg-primary/90"
+                <button
+                  type="button"
+                  className="w-full h-10 rounded-md text-sm font-medium text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: color }}
                   onClick={() => setConsentStatus('accepted')}
                 >
-                  <ShieldCheck className="h-4 w-4 mr-2" />
+                  <ShieldCheck className="h-4 w-4" />
                   I Agree, Continue
-                </Button>
+                </button>
                 <Button
                   variant="outline"
                   className="w-full text-muted-foreground"
@@ -197,7 +268,7 @@ export default function ComplaintPortal() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-md text-center">
-          <div className="h-16 w-16 rounded-full bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center mx-auto mb-4">
+          <div className="h-16 w-16 rounded-full bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center mx-auto mb-4" >
             <ShieldX className="h-8 w-8 text-amber-500" />
           </div>
           <h2 className="text-xl font-bold mb-2">Privacy Notice Not Accepted</h2>
@@ -223,15 +294,18 @@ export default function ComplaintPortal() {
       <div className="max-w-2xl mx-auto px-4 py-8">
         {/* Company Header */}
         <div className="text-center mb-8">
-          {company?.logoUrl ? (
+          {logoSrc ? (
             <img
-              src={company.logoUrl}
-              alt={company.name}
+              src={logoSrc}
+              alt={company?.name}
               className="h-20 w-20 mx-auto rounded-xl mb-3 object-contain border border-border shadow-sm bg-white p-1"
             />
           ) : (
-            <div className="h-20 w-20 mx-auto rounded-xl mb-3 bg-primary/10 flex items-center justify-center border border-border shadow-sm">
-              <span className="text-3xl font-bold text-primary">
+            <div
+              className="h-20 w-20 mx-auto rounded-xl mb-3 flex items-center justify-center border border-border shadow-sm"
+              style={{ backgroundColor: `${color}1a` }}
+            >
+              <span className="text-3xl font-bold" style={{ color }}>
                 {company?.name?.charAt(0) || 'R'}
               </span>
             </div>
@@ -250,7 +324,7 @@ export default function ComplaintPortal() {
         <Card className="shadow-md border-0">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <MessageSquare className="h-5 w-5 text-primary" />
+              <MessageSquare className="h-5 w-5" style={{ color }} />
               Submit Complaint / Feedback
             </CardTitle>
             <CardDescription>
@@ -270,11 +344,12 @@ export default function ComplaintPortal() {
                       key={type}
                       type="button"
                       onClick={() => setForm((f) => ({ ...f, type }))}
-                      className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                      className="px-4 py-1.5 rounded-full text-sm font-medium border transition-colors"
+                      style={
                         form.type === type
-                          ? 'bg-primary text-primary-foreground border-primary'
-                          : 'bg-background text-muted-foreground border-border hover:border-primary/60'
-                      }`}
+                          ? { backgroundColor: color, color: '#fff', borderColor: color }
+                          : {}
+                      }
                     >
                       {type.charAt(0) + type.slice(1).toLowerCase()}
                     </button>
@@ -422,14 +497,15 @@ export default function ComplaintPortal() {
                 </div>
               )}
 
-              <Button
+              <button
                 type="submit"
-                className="w-full h-11 text-base font-semibold"
+                className="w-full h-11 text-base font-semibold rounded-md text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-60"
+                style={{ backgroundColor: color }}
                 disabled={submitting}
               >
-                <Send className="h-4 w-4 mr-2" />
+                <Send className="h-4 w-4" />
                 {submitting ? 'Submitting…' : 'Submit Feedback'}
-              </Button>
+              </button>
             </form>
           </CardContent>
         </Card>

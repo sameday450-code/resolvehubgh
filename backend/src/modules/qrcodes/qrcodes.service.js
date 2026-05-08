@@ -199,6 +199,7 @@ const resolvePublicQR = async (publicSlug) => {
 
   return {
     company: {
+      id: qrCode.company.id,
       name: qrCode.company.name,
       logoUrl: qrCode.company.logoUrl || null,
       brandColor: qrCode.company.brandColor || null,

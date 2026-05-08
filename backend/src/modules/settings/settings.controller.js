@@ -1,4 +1,5 @@
 const settingsService = require('./settings.service');
+const uploadService = require('../uploads/uploads.service');
 const response = require('../../utils/response');
 
 const getSettings = async (req, res, next) => {
@@ -57,6 +58,33 @@ const addStaff = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+const updateBranding = async (req, res, next) => {
+  try {
+    let logoUrl = req.body.logoUrl || undefined;
+
+    // If a logo file was multipart-uploaded, push it to Cloudinary
+    if (req.file) {
+      const results = await uploadService.uploadFiles([req.file], 'logos');
+      logoUrl = results[0].url;
+    }
+
+    const data = await settingsService.updateBranding(req.tenantId, {
+      brandColor: req.body.brandColor || undefined,
+      logoUrl,
+    });
+
+    // Emit real-time branding update to company admins AND public portal listeners
+    const io = req.app.get('io');
+    if (io) {
+      const payload = { logoUrl: data.logoUrl, brandColor: data.brandColor, updatedAt: data.updatedAt };
+      io.to(`company:${req.tenantId}`).emit('company:branding-updated', payload);
+      io.to(`public:company:${req.tenantId}`).emit('company:branding-updated', payload);
+    }
+
+    return response.success(res, data, 'Branding updated successfully');
+  } catch (err) { next(err); }
+};
+
 const updateStaffStatus = async (req, res, next) => {
   try {
     const data = await settingsService.updateStaffStatus(req.tenantId, req.params.id, req.body.isActive);
@@ -65,7 +93,7 @@ const updateStaffStatus = async (req, res, next) => {
 };
 
 module.exports = {
-  getSettings, updateProfile, updateSettings,
+  getSettings, updateProfile, updateSettings, updateBranding,
   getCategories, createCategory, deleteCategory,
   getStaff, addStaff, updateStaffStatus,
 };
