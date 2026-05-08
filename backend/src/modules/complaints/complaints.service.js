@@ -6,20 +6,60 @@ const {
 } = require('../../utils/helpers');
 const { NotFoundError, BadRequestError } = require('../../utils/errors');
 
+const VALID_COMPLAINT_TYPES = ['COMPLAINT', 'FEEDBACK', 'SUGGESTION'];
+
 // Public submission - no auth
 const submitComplaint = async (data, ip) => {
-  // Verify QR code and company
-  const qrCode = await prisma.qRCode.findUnique({
-    where: { publicSlug: data.publicSlug },
-    include: {
-      company: { include: { settings: true } },
-      branch: true,
-      complaintPoint: true,
-    },
-  });
+  console.log('[submitComplaint] payload keys:', Object.keys(data));
+  console.log('[submitComplaint] qrCodeId=%s companyId=%s branchId=%s type=%s',
+    data.qrCodeId, data.companyId, data.branchId, data.type);
+
+  // Normalise field aliases: subject → title, details → description
+  const subject = (data.subject || data.title || '').trim();
+  const description = (data.description || data.details || '').trim();
+  const isAnonymous = data.isAnonymous === true || data.isAnonymous === 'true';
+
+  // Normalise & validate type
+  const rawType = (data.type || 'COMPLAINT').toString().toUpperCase();
+  const type = VALID_COMPLAINT_TYPES.includes(rawType) ? rawType : 'COMPLAINT';
+
+  // Validate required complaint content before hitting the DB
+  if (!subject) {
+    throw new BadRequestError('Subject is required.');
+  }
+  if (!description) {
+    throw new BadRequestError('Description is required.');
+  }
+
+  // Resolve QR code — accept qrCodeId (preferred) or publicSlug (legacy)
+  const QR_INCLUDE = {
+    company: { include: { settings: true } },
+    branch: true,
+    complaintPoint: true,
+  };
+
+  let qrCode = null;
+  if (data.qrCodeId) {
+    qrCode = await prisma.qRCode.findUnique({ where: { id: data.qrCodeId }, include: QR_INCLUDE });
+  } else if (data.publicSlug) {
+    qrCode = await prisma.qRCode.findUnique({ where: { publicSlug: data.publicSlug }, include: QR_INCLUDE });
+  }
 
   if (!qrCode) {
     throw new BadRequestError('Invalid QR code.');
+  }
+
+  // Guard: resolved QR must carry all three IDs
+  if (!qrCode.id || !qrCode.companyId || !qrCode.branchId) {
+    throw new BadRequestError('Invalid QR portal. Missing company, branch, or QR code reference.');
+  }
+
+  // If the frontend also sent explicit IDs, verify they match
+  if (data.companyId && data.companyId !== qrCode.companyId) {
+    throw new BadRequestError('Invalid QR portal. Missing company, branch, or QR code reference.');
+  }
+  if (data.branchId && data.branchId !== qrCode.branchId) {
+    throw new BadRequestError('Invalid QR portal. Missing company, branch, or QR code reference.');
   }
 
   if (qrCode.status === 'DISABLED') {
@@ -53,6 +93,9 @@ const submitComplaint = async (data, ip) => {
 
   const referenceNumber = generateReferenceNumber();
 
+  console.log('[submitComplaint] creating complaint referenceNumber=%s companyId=%s branchId=%s type=%s',
+    referenceNumber, qrCode.companyId, qrCode.branchId, type);
+
   const complaint = await prisma.complaint.create({
     data: {
       referenceNumber,
@@ -61,13 +104,13 @@ const submitComplaint = async (data, ip) => {
       complaintPointId: qrCode.complaintPointId || null,
       qrCodeId: qrCode.id,
       categoryId: data.categoryId || null,
-      type: data.type || 'COMPLAINT',
-      title: data.title,
-      description: data.description,
-      customerName: data.isAnonymous ? null : (data.customerName || null),
-      customerEmail: data.isAnonymous ? null : (data.customerEmail || null),
-      customerPhone: data.isAnonymous ? null : (data.customerPhone || null),
-      isAnonymous: data.isAnonymous || false,
+      type,
+      title: subject,
+      description,
+      customerName: isAnonymous ? null : (data.customerName || null),
+      customerEmail: isAnonymous ? null : (data.customerEmail || null),
+      customerPhone: isAnonymous ? null : (data.customerPhone || null),
+      isAnonymous,
       status: qrCode.company.settings?.autoAcknowledge ? 'ACKNOWLEDGED' : 'NEW',
       acknowledgedAt: qrCode.company.settings?.autoAcknowledge ? new Date() : null,
       submitterIp: ip,
@@ -89,9 +132,9 @@ const submitComplaint = async (data, ip) => {
       data: {
         userId: admin.id,
         companyId: qrCode.companyId,
-        type: data.type === 'FEEDBACK' ? 'NEW_FEEDBACK' : 'NEW_COMPLAINT',
-        title: data.type === 'FEEDBACK' ? 'New Feedback Received' : 'New Complaint Received',
-        message: `${data.type === 'FEEDBACK' ? 'Feedback' : 'Complaint'} "${data.title}" submitted at ${qrCode.branch.name}${qrCode.complaintPoint ? ` - ${qrCode.complaintPoint.name}` : ''}.`,
+        type: type === 'FEEDBACK' ? 'NEW_FEEDBACK' : 'NEW_COMPLAINT',
+        title: type === 'FEEDBACK' ? 'New Feedback Received' : 'New Complaint Received',
+        message: `${type === 'FEEDBACK' ? 'Feedback' : 'Complaint'} "${subject}" submitted at ${qrCode.branch.name}${qrCode.complaintPoint ? ` - ${qrCode.complaintPoint.name}` : ''}.`,
         data: {
           complaintId: complaint.id,
           referenceNumber,

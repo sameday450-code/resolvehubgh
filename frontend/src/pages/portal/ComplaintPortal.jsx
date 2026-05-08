@@ -120,7 +120,7 @@ export default function ComplaintPortal() {
     setError('');
 
     // Validate QR context before submitting
-    if (!publicId || !qrData?.qrCode?.id || !qrData?.qrCode?.branchId) {
+    if (!qrData?.qrCode?.id || !qrData?.company?.id || !qrData?.qrCode?.branchId) {
       setError('Invalid QR portal. Please scan a valid QR code.');
       return;
     }
@@ -137,23 +137,22 @@ export default function ComplaintPortal() {
         attachments = uploadRes.data?.data || [];
       }
 
-      // Build payload — only include defined, non-empty values
+      // Build payload with explicit IDs resolved from qrData + correct field names
       const payload = {
-        publicSlug: publicId,
-        title: form.title,
-        description: form.description,
+        qrCodeId: qrData?.qrCode?.id,
+        companyId: qrData?.company?.id,
+        branchId: qrData?.qrCode?.branchId,
         type: form.type,
+        subject: form.title,
+        description: form.description,
         isAnonymous: form.isAnonymous,
+        customerName: form.isAnonymous ? '' : form.customerName,
+        customerPhone: form.isAnonymous ? '' : form.customerPhone,
+        customerEmail: form.isAnonymous ? '' : form.customerEmail,
       };
 
       if (form.categoryId) payload.categoryId = form.categoryId;
       if (attachments.length > 0) payload.attachments = attachments;
-
-      if (!form.isAnonymous) {
-        if (form.customerName) payload.customerName = form.customerName;
-        if (form.customerEmail) payload.customerEmail = form.customerEmail;
-        if (form.customerPhone) payload.customerPhone = form.customerPhone;
-      }
 
       const res = await complaintAPI.submitPublic(payload);
       const refNumber = res.data?.data?.referenceNumber || '';

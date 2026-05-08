@@ -4,17 +4,22 @@ const response = require('../../utils/response');
 // Public - no auth
 const submitComplaint = async (req, res, next) => {
   try {
+    const bodyKeys = Object.keys(req.body || {});
+    console.log('[POST /complaints/public/submit] body keys:', bodyKeys);
+    console.log('[POST /complaints/public/submit] type=%s subject=%s description_len=%d',
+      req.body?.type, req.body?.subject || req.body?.title, req.body?.description?.length);
+
     const ip = req.ip || req.connection.remoteAddress;
     const result = await complaintService.submitComplaint(req.body, ip);
 
     // Emit real-time event
     const io = req.app.get('io');
     if (io) {
-      io.to(`company:${result.companyId || req.body.companyId}`).emit('complaint:new', {
+      io.to(`company:${result.companyId}`).emit('complaint:new', {
         referenceNumber: result.referenceNumber,
-        title: req.body.title,
+        title: req.body.subject || req.body.title,
         branchName: result.branchName,
-        type: req.body.type || 'COMPLAINT',
+        type: (req.body.type || 'COMPLAINT').toUpperCase(),
       });
       io.to('super-admin').emit('complaint:new:platform', {
         companyName: result.companyName,
@@ -22,8 +27,11 @@ const submitComplaint = async (req, res, next) => {
       });
     }
 
-    return response.success(res, result, 'Complaint submitted successfully', 201);
-  } catch (err) { next(err); }
+    return response.success(res, result, 'Feedback submitted successfully', 201);
+  } catch (err) {
+    console.error('[POST /complaints/public/submit] Error:', err.message, '\n', err.stack);
+    next(err);
+  }
 };
 
 // Company-scoped

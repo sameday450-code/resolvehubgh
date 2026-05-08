@@ -45,6 +45,7 @@ enum Priority {
 enum ComplaintType {
   COMPLAINT
   FEEDBACK
+  SUGGESTION
 }
 
 enum QRCodeStatus {
