@@ -10,6 +10,14 @@ import {
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Separator } from '../ui/separator';
+import { Input } from '../ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
 import {
   Dialog,
   DialogContent,
@@ -75,78 +83,97 @@ const ActivationModal = ({ companyId, onSuccess }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-md">
+        <Button className="w-full rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-md">
           <Zap className="mr-2 h-4 w-4" /> Activate Subscription
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-[95vw] sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl">
-        <DialogHeader>
-          <DialogTitle>Activate Subscription</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="w-[95vw] max-w-md rounded-2xl">
+        <DialogHeader className="space-y-2">
+          <DialogTitle className="text-lg sm:text-xl">Activate Subscription</DialogTitle>
+          <DialogDescription className="text-xs sm:text-sm">
             Set up manual payment activation for this company
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 pr-2">
-          <div>
-            <label className="text-sm font-medium">Plan</label>
-            <select
-              value={plan}
-              onChange={(e) => setPlan(e.target.value)}
-              className="w-full mt-1.5 px-3 py-2 rounded-lg border border-input bg-background text-sm"
-            >
-              <option value="STARTER">Starter - 2 branches</option>
-              <option value="ENTERPRISE">Enterprise - 5 branches</option>
-              <option value="CUSTOM">Custom - Unlimited</option>
-            </select>
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+          {/* Plan Select */}
+          <div className="space-y-2">
+            <label className="text-xs sm:text-sm font-medium block">Plan *</label>
+            <Select value={plan} onValueChange={setPlan}>
+              <SelectTrigger className="w-full h-9 sm:h-10 text-xs sm:text-sm rounded-lg">
+                <SelectValue placeholder="Select a plan" />
+              </SelectTrigger>
+              <SelectContent className="rounded-lg">
+                <SelectItem value="STARTER" className="text-xs sm:text-sm">Starter - 2 branches</SelectItem>
+                <SelectItem value="ENTERPRISE" className="text-xs sm:text-sm">Enterprise - 5 branches</SelectItem>
+                <SelectItem value="CUSTOM" className="text-xs sm:text-sm">Custom - Unlimited</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <div>
-            <label className="text-sm font-medium">Subscription Duration</label>
-            <select
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              className="w-full mt-1.5 px-3 py-2 rounded-lg border border-input bg-background text-sm"
-            >
-              <option value="30_days">30 Days (1 Month)</option>
-              <option value="90_days">90 Days (3 Months)</option>
-              <option value="1_year">1 Year (365 Days)</option>
-            </select>
+          {/* Duration Select */}
+          <div className="space-y-2">
+            <label className="text-xs sm:text-sm font-medium block">Subscription Duration *</label>
+            <Select value={duration} onValueChange={setDuration}>
+              <SelectTrigger className="w-full h-9 sm:h-10 text-xs sm:text-sm rounded-lg">
+                <SelectValue placeholder="Select duration" />
+              </SelectTrigger>
+              <SelectContent className="rounded-lg">
+                <SelectItem value="30_days" className="text-xs sm:text-sm">30 Days (1 Month)</SelectItem>
+                <SelectItem value="90_days" className="text-xs sm:text-sm">90 Days (3 Months)</SelectItem>
+                <SelectItem value="1_year" className="text-xs sm:text-sm">1 Year (365 Days)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <div>
-            <label className="text-sm font-medium">Payment Method</label>
-            <select
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value)}
-              className="w-full mt-1.5 px-3 py-2 rounded-lg border border-input bg-background text-sm"
-            >
-              <option value="MOBILE_MONEY">Mobile Money</option>
-              <option value="BANK_TRANSFER">Bank Transfer</option>
-            </select>
+          {/* Payment Method Select */}
+          <div className="space-y-2">
+            <label className="text-xs sm:text-sm font-medium block">Payment Method *</label>
+            <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+              <SelectTrigger className="w-full h-9 sm:h-10 text-xs sm:text-sm rounded-lg">
+                <SelectValue placeholder="Select payment method" />
+              </SelectTrigger>
+              <SelectContent className="rounded-lg">
+                <SelectItem value="MOBILE_MONEY" className="text-xs sm:text-sm">Mobile Money</SelectItem>
+                <SelectItem value="BANK_TRANSFER" className="text-xs sm:text-sm">Bank Transfer</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <div>
-            <label className="text-sm font-medium">Payment Reference (Optional)</label>
-            <input
+          {/* Payment Reference Input */}
+          <div className="space-y-2">
+            <label className="text-xs sm:text-sm font-medium block">Payment Reference (Optional)</label>
+            <Input
               type="text"
               value={paymentReference}
               onChange={(e) => setPaymentReference(e.target.value)}
-              placeholder="e.g., Transaction ID or Reference Number"
-              className="w-full mt-1.5 px-3 py-2 rounded-lg border border-input bg-background text-sm"
+              placeholder="e.g., Transaction ID or Reference"
+              className="w-full h-9 sm:h-10 text-xs sm:text-sm rounded-lg"
             />
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
               Leave blank to use 'MANUAL_ADMIN_ACTIVATION'
             </p>
           </div>
 
-          <Button
-            type="submit"
-            disabled={mutation.isPending}
-            className="w-full rounded-lg"
-          >
-            {mutation.isPending ? 'Activating...' : 'Confirm Activation'}
-          </Button>
+          {/* Form Actions */}
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={mutation.isPending}
+              onClick={() => setOpen(false)}
+              className="rounded-lg h-9 sm:h-10 text-xs sm:text-sm"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={mutation.isPending}
+              className="w-full rounded-lg h-9 sm:h-10 text-xs sm:text-sm bg-emerald-600 hover:bg-emerald-700"
+            >
+              {mutation.isPending ? 'Activating...' : 'Activate'}
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
