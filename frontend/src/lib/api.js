@@ -40,6 +40,15 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // 403 ACCOUNT_SUSPENDED — redirect to suspension page, never retry
+    if (
+      error.response?.status === 403 &&
+      error.response?.data?.code === 'ACCOUNT_SUSPENDED'
+    ) {
+      window.location.href = '/account-suspended';
+      return Promise.reject(error);
+    }
+
     // 402 Payment Required — billing enforcement, never retry
     if (error.response?.status === 402) {
       // Store billing error details for UI to access

@@ -43,6 +43,14 @@ const authenticate = async (req, res, next) => {
 
     // Check company status for non-super-admins
     if (user.role !== 'SUPER_ADMIN' && user.company) {
+      if (user.company.status === 'SUSPENDED') {
+        return res.status(403).json({
+          success: false,
+          code: 'ACCOUNT_SUSPENDED',
+          message:
+            'Your company account has been suspended. Contact ResolveHub support to reactivate your access.',
+        });
+      }
       if (user.company.status !== 'APPROVED') {
         throw new ForbiddenError(
           `Company account is ${user.company.status.toLowerCase()}. Contact support.`

@@ -18,6 +18,7 @@ import EnterpriseRegisterPage from './pages/auth/EnterpriseRegisterPage';
 import PendingApprovalPage from './pages/auth/PendingApprovalPage';
 import PendingPaymentPage from './pages/auth/PendingPaymentPage';
 import PaymentCallbackPage from './pages/auth/PaymentCallbackPage';
+import AccountSuspendedPage from './pages/auth/AccountSuspendedPage';
 
 // Super Admin pages
 import SADashboard from './pages/super-admin/Dashboard';
@@ -48,12 +49,16 @@ import ComplaintSuccess from './pages/portal/ComplaintSuccess';
 import InvalidQR from './pages/portal/InvalidQR';
 
 function ProtectedRoute({ children, allowedRoles }) {
-  const { user, loading } = useAuth();
+  const { user, loading, isSuspended } = useAuth();
 
   if (loading) return <PageLoading />;
   if (!user) return <Navigate to="/login" replace />;
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     return <Navigate to="/" replace />;
+  }
+  // Redirect suspended company users — super-admins are never suspended
+  if (isSuspended && user.role !== 'SUPER_ADMIN') {
+    return <Navigate to="/account-suspended" replace />;
   }
   return children;
 }
@@ -87,6 +92,7 @@ export default function App() {
       <Route path="/super-admin/login" element={<GuestRoute><SuperAdminLoginPage /></GuestRoute>} />
       <Route path="/pending-payment" element={<ProtectedRoute allowedRoles={['COMPANY_ADMIN']}><PendingPaymentPage /></ProtectedRoute>} />
       <Route path="/payment/callback" element={<PaymentCallbackPage />} />
+      <Route path="/account-suspended" element={<AccountSuspendedPage />} />
 
       {/* Public complaint portal */}
       <Route path="/portal/:publicId" element={<ComplaintPortal />} />

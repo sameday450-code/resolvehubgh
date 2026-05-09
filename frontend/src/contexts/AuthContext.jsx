@@ -96,6 +96,16 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
+  // Re-fetch the current user's profile and refresh stored state.
+  // Used after a suspension is lifted so the user regains access without re-logging in.
+  const refreshUser = useCallback(async () => {
+    const { data } = await authAPI.getProfile();
+    const fresh = data.data;
+    localStorage.setItem('user', JSON.stringify(fresh));
+    setUser(fresh);
+    return fresh;
+  }, []);
+
   const value = {
     user,
     loading,
@@ -105,10 +115,12 @@ export function AuthProvider({ children }) {
     registerEnterprise,
     googleLogin,
     logout,
+    refreshUser,
     isAuthenticated: !!user,
     isSuperAdmin: user?.role === 'SUPER_ADMIN',
     isCompanyAdmin: user?.role === 'COMPANY_ADMIN',
     isStaff: user?.role === 'COMPANY_STAFF',
+    isSuspended: user?.company?.status === 'SUSPENDED',
     
     // Subscription state
     subscription: user?.subscription || null,

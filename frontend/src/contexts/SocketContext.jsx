@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 
 const SocketContext = createContext(null);
@@ -15,10 +16,11 @@ const getBackendUrl = () => {
 };
 
 export function SocketProvider({ children }) {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, refreshUser } = useAuth();
   const [socket, setSocket] = useState(null);
   const [connected, setConnected] = useState(false);
   const socketRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -53,13 +55,34 @@ export function SocketProvider({ children }) {
       setConnected(false);
     });
 
+    // Real-time suspension enforcement (company users only)
+    if (user?.role !== 'SUPER_ADMIN' && user?.company?.id) {
+      socketInstance.on('company:suspended', ({ companyId }) => {
+        if (companyId === user.company.id) {
+          navigate('/account-suspended', { replace: true });
+        }
+      });
+
+      socketInstance.on('company:reactivated', async ({ companyId }) => {
+        if (companyId === user.company.id) {
+          try {
+            await refreshUser();
+            navigate('/dashboard', { replace: true });
+          } catch {
+            // If refresh fails the user will need to log in again
+            navigate('/login', { replace: true });
+          }
+        }
+      });
+    }
+
     socketRef.current = socketInstance;
     setSocket(socketInstance);
 
     return () => {
       socketInstance.disconnect();
     };
-  }, [isAuthenticated, user?.company?.id]);
+  }, [isAuthenticated, user?.company?.id, user?.role]);
 
   const subscribe = (event, callback) => {
     if (!socket) return () => {};

@@ -53,7 +53,13 @@ const suspendCompany = async (req, res, next) => {
   try {
     const { reason } = req.body;
     const data = await superAdminService.suspendCompany(req.params.id, req.user.id, reason);
-    req.app.get('io')?.emit('company:suspended', { companyId: req.params.id });
+    const io = req.app.get('io');
+    if (io?.emitToCompany) {
+      io.emitToCompany(req.params.id, 'company:suspended', {
+        companyId: req.params.id,
+        reason: reason || null,
+      });
+    }
     return response.success(res, data, 'Company suspended');
   } catch (err) {
     next(err);
@@ -63,7 +69,12 @@ const suspendCompany = async (req, res, next) => {
 const reactivateCompany = async (req, res, next) => {
   try {
     const data = await superAdminService.reactivateCompany(req.params.id, req.user.id);
-    req.app.get('io')?.emit('company:reactivated', { companyId: req.params.id });
+    const io = req.app.get('io');
+    if (io?.emitToCompany) {
+      io.emitToCompany(req.params.id, 'company:reactivated', {
+        companyId: req.params.id,
+      });
+    }
     return response.success(res, data, 'Company reactivated');
   } catch (err) {
     next(err);
