@@ -133,22 +133,7 @@ const getCompanySubscriptionAdminView = async (req, res, next) => {
   }
 };
 
-/**
- * Super Admin: Manually activate subscription
- */
-const activateSubscription = async (req, res, next) => {
-  try {
-    const { companyId } = req.params;
-    const updated = await subscriptionService.activateCompanySubscription(
-      companyId,
-      req.body,
-      req.user.id
-    );
-    return response.success(res, updated, 'Subscription activated successfully');
-  } catch (err) {
-    next(err);
-  }
-};
+/**\n * Super Admin: Manually activate subscription\n */\nconst activateSubscription = async (req, res, next) => {\n  try {\n    const { companyId } = req.params;\n    const updated = await subscriptionService.activateCompanySubscription(\n      companyId,\n      req.body,\n      req.user.id\n    );\n    const io = req.app.get('io');\n    if (io?.emitToCompany) {\n      io.emitToCompany(companyId, 'subscription:unlocked', { companyId });\n    }\n    return response.success(res, updated, 'Subscription activated successfully');\n  } catch (err) {\n    next(err);\n  }\n};
 
 /**
  * Super Admin: Lock dashboard
@@ -156,7 +141,19 @@ const activateSubscription = async (req, res, next) => {
 const lockDashboard = async (req, res, next) => {
   try {
     const { companyId } = req.params;
-    const updated = await subscriptionService.lockCompanyDashboard(companyId, req.user.id);
+    const { reason } = req.body;
+    const updated = await subscriptionService.lockCompanyDashboard(
+      companyId,
+      req.user.id,
+      reason || 'Manual lock by super-admin'
+    );
+    const io = req.app.get('io');
+    if (io?.emitToCompany) {
+      io.emitToCompany(companyId, 'subscription:locked', {
+        companyId,
+        reason: reason || null,
+      });
+    }
     return response.success(res, updated, 'Dashboard locked');
   } catch (err) {
     next(err);
@@ -170,6 +167,10 @@ const unlockDashboard = async (req, res, next) => {
   try {
     const { companyId } = req.params;
     const updated = await subscriptionService.unlockCompanyDashboard(companyId, req.user.id);
+    const io = req.app.get('io');
+    if (io?.emitToCompany) {
+      io.emitToCompany(companyId, 'subscription:unlocked', { companyId });
+    }
     return response.success(res, updated, 'Dashboard unlocked');
   } catch (err) {
     next(err);
@@ -209,6 +210,14 @@ const approveActivationRequest = async (req, res, next) => {
   try {
     const { requestId } = req.params;
     const updated = await subscriptionService.approveActivationRequest(requestId, req.user.id);
+    // Emit unlock event to the company's socket room
+    const companyId = updated?.companyId || updated?.request?.companyId;
+    if (companyId) {
+      const io = req.app.get('io');
+      if (io?.emitToCompany) {
+        io.emitToCompany(companyId, 'subscription:unlocked', { companyId });
+      }
+    }
     return response.success(res, updated, 'Activation request approved');
   } catch (err) {
     next(err);

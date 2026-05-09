@@ -74,6 +74,24 @@ export function SocketProvider({ children }) {
           }
         }
       });
+
+      // Real-time subscription lock/unlock
+      socketInstance.on('subscription:locked', ({ companyId }) => {
+        if (companyId === user.company.id) {
+          navigate('/subscription-locked', { replace: true });
+        }
+      });
+
+      socketInstance.on('subscription:unlocked', async ({ companyId }) => {
+        if (companyId === user.company.id) {
+          try {
+            await refreshUser();
+            navigate('/dashboard', { replace: true });
+          } catch {
+            navigate('/login', { replace: true });
+          }
+        }
+      });
     }
 
     socketRef.current = socketInstance;

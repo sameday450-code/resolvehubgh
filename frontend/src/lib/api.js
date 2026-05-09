@@ -49,6 +49,17 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // 403 SUBSCRIPTION_LOCKED — redirect to payment restriction page, never retry
+    if (
+      error.response?.status === 403 &&
+      (error.response?.data?.code === 'SUBSCRIPTION_LOCKED' ||
+        error.response?.data?.code === 'DASHBOARD_LOCKED' ||
+        error.response?.data?.error === 'DASHBOARD_LOCKED')
+    ) {
+      window.location.href = '/subscription-locked';
+      return Promise.reject(error);
+    }
+
     // 402 Payment Required — billing enforcement, never retry
     if (error.response?.status === 402) {
       // Store billing error details for UI to access

@@ -19,6 +19,7 @@ import PendingApprovalPage from './pages/auth/PendingApprovalPage';
 import PendingPaymentPage from './pages/auth/PendingPaymentPage';
 import PaymentCallbackPage from './pages/auth/PaymentCallbackPage';
 import AccountSuspendedPage from './pages/auth/AccountSuspendedPage';
+import SubscriptionLockedPage from './pages/auth/SubscriptionLockedPage';
 
 // Super Admin pages
 import SADashboard from './pages/super-admin/Dashboard';
@@ -93,6 +94,7 @@ export default function App() {
       <Route path="/pending-payment" element={<ProtectedRoute allowedRoles={['COMPANY_ADMIN']}><PendingPaymentPage /></ProtectedRoute>} />
       <Route path="/payment/callback" element={<PaymentCallbackPage />} />
       <Route path="/account-suspended" element={<AccountSuspendedPage />} />
+      <Route path="/subscription-locked" element={<SubscriptionLockedPage />} />
 
       {/* Public complaint portal */}
       <Route path="/portal/:publicId" element={<ComplaintPortal />} />

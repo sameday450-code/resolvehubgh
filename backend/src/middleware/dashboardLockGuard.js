@@ -86,17 +86,10 @@ const dashboardLockGuard = async (req, res, next) => {
     // Block access with 403
     return res.status(403).json({
       success: false,
-      error: 'DASHBOARD_LOCKED',
-      message: isExpired
-        ? 'Your trial has expired. Your dashboard is temporarily locked. Please go to Billing to activate your subscription.'
-        : 'Your subscription has expired. Your dashboard is temporarily locked. Please go to Billing to renew.',
-      lockReason: req.dashboardLocked ? 'TRIAL_EXPIRED' : 'SUBSCRIPTION_EXPIRED',
-      allowedRoutes: [
-        '/api/billing',
-        '/api/subscriptions/company',
-        '/api/support',
-        '/api/profile',
-      ],
+      code: 'SUBSCRIPTION_LOCKED',
+      message:
+        'Subscription payment required to access dashboard. Please complete your payment and submit proof for admin review.',
+      lockReason: isExpired ? 'TRIAL_EXPIRED' : 'SUBSCRIPTION_LOCKED',
     });
   } catch (err) {
     next(err);
