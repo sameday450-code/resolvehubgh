@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const controller = require('./superAdmin.controller');
+const contactController = require('../contact/contact.controller');
 const { authenticate, authorize } = require('../../middleware/auth');
 
 const router = Router();
@@ -16,5 +17,12 @@ router.post('/companies/:id/reactivate', controller.reactivateCompany);
 router.delete('/companies/:id', controller.deleteCompany);
 router.get('/analytics', controller.getAnalytics);
 router.get('/support-messages', controller.getSupportMessages);
+
+// Contact message management
+router.get('/contact-messages/stats', contactController.getStats);
+router.get('/contact-messages', contactController.listMessages);
+router.get('/contact-messages/:id', contactController.getMessageById);
+router.patch('/contact-messages/:id/status', contactController.updateStatus);
+router.post('/contact-messages/:id/reply', contactController.replyToMessage);
 
 module.exports = router;

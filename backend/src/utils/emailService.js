@@ -794,6 +794,70 @@ const sendNewCompanyRegistrationAlert = async (company, planType) => {
   });
 };
 
+/**
+ * Send reply email to a customer who submitted a contact message.
+ */
+const sendContactReplyEmail = async ({ to, customerName, subject, replyMessage }) => {
+  const replySubject = `Re: ${subject}`;
+
+  const content = `
+    <tr>
+      <td style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 48px 40px 36px; text-align: center; border-bottom: 4px solid #4338ca;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td align="center" style="padding-bottom: 16px;">
+              <div style="width: 72px; height: 72px; margin: 0 auto; background-color: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
+                💬
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <h1 style="color: #ffffff; font-size: 26px; font-weight: 700; margin: 0; letter-spacing: -0.5px; line-height: 1.2;">
+                Reply from ResolveHub
+              </h1>
+              <p style="color: rgba(255,255,255,0.85); font-size: 15px; margin: 10px 0 0; line-height: 22px;">
+                Response to your support message
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 40px 40px;">
+        <p style="font-size: 16px; color: #1f2937; line-height: 26px; margin: 0 0 20px; font-weight: 500;">
+          Hello ${customerName},
+        </p>
+
+        <p style="font-size: 15px; color: #4b5563; line-height: 26px; margin: 0 0 8px;">
+          Thank you for reaching out to us. Here is our response to your message regarding <strong style="color: #1f2937;">"${subject}"</strong>:
+        </p>
+
+        <!-- Reply Content Card -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #f9fafb; border: 1px solid #e5e7eb; border-left: 4px solid #4f46e5; border-radius: 8px; overflow: hidden; margin: 24px 0;">
+          <tr>
+            <td style="padding: 24px 28px;">
+              <p style="font-size: 15px; color: #374151; line-height: 28px; margin: 0; white-space: pre-line;">${replyMessage}</p>
+            </td>
+          </tr>
+        </table>
+
+        <p style="font-size: 14px; color: #6b7280; line-height: 24px; margin: 28px 0 0;">
+          If you have any further questions, please don't hesitate to contact us again.<br><br>
+          <strong style="color: #1f2937;">Best regards,<br>ResolveHub Support Team</strong>
+        </p>
+      </td>
+    </tr>
+  `;
+
+  return sendEmail({
+    to,
+    subject: replySubject,
+    html: baseLayout(content, `ResolveHub reply: ${subject}`),
+  });
+};
+
 module.exports = {
   sendEmail,
   sendCompanyApprovedEmail,
@@ -809,4 +873,6 @@ module.exports = {
   sendPaymentFailedEmail,
   sendEnterpriseActivationEmail,
   sendSuperAdminNewEnterpriseAlert,
+  // Contact message reply
+  sendContactReplyEmail,
 };

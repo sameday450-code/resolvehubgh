@@ -29,6 +29,7 @@ const subscriptionRoutes = require('./modules/subscription/subscription.routes')
 const billingRoutes = require('./modules/billing/billing.routes');
 const paymentsRoutes = require('./modules/payments/payments.routes');
 const contactSalesRoutes = require('./modules/contact-sales/contactSales.routes');
+const contactRoutes = require('./modules/contact/contact.routes');
 
 // Job initialization
 const { initializeJobs } = require('./jobs');
@@ -138,6 +139,14 @@ const complaintLimiter = rateLimit({
 });
 app.use('/api/complaints/public', complaintLimiter);
 
+// Stricter rate limit for public contact form submissions - skip OPTIONS
+const contactLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  skip: (req) => req.method === 'OPTIONS',
+  message: { success: false, message: 'Too many contact form submissions. Please try again later.' },
+});
+
 // Stricter rate limit for Google auth (prevent brute force attacks) - skip OPTIONS
 const googleAuthLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -206,6 +215,7 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/billing', billingRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api/contact-sales', contactSalesRoutes);
+app.use('/api/contact', contactLimiter, contactRoutes);
 
 // 404 handler
 app.use((req, res) => {

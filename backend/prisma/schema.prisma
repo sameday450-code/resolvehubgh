@@ -102,6 +102,13 @@ enum PaymentStatus {
   FAILED
 }
 
+enum ContactMessageStatus {
+  NEW
+  READ
+  REPLIED
+  ARCHIVED
+}
+
 enum PaymentProvider {
   NONE
   MANUAL
@@ -151,6 +158,7 @@ model User {
   notifications      Notification[]
   activityLogs       ActivityLog[]
   refreshTokens      RefreshToken[]
+  contactReplies     ContactMessage[] @relation("ContactMessageReplies")
 
   // Optimized indexes for user queries
   @@index([companyId])
@@ -744,5 +752,33 @@ model ActivationRequest {
   @@index([createdAt(sort: Desc)])
   // Composite indexes for common patterns
   @@index([companyId, status])
+  @@index([status, createdAt(sort: Desc)])
+}
+
+// ============================================
+// CONTACT MESSAGES
+// ============================================
+
+model ContactMessage {
+  id               String               @id @default(uuid())
+  fullName         String
+  email            String
+  company          String?
+  subject          String
+  message          String
+  status           ContactMessageStatus @default(NEW)
+  adminReply       String?
+  repliedByAdminId String?
+  repliedAt        DateTime?
+  ipAddress        String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  // Relations
+  repliedByAdmin User? @relation("ContactMessageReplies", fields: [repliedByAdminId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([email])
+  @@index([createdAt(sort: Desc)])
   @@index([status, createdAt(sort: Desc)])
 }

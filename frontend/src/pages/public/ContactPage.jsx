@@ -16,7 +16,7 @@ import {
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import SEO from '../../components/seo';
-import { contactSalesAPI } from '../../lib/api';
+import { contactSalesAPI, contactAPI } from '../../lib/api';
 
 export default function ContactPage() {
   const [searchParams] = useSearchParams();
@@ -24,9 +24,10 @@ export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [lastSubmitTime, setLastSubmitTime] = useState(null);
 
   const [generalFormState, setGeneralFormState] = useState({
-    name: '',
+    fullName: '',
     email: '',
     company: '',
     subject: '',
@@ -53,9 +54,55 @@ export default function ContactPage() {
     setSalesFormState((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleGeneralSubmit = (e) => {
+  const handleGeneralSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setError('');
+
+    // Validate required fields
+    if (!generalFormState.fullName.trim()) {
+      setError('Full name is required.');
+      return;
+    }
+    if (!generalFormState.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(generalFormState.email)) {
+      setError('Please provide a valid email address.');
+      return;
+    }
+    if (!generalFormState.subject.trim()) {
+      setError('Subject is required.');
+      return;
+    }
+    if (!generalFormState.message.trim() || generalFormState.message.trim().length < 10) {
+      setError('Message must be at least 10 characters.');
+      return;
+    }
+
+    // Prevent rapid duplicate submissions (60s cooldown)
+    if (lastSubmitTime && Date.now() - lastSubmitTime < 60000) {
+      setError('Please wait a moment before submitting another message.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await contactAPI.submit({
+        fullName: generalFormState.fullName.trim(),
+        email: generalFormState.email.trim(),
+        company: generalFormState.company.trim() || undefined,
+        subject: generalFormState.subject.trim(),
+        message: generalFormState.message.trim(),
+      });
+      setLastSubmitTime(Date.now());
+      setSubmitted(true);
+    } catch (err) {
+      const msg = err.response?.data?.message;
+      if (err.response?.status === 429) {
+        setError('Too many submissions. Please try again later.');
+      } else {
+        setError(msg || 'Failed to send your message. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSalesSubmit = async (e) => {
@@ -228,16 +275,16 @@ export default function ContactPage() {
                       {isSalesInquiry ? 'Inquiry Received!' : 'Message Sent!'}
                     </h3>
                     <p className="text-muted-foreground max-w-sm mx-auto mb-8">
-                      {isSalesInquiry 
-                      ? 'Thank you for your interest. Our sales team will review your requirements and contact you within 24 hours to discuss a custom plan for your business.'
-                      : 'Thanks for reaching out. We received your message and will get back to you within 2 hours during business hours.'}
+                      {isSalesInquiry
+                        ? 'Thank you for your interest. Our sales team will review your requirements and contact you within 24 hours to discuss a custom plan for your business.'
+                        : 'Thank you for contacting ResolveHub. Our team will respond to you shortly.'}
                     </p>
                     <Button variant="outline" onClick={() => setSubmitted(false)} className="rounded-xl">
                       {isSalesInquiry ? 'Submit Another Inquiry' : 'Send Another Message'}
                     </Button>
                   </div>
                 ) : isSalesInquiry ? (
-                  <>
+                    <>
                     <div className="mb-8">
                       <h2 className="text-xl font-bold tracking-tight mb-2">Tell Us About Your Business</h2>
                       <p className="text-sm text-muted-foreground">The more details you share, the better we can tailor ResolveHub to your needs. We'll review your information and contact you within 24 hours.</p>
@@ -400,16 +447,22 @@ export default function ContactPage() {
                       <p className="text-sm text-muted-foreground">Fill out the form below and we&apos;ll get back to you shortly.</p>
                     </div>
 
+                    {error && (
+                      <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-600 text-sm">
+                        {error}
+                      </div>
+                    )}
+
                     <form onSubmit={handleGeneralSubmit} className="space-y-5">
                       <div className="grid sm:grid-cols-2 gap-4">
                         <div>
-                          <label htmlFor="name" className="block text-sm font-medium mb-2">Full Name</label>
+                          <label htmlFor="fullName" className="block text-sm font-medium mb-2">Full Name</label>
                           <input
                             type="text"
-                            id="name"
-                            name="name"
+                            id="fullName"
+                            name="fullName"
                             required
-                            value={generalFormState.name}
+                            value={generalFormState.fullName}
                             onChange={handleGeneralChange}
                             placeholder="John Doe"
                             className="w-full h-11 px-4 rounded-xl border border-border/60 bg-background/50 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
@@ -454,11 +507,11 @@ export default function ContactPage() {
                             className="w-full h-11 px-4 rounded-xl border border-border/60 bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all appearance-none"
                           >
                             <option value="">Select a topic</option>
-                            <option value="general">General Inquiry</option>
-                            <option value="sales">Sales & Pricing</option>
-                            <option value="support">Technical Support</option>
-                            <option value="demo">Request a Demo</option>
-                            <option value="partnership">Partnership</option>
+                            <option value="General Inquiry">General Inquiry</option>
+                            <option value="Sales & Pricing">Sales &amp; Pricing</option>
+                            <option value="Technical Support">Technical Support</option>
+                            <option value="Request a Demo">Request a Demo</option>
+                            <option value="Partnership">Partnership</option>
                           </select>
                         </div>
                       </div>
@@ -477,9 +530,13 @@ export default function ContactPage() {
                         />
                       </div>
 
-                      <Button type="submit" className="w-full h-12 rounded-xl text-sm font-medium bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 shadow-lg shadow-primary/25">
+                      <Button
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full h-12 rounded-xl text-sm font-medium bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 shadow-lg shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
                         <Send className="mr-2 h-4 w-4" />
-                        Send Message
+                        {isLoading ? 'Sending...' : 'Send Message'}
                       </Button>
 
                       <p className="text-xs text-center text-muted-foreground">

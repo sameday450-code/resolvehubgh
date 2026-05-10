@@ -31,6 +31,7 @@ import SAAnalytics from './pages/super-admin/Analytics';
 import SASettings from './pages/super-admin/Settings';
 import SANotifications from './pages/super-admin/Notifications';
 import SAManualPayments from './pages/super-admin/ManualPayments';
+import SAContactMessages from './pages/super-admin/ContactMessages';
 
 // Company pages
 import CompanyDashboard from './pages/company/Dashboard';
@@ -116,6 +117,7 @@ export default function App() {
         <Route path="companies/:id" element={<SACompanyDetail />} />
         <Route path="sales-inquiries" element={<SASalesInquiries />} />
         <Route path="payment-requests" element={<SAManualPayments />} />
+        <Route path="contact-messages" element={<SAContactMessages />} />
         <Route path="analytics" element={<SAAnalytics />} />
         <Route path="notifications" element={<SANotifications />} />
         <Route path="settings" element={<SASettings />} />

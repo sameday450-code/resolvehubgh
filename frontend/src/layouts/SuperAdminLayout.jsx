@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useSocket } from '../contexts/SocketContext';
-import { notificationAPI } from '../lib/api';
+import { notificationAPI, contactAPI } from '../lib/api';
 import {
   LayoutDashboard,
   Building2,
@@ -17,6 +17,7 @@ import {
   Search,
   MessageSquareWarning,
   CreditCard,
+  Inbox,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
@@ -34,6 +35,7 @@ const navItems = [
   { to: '/super-admin/companies', icon: Building2, label: 'Companies' },
   { to: '/super-admin/sales-inquiries', icon: MessageSquareWarning, label: 'Sales Inquiries' },
   { to: '/super-admin/payment-requests', icon: CreditCard, label: 'Payment Requests' },
+  { to: '/super-admin/contact-messages', icon: Inbox, label: 'Contact Messages', showContactBadge: true },
   { to: '/super-admin/notifications', icon: Bell, label: 'Notifications', showBadge: true },
   { to: '/super-admin/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/super-admin/settings', icon: Settings, label: 'Settings' },
@@ -42,15 +44,23 @@ const navItems = [
 export default function SuperAdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [newContactCount, setNewContactCount] = useState(0);
   const { user, logout } = useAuth();
   const { socket } = useSocket();
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Fetch initial unread count
+  // Fetch initial unread notification count
   useEffect(() => {
     notificationAPI.getUnreadCount()
       .then((res) => setUnreadCount(res.data?.data?.count ?? 0))
+      .catch(() => {});
+  }, []);
+
+  // Fetch initial new contact message count
+  useEffect(() => {
+    contactAPI.getStats()
+      .then((res) => setNewContactCount(res.data?.data?.newCount ?? 0))
       .catch(() => {});
   }, []);
 
@@ -64,11 +74,38 @@ export default function SuperAdminLayout() {
     return () => socket.off('notification:new', handleNew);
   }, [socket]);
 
+  // Listen for new contact messages
+  useEffect(() => {
+    if (!socket) return;
+    const handleNewContact = () => {
+      setNewContactCount((prev) => prev + 1);
+    };
+    const handleContactRead = () => {
+      contactAPI.getStats()
+        .then((res) => setNewContactCount(res.data?.data?.newCount ?? 0))
+        .catch(() => {});
+    };
+    socket.on('contact:new', handleNewContact);
+    socket.on('contact:statusChanged', handleContactRead);
+    socket.on('contact:replied', handleContactRead);
+    return () => {
+      socket.off('contact:new', handleNewContact);
+      socket.off('contact:statusChanged', handleContactRead);
+      socket.off('contact:replied', handleContactRead);
+    };
+  }, [socket]);
+
   // Reset unread count when navigating to notifications page
   useEffect(() => {
     if (location.pathname === '/super-admin/notifications') {
       notificationAPI.getUnreadCount()
         .then((res) => setUnreadCount(res.data?.data?.count ?? 0))
+        .catch(() => {});
+    }
+    // Reset contact badge when visiting contact messages page
+    if (location.pathname === '/super-admin/contact-messages') {
+      contactAPI.getStats()
+        .then((res) => setNewContactCount(res.data?.data?.newCount ?? 0))
         .catch(() => {});
     }
   }, [location.pathname]);
@@ -124,6 +161,11 @@ export default function SuperAdminLayout() {
             {item.showBadge && unreadCount > 0 && (
               <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-sm">
                 {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+            {item.showContactBadge && newContactCount > 0 && (
+              <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-500 px-1 text-[10px] font-bold text-white shadow-sm">
+                {newContactCount > 99 ? '99+' : newContactCount}
               </span>
             )}
           </Link>

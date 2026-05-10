@@ -276,3 +276,15 @@ export const contactSalesAPI = {
   getInquiry: (id) => api.get(`/contact-sales/${id}`),
   updateInquiry: (id, data) => api.patch(`/contact-sales/${id}`, data),
 };
+
+// Contact Messages API (public + super-admin)
+export const contactAPI = {
+  // Public — submit contact form
+  submit: (data) => api.post('/contact/messages', data),
+  // Super-admin
+  getMessages: (params) => api.get('/super-admin/contact-messages', { params }),
+  getMessage: (id) => api.get(`/super-admin/contact-messages/${id}`),
+  updateStatus: (id, status) => api.patch(`/super-admin/contact-messages/${id}/status`, { status }),
+  reply: (id, replyMessage) => api.post(`/super-admin/contact-messages/${id}/reply`, { replyMessage }),
+  getStats: () => api.get('/super-admin/contact-messages/stats'),
+};
