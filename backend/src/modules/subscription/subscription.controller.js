@@ -133,7 +133,35 @@ const getCompanySubscriptionAdminView = async (req, res, next) => {
   }
 };
 
-/**\n * Super Admin: Manually activate subscription\n */\nconst activateSubscription = async (req, res, next) => {\n  try {\n    const { companyId } = req.params;\n    const updated = await subscriptionService.activateCompanySubscription(\n      companyId,\n      req.body,\n      req.user.id\n    );\n    const io = req.app.get('io');\n    if (io?.emitToCompany) {\n      io.emitToCompany(companyId, 'subscription:unlocked', { companyId });\n    }\n    return response.success(res, updated, 'Subscription activated successfully');\n  } catch (err) {\n    next(err);\n  }\n};
+/**
+ * Super Admin: Manually activate subscription
+ */
+const activateSubscription = async (req, res, next) => {
+  try {
+    const { companyId } = req.params;
+
+    const updated = await subscriptionService.activateCompanySubscription(
+      companyId,
+      req.body
+    );
+
+    const io = req.app.get("io");
+
+    if (io?.emitToCompany) {
+      io.emitToCompany(companyId, "subscription:unlocked", {
+        companyId,
+      });
+    }
+
+    return response.success(
+      res,
+      updated,
+      "Subscription activated successfully"
+    );
+  } catch (err) {
+    next(err);
+  }
+};
 
 /**
  * Super Admin: Lock dashboard
