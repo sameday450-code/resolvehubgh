@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   QrCode,
   BarChart3,
@@ -26,6 +27,17 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '../../components/ui/accordion';
 import SEO, { useStructuredData, generateFAQSchema } from '../../components/seo';
+import {
+  fadeUp,
+  fadeIn,
+  scaleIn,
+  slideInLeft,
+  slideInRight,
+  staggerContainer,
+  staggerItem,
+  defaultViewport,
+  looseViewport,
+} from '../../lib/animations';
 
 const features = [
   { icon: QrCode, title: 'QR Code Generation', description: 'Create unique QR codes for each location. Customers scan and submit complaints instantly, with no signup required.' },
@@ -132,18 +144,45 @@ export default function LandingPage() {
       >
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">
-            <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-xs font-semibold backdrop-blur-md bg-white/15 dark:bg-white/10 border border-white/30 text-white hover:bg-white/25 transition-colors">
-              <Zap className="mr-1.5 h-3 w-3" />
-              Trusted by growing businesses across Ghana
-            </Badge>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 leading-[1.1] text-white drop-shadow-lg">
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={fadeIn}
+            >
+              <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-xs font-semibold backdrop-blur-md bg-white/15 dark:bg-white/10 border border-white/30 text-white hover:bg-white/25 transition-colors">
+                <Zap className="mr-1.5 h-3 w-3" />
+                Trusted by growing businesses across Ghana
+              </Badge>
+            </motion.div>
+            <motion.h1
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp}
+              className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 leading-[1.1] text-white drop-shadow-lg"
+            >
               Capture Every Customer Complaint{' '}
               <span className="text-yellow-300 drop-shadow-lg">Before It Escalates</span>
-            </h1>
-            <p className="text-lg md:text-xl text-white/90 mb-12 max-w-2xl leading-relaxed drop-shadow-md font-light">
+            </motion.h1>
+            <motion.p
+              initial="hidden"
+              animate="visible"
+              variants={{
+                ...fadeUp,
+                visible: { ...fadeUp.visible, transition: { ...fadeUp.visible.transition, delay: 0.1 } },
+              }}
+              className="text-lg md:text-xl text-white/90 mb-12 max-w-2xl leading-relaxed drop-shadow-md font-light"
+            >
               Get ResolveHub: A QR-based complaint management system that helps you capture, track, and resolve customer complaints faster. Perfect for multi-branch businesses looking to streamline feedback collection and improve service quality across all locations.
-            </p>
-            <div className="flex flex-col sm:flex-row items-start gap-6 mb-14">
+            </motion.p>
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={{
+                ...fadeUp,
+                visible: { ...fadeUp.visible, transition: { ...fadeUp.visible.transition, delay: 0.2 } },
+              }}
+              className="flex flex-col sm:flex-row items-start gap-6 mb-14"
+            >
               <Button 
                 asChild
                 className="!h-14 !px-8 !text-base !font-bold !rounded-lg !bg-gradient-to-r !from-white !to-white/90 !text-primary !shadow-2xl !hover:shadow-white/50 !transition-all !duration-300"
@@ -177,25 +216,34 @@ export default function LandingPage() {
                   <span>Watch Demo</span>
                 </a>
               </Button>
-            </div>
+            </motion.div>
 
             {/* Stats bar */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={staggerContainer(0.08, 0.3)}
+              className="grid grid-cols-2 md:grid-cols-4 gap-4"
+            >
               {[
                 { icon: TrendingUp, title: 'Real-Time Insights', label: 'Respond to customer issues instantly' },
                 { icon: Rocket, title: 'Instant Setup', label: 'Start capturing feedback in minutes' },
                 { icon: Building2, title: 'Multi-Branch', label: 'Manage all locations from one place' },
                 { icon: Shield, title: '24/7 Availability', label: 'Reliable service when you need it' },
               ].map((stat) => (
-                <div key={stat.label} className="backdrop-blur-md bg-white/12 rounded-xl px-4 py-3.5 border border-white/20 shadow-xl hover:bg-white/18 transition-all duration-300">
+                <motion.div
+                  key={stat.label}
+                  variants={staggerItem}
+                  className="backdrop-blur-md bg-white/12 rounded-xl px-4 py-3.5 border border-white/20 shadow-xl hover:bg-white/18 transition-all duration-300"
+                >
                   <div className="flex items-center gap-2 mb-2">
                     <stat.icon className="h-5 w-5 text-yellow-300" />
                     <p className="font-semibold text-white text-sm">{stat.title}</p>
                   </div>
                   <p className="text-xs text-white/75">{stat.label}</p>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -211,22 +259,36 @@ export default function LandingPage() {
 
         <div className="container mx-auto px-4">
           {/* Section header */}
-          <div className="text-center mb-16 md:mb-20">
-            <Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-primary/5 border-primary/10 text-primary">
-              <Zap className="mr-1.5 h-3 w-3" />
-              Features That Matter
-            </Badge>
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={staggerContainer(0.08)}
+            className="text-center mb-16 md:mb-20"
+          >
+            <motion.div variants={fadeIn}>
+              <Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-primary/5 border-primary/10 text-primary">
+                <Zap className="mr-1.5 h-3 w-3" />
+                Features That Matter
+              </Badge>
+            </motion.div>
+            <motion.h2 variants={fadeUp} className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
               ResolveHub: Smart Complaint Management Across Your Branches{' '}
               <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Never Miss Feedback Again</span>
-            </h2>
-            <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+            </motion.h2>
+            <motion.p variants={fadeUp} className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
               Stop losing customer complaints at your branches. ResolveHub gives you full visibility into customer issues, helping your team respond faster and improve service quality. Our QR complaint system makes it easy for customers to submit feedback.
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
           {/* Bento grid layout */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 max-w-6xl mx-auto auto-rows-[minmax(220px,auto)]">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={looseViewport}
+            variants={staggerContainer(0.09)}
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 max-w-6xl mx-auto auto-rows-[minmax(220px,auto)]"
+          >
             {features.map((feature, index) => {
               const isLarge = index === 0 || index === 3;
               const gradients = [
@@ -255,8 +317,9 @@ export default function LandingPage() {
               ];
 
               return (
-                <div
+                <motion.div
                   key={feature.title}
+                  variants={staggerItem}
                   className={`group relative rounded-3xl border border-border/40 bg-card/60 backdrop-blur-sm p-8 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1 hover:border-primary/20 overflow-hidden ${
                     isLarge ? 'lg:col-span-2 lg:row-span-1' : ''
                   }`}
@@ -311,32 +374,44 @@ export default function LandingPage() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
 
           {/* Bottom stat bar */}
-          <div className="mt-16 md:mt-20 max-w-4xl mx-auto">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={fadeUp}
+            className="mt-16 md:mt-20 max-w-4xl mx-auto"
+          >
             <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm p-6 md:p-8">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={defaultViewport}
+                variants={staggerContainer(0.08)}
+                className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8"
+              >
                 {[
                   { icon: TrendingUp, title: 'Real-Time Insights', label: 'Respond to customer issues instantly' },
                   { icon: Rocket, title: 'Instant Setup', label: 'Start capturing feedback in minutes' },
                   { icon: Building2, title: 'Multi-Branch Management', label: 'Manage all locations from one place' },
                   { icon: Shield, title: '24/7 Availability', label: 'Reliable service when you need it' },
                 ].map((stat) => (
-                  <div key={stat.label} className="text-center">
+                  <motion.div key={stat.label} variants={staggerItem} className="text-center">
                     <div className="flex justify-center mb-3">
                       <stat.icon className="h-6 w-6 text-primary" />
                     </div>
                     <div className="font-semibold text-foreground text-sm mb-1">{stat.title}</div>
                     <p className="text-xs text-muted-foreground">{stat.label}</p>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -347,20 +422,34 @@ export default function LandingPage() {
           <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[120px]" />
         </div>
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16 md:mb-20">
-            <Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-primary/5 border-primary/10 text-primary">
-              <Zap className="mr-1.5 h-3 w-3" />
-              Simple Process
-            </Badge>
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={staggerContainer(0.08)}
+            className="text-center mb-16 md:mb-20"
+          >
+            <motion.div variants={fadeIn}>
+              <Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-primary/5 border-primary/10 text-primary">
+                <Zap className="mr-1.5 h-3 w-3" />
+                Simple Process
+              </Badge>
+            </motion.div>
+            <motion.h2 variants={fadeUp} className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
               How ResolveHub Complaint Management{' '}
               <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Works</span>
-            </h2>
-            <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto leading-relaxed">
+            </motion.h2>
+            <motion.p variants={fadeUp} className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto leading-relaxed">
               Get ResolveHub up and running in three simple steps—no technical setup needed. Our QR-based complaint system is designed for businesses of all sizes.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto relative">
+            </motion.p>
+          </motion.div>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={staggerContainer(0.15)}
+            className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto relative"
+          >
             {/* Connector line */}
             <div className="hidden md:block absolute top-16 left-[20%] right-[20%] h-px bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20" />
             {[
@@ -368,15 +457,15 @@ export default function LandingPage() {
               { icon: QrCode, title: 'Deploy QR Codes - Our Smart Complaint System', description: 'Generate unique QR codes for each location instantly. Download, print, and place them at your branches—no technical setup. Our QR complaint system works across all devices.' },
               { icon: BarChart3, title: 'Centralize & Resolve Complaints Faster', description: 'Capture feedback in real-time using our QR-based system. Track complaints across all locations, and resolve issues from one unified dashboard. Perfect for multi-branch complaint management.' },
             ].map((item) => (
-              <div key={item.icon} className="relative text-center group">
+              <motion.div key={item.icon} variants={staggerItem} className="relative text-center group">
                 <div className="relative z-10 inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-blue-600 text-white mb-6 shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform duration-300">
                   <item.icon className="h-8 w-8" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto">{item.description}</p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -387,29 +476,44 @@ export default function LandingPage() {
           <div className="absolute top-1/4 right-0 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px]" />
         </div>
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16 md:mb-20">
-            <Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-primary/5 border-primary/10 text-primary">
-              <Zap className="mr-1.5 h-3 w-3" />
-              Pricing
-            </Badge>
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={staggerContainer(0.08)}
+            className="text-center mb-16 md:mb-20"
+          >
+            <motion.div variants={fadeIn}>
+              <Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-primary/5 border-primary/10 text-primary">
+                <Zap className="mr-1.5 h-3 w-3" />
+                Pricing
+              </Badge>
+            </motion.div>
+            <motion.h2 variants={fadeUp} className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
               Get ResolveHub Pricing Built for Your Scale{' '}
               <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Not Your Size</span>
-            </h2>
-            <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto leading-relaxed">
+            </motion.h2>
+            <motion.p variants={fadeUp} className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto leading-relaxed">
               Start with a free trial of our complaint management SaaS. No credit card required. Upgrade or downgrade anytime as your business grows.
-            </p>
+            </motion.p>
             {/* Global pricing message */}
-            <div className="mt-10 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/30">
+            <motion.div variants={fadeUp} className="mt-10 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/30">
               <Shield className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               <span className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">All plans include a 14-day free trial. No upfront payment required.</span>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-5 md:gap-6 max-w-6xl mx-auto items-start">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={staggerContainer(0.12)}
+            className="grid md:grid-cols-3 gap-5 md:gap-6 max-w-6xl mx-auto items-start"
+          >
             {plans.map((plan, planIdx) => (
-              <div
+              <motion.div
                 key={plan.name}
+                variants={staggerItem}
                 className={`relative rounded-3xl transition-all duration-500 hover:-translate-y-1 ${
                   plan.popular
                     ? 'border-2 border-primary bg-card shadow-2xl shadow-primary/15 ring-1 ring-primary/10 scale-[1.02] md:scale-105 z-10'
@@ -490,12 +594,18 @@ export default function LandingPage() {
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Manual payment flow section */}
-          <div className="mt-20 max-w-3xl mx-auto">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={fadeUp}
+            className="mt-20 max-w-3xl mx-auto"
+          >
             <div className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-sm p-8 md:p-10">
               <div className="flex items-start gap-4 mb-6">
                 <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 ring-1 ring-primary/20 shrink-0">
@@ -517,7 +627,7 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -529,22 +639,36 @@ export default function LandingPage() {
           <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-blue-500/5 rounded-full blur-[100px]" />
         </div>
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16 md:mb-20">
-            <Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-primary/5 border-primary/10 text-primary">
-              <Star className="mr-1.5 h-3 w-3" />
-              Testimonials
-            </Badge>
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={staggerContainer(0.08)}
+            className="text-center mb-16 md:mb-20"
+          >
+            <motion.div variants={fadeIn}>
+              <Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-primary/5 border-primary/10 text-primary">
+                <Star className="mr-1.5 h-3 w-3" />
+                Testimonials
+              </Badge>
+            </motion.div>
+            <motion.h2 variants={fadeUp} className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
               What Our Customers{' '}
               <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Are Saying About ResolveHub</span>
-            </h2>
-            <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+            </motion.h2>
+            <motion.p variants={fadeUp} className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
               See how companies in Ghana are transforming their complaint management with our QR-based feedback system. Read real testimonials from multi-branch businesses using ResolveHub.
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
           {/* Featured testimonial */}
-          <div className="max-w-4xl mx-auto mb-12">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={scaleIn}
+            className="max-w-4xl mx-auto mb-12"
+          >
             <div className="relative rounded-3xl border border-primary/20 bg-gradient-to-br from-card via-card to-primary/[0.02] p-10 md:p-14 shadow-xl shadow-primary/5">
               <div className="absolute top-8 right-10 text-8xl font-serif text-primary/10 leading-none select-none">&ldquo;</div>
               <div className="relative">
@@ -568,10 +692,16 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Testimonial cards grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={looseViewport}
+            variants={staggerContainer(0.08)}
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto"
+          >
             {[
               { name: 'Aisha Bello', role: 'Branch Supervisor, FuelChain Group', text: 'The QR-based complaint system is simple and effective. Customers submit feedback instantly, and our team can act on it without delays.', initials: 'AB', metric: '35% more feedback captured' },
               { name: 'Michael Osei', role: 'Customer Experience Lead, ServicePoint', text: 'The dashboard helps us identify recurring issues quickly. Instead of reacting late, we now fix problems before they escalate.', initials: 'MO', metric: '3x faster issue resolution' },
@@ -580,7 +710,7 @@ export default function LandingPage() {
               { name: 'Kwame Asante', role: 'Founder, QuickServe Foods', text: 'We started with the trial and quickly saw the value. Within days, we had structured complaint data instead of scattered feedback.', initials: 'KA', metric: 'Activated within first week' },
               { name: 'Linda Boateng', role: 'Operations Lead, UrbanMart', text: 'Real-time notifications ensure no complaint is ignored. Our team responds faster, and customers feel heard.', initials: 'LB', metric: '<10 min average response' },
             ].map((t, idx) => (
-              <div key={t.name} className="group relative rounded-2xl border border-border/40 bg-card/60 backdrop-blur-sm p-7 transition-all duration-500 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 hover:border-primary/20">
+              <motion.div key={t.name} variants={staggerItem} className="group relative rounded-2xl border border-border/40 bg-card/60 backdrop-blur-sm p-7 transition-all duration-500 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 hover:border-primary/20">
                 {/* Gradient overlay on hover */}
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/[0.03] to-blue-500/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative">
@@ -605,19 +735,25 @@ export default function LandingPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Trust logos bar */}
-          <div className="mt-16 text-center">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={fadeIn}
+            className="mt-16 text-center"
+          >
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-6">Trusted by growing businesses and multi-branch teams</p>
             <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-50">
               {['MultiBranch Retail', 'FuelChain Group', 'ServicePoint', 'RetailHub', 'HealthPlus Clinic', 'UrbanMart'].map((name) => (
                 <span key={name} className="text-lg md:text-xl font-bold text-muted-foreground/60">{name}</span>
               ))}
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -631,24 +767,38 @@ export default function LandingPage() {
 
         <div className="container mx-auto px-4">
           {/* Header */}
-          <div className="text-center mb-16 md:mb-20">
-            <Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-primary/5 border-primary/10 text-primary">
-              <HelpCircle className="mr-1.5 h-3 w-3" />
-              Support
-            </Badge>
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={staggerContainer(0.08)}
+            className="text-center mb-16 md:mb-20"
+          >
+            <motion.div variants={fadeIn}>
+              <Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-primary/5 border-primary/10 text-primary">
+                <HelpCircle className="mr-1.5 h-3 w-3" />
+                Support
+              </Badge>
+            </motion.div>
+            <motion.h2 variants={fadeUp} className="text-3xl md:text-5xl font-bold tracking-tight mb-5">
               Frequently Asked Questions About{' '}
               <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">ResolveHub</span>
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
+            </motion.h2>
+            <motion.p variants={fadeUp} className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
               Find answers to common questions about how our complaint management SaaS works, setup, pricing, and account activation for Get ResolveHub.
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
           {/* Two-column layout */}
           <div className="grid lg:grid-cols-5 gap-10 lg:gap-16 max-w-6xl mx-auto items-start">
             {/* Left: sticky sidebar */}
-            <div className="lg:col-span-2 lg:sticky lg:top-28">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={defaultViewport}
+              variants={slideInLeft}
+              className="lg:col-span-2 lg:sticky lg:top-28"
+            >
               <div className="rounded-3xl border border-border/40 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm p-8 space-y-6">
                 <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-blue-600 shadow-lg shadow-primary/20">
                   <Sparkles className="h-7 w-7 text-white" />
@@ -669,10 +819,16 @@ export default function LandingPage() {
                   <p className="text-xs text-muted-foreground">Support available via <span className="font-semibold text-foreground">WhatsApp, phone, and email</span></p>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Right: accordion */}
-            <div className="lg:col-span-3">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={defaultViewport}
+              variants={slideInRight}
+              className="lg:col-span-3"
+            >
               <Accordion type="single" collapsible className="space-y-3">
                 {faqs.map((faq, idx) => (
                   <AccordionItem
@@ -698,7 +854,7 @@ export default function LandingPage() {
                   </AccordionItem>
                 ))}
               </Accordion>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -706,7 +862,13 @@ export default function LandingPage() {
       {/* CTA Section */}
       <section className="py-24 md:py-32">
         <div className="container mx-auto px-4">
-          <div className="relative max-w-4xl mx-auto text-center rounded-3xl overflow-hidden px-8 py-16 md:py-20">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={scaleIn}
+            className="relative max-w-4xl mx-auto text-center rounded-3xl overflow-hidden px-8 py-16 md:py-20"
+          >
             {/* Background gradient */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary via-blue-600 to-primary" />
             {/* Decorative shapes */}
@@ -714,15 +876,21 @@ export default function LandingPage() {
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-2xl" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
 
-            <div className="relative z-10">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-sm mb-6 ring-1 ring-white/20">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={defaultViewport}
+              variants={staggerContainer(0.1)}
+              className="relative z-10"
+            >
+              <motion.div variants={fadeIn} className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-sm mb-6 ring-1 ring-white/20">
                 <Bell className="h-8 w-8 text-white" />
-              </div>
-              <h2 className="text-3xl md:text-5xl font-bold mb-5 text-white tracking-tight">Get Real-Time Visibility Into Every Customer Issue With ResolveHub</h2>
-              <p className="text-white/75 mb-10 max-w-xl mx-auto text-base md:text-lg leading-relaxed">
+              </motion.div>
+              <motion.h2 variants={fadeUp} className="text-3xl md:text-5xl font-bold mb-5 text-white tracking-tight">Get Real-Time Visibility Into Every Customer Issue With ResolveHub</motion.h2>
+              <motion.p variants={fadeUp} className="text-white/75 mb-10 max-w-xl mx-auto text-base md:text-lg leading-relaxed">
                 Join companies tracking feedback in real-time with our QR complaint management system. Resolve issues faster, and improve customer satisfaction across all locations. Start your 14-day free trial of Get ResolveHub—no card required.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              </motion.p>
+              <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Button size="lg" variant="secondary" className="h-12 px-8 text-base shadow-xl" asChild>
                   <Link to="/register">
                     Start 14-Day Free Trial
@@ -734,10 +902,10 @@ export default function LandingPage() {
                     View Pricing
                   </a>
                 </Button>
-              </div>
-              <p className="text-white/60 text-xs mt-6 font-medium">14-day free trial • No credit card • Instant setup • Proven by growing businesses</p>
-            </div>
-          </div>
+              </motion.div>
+              <motion.p variants={fadeIn} className="text-white/60 text-xs mt-6 font-medium">14-day free trial • No credit card • Instant setup • Proven by growing businesses</motion.p>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
     </div>

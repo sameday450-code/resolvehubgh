@@ -1,6 +1,8 @@
 import { Outlet, Link } from 'react-router-dom';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { fadeIn, staggerContainer, staggerItem, defaultViewport } from '../lib/animations';
 
 export default function PublicLayout() {
   const [scrolled, setScrolled] = useState(false);
@@ -168,8 +170,14 @@ export default function PublicLayout() {
         }}
       >
         <div className="container mx-auto px-4 py-12 relative z-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="col-span-2 md:col-span-1">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={staggerContainer(0.1)}
+            className="grid grid-cols-2 md:grid-cols-4 gap-8"
+          >
+            <motion.div variants={staggerItem} className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-3">
                 <img src="/logo.png" alt="ResolveHub" className="h-6 w-6" />
                 <span className="text-lg font-bold text-white">ResolveHub</span>
@@ -177,34 +185,40 @@ export default function PublicLayout() {
               <p className="text-sm text-white/80">
                 Real-time QR complaint and feedback reporting for modern businesses.
               </p>
-            </div>
-            <div>
+            </motion.div>
+            <motion.div variants={staggerItem}>
               <h4 className="text-sm font-semibold mb-3 text-white">Product</h4>
               <ul className="space-y-2 text-sm text-white/75">
                 <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
                 <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
                 <li><a href="#faq" className="hover:text-white transition-colors">FAQ</a></li>
               </ul>
-            </div>
-            <div>
+            </motion.div>
+            <motion.div variants={staggerItem}>
               <h4 className="text-sm font-semibold mb-3 text-white">Company</h4>
               <ul className="space-y-2 text-sm text-white/75">
                 <li><Link to="/about" className="hover:text-white transition-colors">About</Link></li>
                 <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
                 <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
               </ul>
-            </div>
-            <div>
+            </motion.div>
+            <motion.div variants={staggerItem}>
               <h4 className="text-sm font-semibold mb-3 text-white">Legal</h4>
               <ul className="space-y-2 text-sm text-white/75">
                 <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
               </ul>
-            </div>
-          </div>
-          <div className="mt-8 pt-8 border-t border-white/20 text-center text-sm text-white/70">
+            </motion.div>
+          </motion.div>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={fadeIn}
+            className="mt-8 pt-8 border-t border-white/20 text-center text-sm text-white/70"
+          >
             &copy; {new Date().getFullYear()} ResolveHub. All rights reserved.
-          </div>
+          </motion.div>
         </div>
       </footer>
     </div>

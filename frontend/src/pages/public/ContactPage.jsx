@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   Mail,
   Phone,
@@ -17,6 +18,7 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import SEO from '../../components/seo';
 import { contactSalesAPI, contactAPI } from '../../lib/api';
+import { fadeUp, fadeIn, staggerContainer, staggerItem, defaultViewport, looseViewport } from '../../lib/animations';
 
 export default function ContactPage() {
   const [searchParams] = useSearchParams();
@@ -139,37 +141,42 @@ export default function ContactPage() {
           backgroundImage: 'linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.4) 100%), url(/contact-bg.png)',
         }}
       >
-        <div className="container mx-auto px-4 text-center relative z-10">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer(0.08)}
+          className="container mx-auto px-4 text-center relative z-10"
+        >
           {isSalesInquiry ? (
             <>
-              <Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-white/10 border-white/20 text-white hover:bg-white/20 transition-colors">
+              <motion.div variants={fadeIn}><Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-white/10 border-white/20 text-white hover:bg-white/20 transition-colors">
                 <Zap className="mr-1.5 h-3 w-3" />
                 Custom Enterprise Plan
-              </Badge>
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-5 text-white drop-shadow-lg">
+              </Badge></motion.div>
+              <motion.h1 variants={fadeUp} className="text-4xl md:text-6xl font-bold tracking-tight mb-5 text-white drop-shadow-lg">
                 Let&apos;s Talk About Your{' '}
                 <span className="text-yellow-300 drop-shadow-lg">Needs</span>
-              </h1>
-              <p className="text-white/90 text-base md:text-lg max-w-2xl mx-auto leading-relaxed drop-shadow-md">
+              </motion.h1>
+              <motion.p variants={fadeUp} className="text-white/90 text-base md:text-lg max-w-2xl mx-auto leading-relaxed drop-shadow-md">
                 Tell us about your business and your requirements. Our sales team will design a custom plan that fits your organization.
-              </p>
+              </motion.p>
             </>
           ) : (
             <>
-              <Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-white/10 border-white/20 text-white hover:bg-white/20 transition-colors">
+              <motion.div variants={fadeIn}><Badge variant="secondary" className="mb-5 px-5 py-2 text-xs font-semibold uppercase tracking-wider bg-white/10 border-white/20 text-white hover:bg-white/20 transition-colors">
                 <MessageSquare className="mr-1.5 h-3 w-3" />
                 Get in Touch
-              </Badge>
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-5 text-white drop-shadow-lg">
+              </Badge></motion.div>
+              <motion.h1 variants={fadeUp} className="text-4xl md:text-6xl font-bold tracking-tight mb-5 text-white drop-shadow-lg">
                 Let&apos;s Start a{' '}
                 <span className="text-yellow-300 drop-shadow-lg">Conversation</span>
-              </h1>
-              <p className="text-white/90 text-base md:text-lg max-w-2xl mx-auto leading-relaxed drop-shadow-md">
+              </motion.h1>
+              <motion.p variants={fadeUp} className="text-white/90 text-base md:text-lg max-w-2xl mx-auto leading-relaxed drop-shadow-md">
                 Have a question about ResolveHub? Want to explore how we can help your business? We&apos;d love to hear from you.
-              </p>
+              </motion.p>
             </>
           )}
-        </div>
+        </motion.div>
       </section>
 
       {/* Contact Section */}
@@ -177,7 +184,13 @@ export default function ContactPage() {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-5 gap-10 lg:gap-16 max-w-6xl mx-auto">
             {/* Left: Contact Info */}
-            <div className="lg:col-span-2 space-y-6">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={defaultViewport}
+              variants={staggerContainer(0.1)}
+              className="lg:col-span-2 space-y-6"
+            >
               {/* Info cards */}
               <div className="space-y-4">
                 {[
@@ -200,8 +213,9 @@ export default function ContactPage() {
                     sub: 'Accra, Ghana',
                   },
                 ].map((item) => (
-                  <div
+                  <motion.div
                     key={item.title}
+                    variants={staggerItem}
                     className="group flex items-start gap-4 p-5 rounded-2xl border border-border/40 bg-card/60 backdrop-blur-sm transition-all duration-300 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5"
                   >
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 ring-1 ring-primary/20 shrink-0 group-hover:bg-primary/15 transition-colors duration-300">
@@ -211,8 +225,8 @@ export default function ContactPage() {
                       <h3 className="font-semibold text-sm mb-0.5">{item.title}</h3>
                       <p className="text-sm text-foreground">{item.detail}</p>
                       <p className="text-xs text-muted-foreground mt-0.5">{item.sub}</p>
-                    </div>
                   </div>
+                  </motion.div>
                 ))}
               </div>
 
@@ -261,10 +275,16 @@ export default function ContactPage() {
                   ))}
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Right: Contact Form or Sales Inquiry Form */}
-            <div className="lg:col-span-3">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={defaultViewport}
+              variants={fadeUp}
+              className="lg:col-span-3"
+            >
               <div className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-sm p-8 md:p-10 shadow-xl shadow-primary/5">
                 {submitted ? (
                   <div className="text-center py-16">
@@ -547,12 +567,10 @@ export default function ContactPage() {
                   </>
                 )}
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
-
-      {/* Map / CTA Section */}
       <section className="pb-24 md:pb-32">
         <div className="container mx-auto px-4">
           <div className="relative max-w-6xl mx-auto rounded-3xl overflow-hidden border border-border/40 bg-gradient-to-br from-muted/50 to-muted/20">

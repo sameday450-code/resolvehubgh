@@ -23,7 +23,7 @@ export default function SuperAdminLoginPage() {
     try {
       await superAdminLogin(email, password);
       toast.success('Welcome, Super Admin');
-      navigate('/super-admin');
+      navigate('/auth/splash');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Invalid credentials');
     } finally {

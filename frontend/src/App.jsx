@@ -14,6 +14,7 @@ import ContactPage from './pages/public/ContactPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import SuperAdminLoginPage from './pages/auth/SuperAdminLoginPage';
+import PostLoginSplashScreen from './pages/auth/PostLoginSplashScreen';
 import EnterpriseRegisterPage from './pages/auth/EnterpriseRegisterPage';
 import PendingApprovalPage from './pages/auth/PendingApprovalPage';
 import PendingPaymentPage from './pages/auth/PendingPaymentPage';
@@ -92,6 +93,7 @@ export default function App() {
       <Route path="/register/enterprise" element={<GuestRoute><EnterpriseRegisterPage /></GuestRoute>} />
       <Route path="/pending-approval" element={<PendingApprovalPage />} />
       <Route path="/super-admin/login" element={<GuestRoute><SuperAdminLoginPage /></GuestRoute>} />
+      <Route path="/auth/splash" element={<ProtectedRoute><PostLoginSplashScreen /></ProtectedRoute>} />
       <Route path="/pending-payment" element={<ProtectedRoute allowedRoles={['COMPANY_ADMIN']}><PendingPaymentPage /></ProtectedRoute>} />
       <Route path="/payment/callback" element={<PaymentCallbackPage />} />
       <Route path="/account-suspended" element={<AccountSuspendedPage />} />

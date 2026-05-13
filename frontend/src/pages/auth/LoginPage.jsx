@@ -33,7 +33,7 @@ export default function LoginPage() {
     try {
       await login(email, password);
       toast.success('Welcome back!');
-      navigate('/dashboard');
+      navigate('/auth/splash');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Invalid credentials');
     } finally {
@@ -45,13 +45,9 @@ export default function LoginPage() {
     onSuccess: async (tokenResponse) => {
       setGoogleLoading(true);
       try {
-        const result = await googleLogin(tokenResponse.access_token);
+        await googleLogin(tokenResponse.access_token);
         toast.success('Welcome back!');
-        if (result.user.role === 'SUPER_ADMIN') {
-          navigate('/super-admin');
-        } else {
-          navigate('/dashboard');
-        }
+        navigate('/auth/splash');
       } catch (err) {
         // Display more specific error messages
         const errorMessage = err.response?.data?.message;
