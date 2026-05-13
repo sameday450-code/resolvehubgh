@@ -14,48 +14,61 @@ const baseLayout = (content, preheader = '') => `
   <title>ResolveHub</title>
   <!--[if mso]>
   <noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
-  <style>td,th,div,p,a,h1,h2,h3,h4,h5,h6{font-family:"Segoe UI", sans-serif !important}</style>
+  <style>td,th,div,p,a,h1,h2,h3,h4,h5,h6{font-family:"Segoe UI", Arial, sans-serif !important}</style>
   <![endif]-->
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-      background: linear-gradient(135deg, #f0f4f8 0%, #e8ecf1 100%);
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f1f5f9;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
     img { max-width: 100%; height: auto; border: 0; display: block; }
     a { color: inherit; text-decoration: none; }
-    table { border-collapse: collapse; border-spacing: 0; }
+    table { border-collapse: collapse; border-spacing: 0; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    .email-wrapper { width: 100%; background-color: #f1f5f9; }
+    .email-container { max-width: 600px; width: 100%; margin: 0 auto; }
+    .main-card { background-color: #ffffff; border-radius: 16px; overflow: hidden; }
+    @media only screen and (max-width: 620px) {
+      .email-container { width: 100% !important; }
+      .email-body-padding { padding: 28px 24px !important; }
+      .hero-padding { padding: 36px 24px 28px !important; }
+      .hero-title { font-size: 22px !important; }
+      .cta-button { padding: 14px 32px !important; font-size: 15px !important; }
+      .feature-card-row td { display: block !important; width: 100% !important; }
+      .feature-card-spacer { display: none !important; }
+    }
   </style>
 </head>
-<body style="background: linear-gradient(135deg, #f0f4f8 0%, #e8ecf1 100%); margin: 0; padding: 0; width: 100% !important; min-height: 100vh;">
-  ${preheader ? `<div style="display:none;font-size:1px;color:#f0f4f8;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">${preheader}</div>` : ''}
+<body style="background-color: #f1f5f9; margin: 0; padding: 0; width: 100% !important; min-height: 100vh;" class="email-wrapper">
+  ${preheader ? `<div style="display:none;font-size:1px;color:#f1f5f9;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">${preheader}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>` : ''}
 
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width: 100%; min-height: 100vh; background: linear-gradient(135deg, #f0f4f8 0%, #e8ecf1 100%);">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #f1f5f9; min-height: 100vh;">
     <tr>
-      <td align="center" style="padding: 40px 20px; vertical-align: top;">
-        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; margin: 0 auto;">
+      <td align="center" style="padding: 40px 20px;" valign="top">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" class="email-container" style="max-width: 600px; width: 100%; margin: 0 auto;">
 
-          <!-- Header with Logo -->
+          <!-- Header: Brand Logo -->
           <tr>
-            <td style="padding: 0 0 40px; text-align: center;">
-              <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
-                <tr>
-                  <td align="center" style="padding: 0;">
-                    <a href="${config.frontendUrl}" style="display: inline-block; text-decoration: none;">
-                      <img src="${config.frontendUrl}/logo.png" alt="ResolveHub" width="140" height="auto" style="max-width: 140px; height: auto; display: block;">
-                    </a>
-                  </td>
-                </tr>
-              </table>
+            <td style="padding: 0 0 32px; text-align: center;">
+              <a href="${config.frontendUrl}" style="display: inline-block; text-decoration: none;" target="_blank">
+                <!-- Logo image with text fallback -->
+                <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                  <tr>
+                    <td align="center" style="background-color: #ffffff; border-radius: 12px; padding: 14px 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1px solid #e8ecf0;">
+                      <img src="${config.frontendUrl}/logo.png" alt="ResolveHub" width="130" height="auto" style="max-width: 130px; height: auto; display: block;">
+                    </td>
+                  </tr>
+                </table>
+              </a>
             </td>
           </tr>
 
           <!-- Main Card -->
           <tr>
-            <td style="background-color: #ffffff; border-radius: 20px; box-shadow: 0 8px 32px rgba(79, 70, 229, 0.12); overflow: hidden; border: 1px solid rgba(79, 70, 229, 0.05);">
+            <td style="background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08), 0 1px 4px rgba(15, 23, 42, 0.04); overflow: hidden; border: 1px solid #e8ecf0;" class="main-card">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 ${content}
               </table>
@@ -64,23 +77,35 @@ const baseLayout = (content, preheader = '') => `
 
           <!-- Footer -->
           <tr>
-            <td style="padding: 40px 20px 20px; text-align: center;">
-              <div style="border-top: 1px solid #e2e8f0; padding-top: 24px;">
-                <!-- Social links (optional) -->
-                <p style="font-size: 12px; color: #94a3b8; line-height: 20px; margin: 0 0 16px;">
-                  <a href="${config.frontendUrl}" style="color: #4f46e5; text-decoration: none; font-weight: 500; margin: 0 12px;">Website</a>
-                  <span style="color: #cbd5e1;">•</span>
-                  <a href="${config.frontendUrl}/contact" style="color: #4f46e5; text-decoration: none; font-weight: 500; margin: 0 12px;">Contact</a>
-                </p>
-
-                <!-- Copyright -->
-                <p style="font-size: 12px; color: #cbd5e1; line-height: 18px; margin: 0;">
-                  &copy; ${new Date().getFullYear()} ResolveHub. All rights reserved. | Made with ❤️ for better complaint management
-                </p>
-                <p style="font-size: 11px; color: #d1d5db; line-height: 16px; margin: 8px 0 0;">
-                  This email was sent to you as a notification. If you didn't expect it, please ignore this email.
-                </p>
-              </div>
+            <td style="padding: 36px 20px 24px; text-align: center;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="border-top: 1px solid #e2e8f0; padding-top: 28px; text-align: center;">
+                    <!-- Nav Links -->
+                    <p style="font-size: 12px; color: #94a3b8; line-height: 22px; margin: 0 0 14px;">
+                      <a href="${config.frontendUrl}" style="color: #6366f1; text-decoration: none; font-weight: 500; font-family: 'Inter', Arial, sans-serif;" target="_blank">Website</a>
+                      &nbsp;&nbsp;<span style="color: #cbd5e1;">&middot;</span>&nbsp;&nbsp;
+                      <a href="${config.frontendUrl}/contact" style="color: #6366f1; text-decoration: none; font-weight: 500; font-family: 'Inter', Arial, sans-serif;" target="_blank">Contact Support</a>
+                      &nbsp;&nbsp;<span style="color: #cbd5e1;">&middot;</span>&nbsp;&nbsp;
+                      <a href="${config.frontendUrl}/privacy" style="color: #6366f1; text-decoration: none; font-weight: 500; font-family: 'Inter', Arial, sans-serif;" target="_blank">Privacy Policy</a>
+                    </p>
+                    <!-- Powered By -->
+                    <p style="font-size: 12px; color: #64748b; line-height: 20px; margin: 0 0 10px; font-family: 'Inter', Arial, sans-serif; font-weight: 500;">
+                      Powered by <strong style="color: #6366f1;">ResolveHub</strong>
+                    </p>
+                    <!-- Copyright -->
+                    <p style="font-size: 11px; color: #94a3b8; line-height: 18px; margin: 0 0 8px; font-family: 'Inter', Arial, sans-serif;">
+                      &copy; ${new Date().getFullYear()} ResolveHub. All rights reserved.
+                    </p>
+                    <p style="font-size: 11px; color: #94a3b8; line-height: 18px; margin: 0; font-family: 'Inter', Arial, sans-serif;">
+                      Powering smarter complaint resolution for modern businesses.
+                    </p>
+                    <p style="font-size: 10px; color: #b0bac4; line-height: 16px; margin: 10px 0 0; font-family: 'Inter', Arial, sans-serif;">
+                      You received this email as part of your ResolveHub account activity. If this was unexpected, you may safely ignore it.
+                    </p>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
 
@@ -95,22 +120,26 @@ const baseLayout = (content, preheader = '') => `
 // ─── Company Approved Template ──────────────────────────────────────────────
 const companyApprovedTemplate = ({ companyName, loginUrl }) => {
   const content = `
+    <!-- Hero -->
     <tr>
-      <td style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); padding: 48px 40px 36px; text-align: center; border-bottom: 4px solid #047857;">
+      <td style="background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%); padding: 52px 40px 40px; text-align: center;" class="hero-padding">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           <tr>
-            <td align="center" style="padding-bottom: 16px;">
-              <div style="width: 80px; height: 80px; margin: 0 auto; background-color: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px;">
-                ✓
+            <td align="center" style="padding-bottom: 20px;">
+              <!-- Check icon SVG -->
+              <div style="width: 72px; height: 72px; margin: 0 auto; background-color: rgba(255,255,255,0.2); border-radius: 50%; line-height: 72px; text-align: center; border: 2px solid rgba(255,255,255,0.3);">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-top: 2px;">
+                  <path d="M20 6L9 17L4 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
               </div>
             </td>
           </tr>
           <tr>
             <td>
-              <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0; letter-spacing: -0.5px; line-height: 1.2;">
+              <h1 style="color: #ffffff; font-size: 26px; font-weight: 700; margin: 0 0 10px; letter-spacing: -0.3px; line-height: 1.25; font-family: 'Inter', Arial, sans-serif;" class="hero-title">
                 Your Company Is Approved!
               </h1>
-              <p style="color: rgba(255,255,255,0.9); font-size: 16px; margin: 12px 0 0; line-height: 24px; font-weight: 500;">
+              <p style="color: rgba(255,255,255,0.88); font-size: 15px; margin: 0; line-height: 24px; font-weight: 400; font-family: 'Inter', Arial, sans-serif;">
                 Welcome to the ResolveHub platform
               </p>
             </td>
@@ -118,78 +147,104 @@ const companyApprovedTemplate = ({ companyName, loginUrl }) => {
         </table>
       </td>
     </tr>
+
+    <!-- Body -->
     <tr>
-      <td style="padding: 40px 40px;">
-        <p style="font-size: 16px; color: #1f2937; line-height: 26px; margin: 0 0 28px; font-weight: 500;">
+      <td style="padding: 40px 40px 36px;" class="email-body-padding">
+        <p style="font-size: 16px; color: #0f172a; line-height: 28px; margin: 0 0 16px; font-weight: 600; font-family: 'Inter', Arial, sans-serif;">
           Hi there,
         </p>
-        
-        <p style="font-size: 15px; color: #4b5563; line-height: 26px; margin: 0 0 24px;">
-          Great news! <strong style="color: #059669; font-weight: 600;">${companyName}</strong> has been reviewed and <strong style="color: #059669; font-weight: 600;">approved</strong> by our verification team. Your account is now fully activated and ready to use.
+        <p style="font-size: 15px; color: #475569; line-height: 26px; margin: 0 0 16px; font-family: 'Inter', Arial, sans-serif;">
+          Great news! <strong style="color: #059669;">${companyName}</strong> has been reviewed and <strong style="color: #059669;">approved</strong> by our verification team. Your account is now fully activated and ready to use.
+        </p>
+        <p style="font-size: 15px; color: #475569; line-height: 26px; margin: 0 0 32px; font-family: 'Inter', Arial, sans-serif;">
+          Log in to your dashboard and start managing customer feedback efficiently with QR-powered complaint management.
         </p>
 
-        <p style="font-size: 15px; color: #4b5563; line-height: 26px; margin: 0 0 28px;">
-          You can now log in to your dashboard and start leveraging the power of ResolveHub to manage and resolve customer complaints efficiently.
-        </p>
-
-        <!-- Features Grid -->
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 32px 0;">
+        <!-- Feature Cards -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 32px;" class="feature-card-row">
           <tr>
-            <td style="padding: 20px; background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1px solid #bbf7d0; border-radius: 12px; text-align: center;">
-              <div style="font-size: 24px; margin-bottom: 8px;">🏢</div>
-              <p style="font-size: 13px; font-weight: 600; color: #059669; margin: 0 0 4px;">Set Up Branches</p>
-              <p style="font-size: 12px; color: #4b5563; margin: 0;">Configure your locations</p>
+            <td width="48%" style="padding: 18px 16px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; text-align: center; vertical-align: top;">
+              <div style="margin-bottom: 10px;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block;">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="9 22 9 12 15 12 15 22" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <p style="font-size: 13px; font-weight: 600; color: #0f172a; margin: 0 0 4px; font-family: 'Inter', Arial, sans-serif;">Set Up Branches</p>
+              <p style="font-size: 12px; color: #64748b; margin: 0; line-height: 18px; font-family: 'Inter', Arial, sans-serif;">Configure your locations</p>
             </td>
-            <td style="width: 16px;"></td>
-            <td style="padding: 20px; background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1px solid #bbf7d0; border-radius: 12px; text-align: center;">
-              <div style="font-size: 24px; margin-bottom: 8px;">📱</div>
-              <p style="font-size: 13px; font-weight: 600; color: #059669; margin: 0 0 4px;">Generate QR Codes</p>
-              <p style="font-size: 12px; color: #4b5563; margin: 0;">Place at your locations</p>
+            <td width="4%" class="feature-card-spacer" style="width: 16px;">&nbsp;</td>
+            <td width="48%" style="padding: 18px 16px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; text-align: center; vertical-align: top;">
+              <div style="margin-bottom: 10px;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block;">
+                  <rect x="3" y="3" width="7" height="7" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <rect x="14" y="3" width="7" height="7" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <rect x="3" y="14" width="7" height="7" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <rect x="14" y="14" width="7" height="7" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <p style="font-size: 13px; font-weight: 600; color: #0f172a; margin: 0 0 4px; font-family: 'Inter', Arial, sans-serif;">Generate QR Codes</p>
+              <p style="font-size: 12px; color: #64748b; margin: 0; line-height: 18px; font-family: 'Inter', Arial, sans-serif;">Place at your locations</p>
             </td>
           </tr>
+          <tr><td colspan="3" style="height: 14px;"></td></tr>
           <tr>
-            <td colspan="3" style="height: 12px;"></td>
-          </tr>
-          <tr>
-            <td style="padding: 20px; background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1px solid #bbf7d0; border-radius: 12px; text-align: center;">
-              <div style="font-size: 24px; margin-bottom: 8px;">👥</div>
-              <p style="font-size: 13px; font-weight: 600; color: #059669; margin: 0 0 4px;">Invite Team</p>
-              <p style="font-size: 12px; color: #4b5563; margin: 0;">Add your staff members</p>
+            <td width="48%" style="padding: 18px 16px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; text-align: center; vertical-align: top;">
+              <div style="margin-bottom: 10px;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block;">
+                  <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="9" cy="7" r="4" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <p style="font-size: 13px; font-weight: 600; color: #0f172a; margin: 0 0 4px; font-family: 'Inter', Arial, sans-serif;">Invite Your Team</p>
+              <p style="font-size: 12px; color: #64748b; margin: 0; line-height: 18px; font-family: 'Inter', Arial, sans-serif;">Add your staff members</p>
             </td>
-            <td style="width: 16px;"></td>
-            <td style="padding: 20px; background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1px solid #bbf7d0; border-radius: 12px; text-align: center;">
-              <div style="font-size: 24px; margin-bottom: 8px;">📊</div>
-              <p style="font-size: 13px; font-weight: 600; color: #059669; margin: 0 0 4px;">Track Complaints</p>
-              <p style="font-size: 12px; color: #4b5563; margin: 0;">Monitor and resolve issues</p>
+            <td width="4%" class="feature-card-spacer" style="width: 16px;">&nbsp;</td>
+            <td width="48%" style="padding: 18px 16px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; text-align: center; vertical-align: top;">
+              <div style="margin-bottom: 10px;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block;">
+                  <line x1="18" y1="20" x2="18" y2="10" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <line x1="12" y1="20" x2="12" y2="4" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <line x1="6" y1="20" x2="6" y2="14" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <p style="font-size: 13px; font-weight: 600; color: #0f172a; margin: 0 0 4px; font-family: 'Inter', Arial, sans-serif;">Track Analytics</p>
+              <p style="font-size: 12px; color: #64748b; margin: 0; line-height: 18px; font-family: 'Inter', Arial, sans-serif;">Monitor and resolve issues</p>
             </td>
           </tr>
         </table>
 
         <!-- CTA Button -->
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 32px 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 32px;">
           <tr>
             <td align="center">
-              <a href="${loginUrl}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #ffffff; font-size: 16px; font-weight: 600; text-decoration: none; padding: 16px 48px; border-radius: 12px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3); transition: transform 0.2s; letter-spacing: 0.3px;">
-                Access Your Dashboard →
+              <a href="${loginUrl}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #ffffff; font-size: 15px; font-weight: 600; text-decoration: none; padding: 15px 44px; border-radius: 10px; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35); letter-spacing: 0.2px; font-family: 'Inter', Arial, sans-serif;" class="cta-button">
+                Access Your Dashboard &rarr;
               </a>
             </td>
           </tr>
         </table>
 
-        <!-- Info section -->
-        <div style="background: linear-gradient(135deg, #f3f4f6 0%, #eff6ff 100%); border-left: 4px solid #4f46e5; padding: 20px 24px; border-radius: 8px; margin: 28px 0;">
-          <p style="font-size: 13px; color: #1f2937; margin: 0; line-height: 22px;">
-            <strong style="color: #4f46e5;">Getting Started:</strong> Log in with your registered email to set up your first branch and generate QR codes for your locations.
-          </p>
-        </div>
+        <!-- Info box -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="background-color: #f8fafc; border-left: 3px solid #4f46e5; border-radius: 0 8px 8px 0; padding: 16px 20px;">
+              <p style="font-size: 13px; color: #374151; margin: 0; line-height: 22px; font-family: 'Inter', Arial, sans-serif;">
+                <strong style="color: #4f46e5;">Getting Started:</strong> Log in with your registered email to set up your first branch and generate QR codes for your locations.
+              </p>
+            </td>
+          </tr>
+        </table>
 
-        <p style="font-size: 14px; color: #6b7280; line-height: 24px; margin: 28px 0 0;">
-          If you have any questions or need assistance, our support team is here to help. Simply reply to this email or visit our <a href="${loginUrl.replace('/login', '')}/contact" style="color: #4f46e5; font-weight: 600; text-decoration: none;">contact page</a>.
+        <p style="font-size: 13px; color: #94a3b8; line-height: 22px; margin: 28px 0 0; font-family: 'Inter', Arial, sans-serif;">
+          Questions? Reply to this email or visit our <a href="${loginUrl.replace('/login', '')}/contact" style="color: #4f46e5; font-weight: 500; text-decoration: none;">support page</a>. We're happy to help.
         </p>
 
-        <p style="font-size: 14px; color: #4b5563; line-height: 26px; margin: 24px 0 0;">
+        <p style="font-size: 14px; color: #475569; line-height: 24px; margin: 20px 0 0; font-family: 'Inter', Arial, sans-serif;">
           Best regards,<br>
-          <strong style="color: #1f2937;">The ResolveHub Team</strong>
+          <strong style="color: #0f172a;">The ResolveHub Team</strong>
         </p>
       </td>
     </tr>
@@ -201,22 +256,26 @@ const companyApprovedTemplate = ({ companyName, loginUrl }) => {
 // ─── Company Rejected Template ──────────────────────────────────────────────
 const companyRejectedTemplate = ({ companyName, reason, supportEmail }) => {
   const content = `
+    <!-- Hero -->
     <tr>
-      <td style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); padding: 48px 40px 36px; text-align: center; border-bottom: 4px solid #b91c1c;">
+      <td style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); padding: 52px 40px 40px; text-align: center;" class="hero-padding">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           <tr>
-            <td align="center" style="padding-bottom: 16px;">
-              <div style="width: 80px; height: 80px; margin: 0 auto; background-color: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px;">
-                ✕
+            <td align="center" style="padding-bottom: 20px;">
+              <div style="width: 72px; height: 72px; margin: 0 auto; background-color: rgba(255,255,255,0.2); border-radius: 50%; line-height: 72px; text-align: center; border: 2px solid rgba(255,255,255,0.3);">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-top: 2px;">
+                  <line x1="18" y1="6" x2="6" y2="18" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                  <line x1="6" y1="6" x2="18" y2="18" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
               </div>
             </td>
           </tr>
           <tr>
             <td>
-              <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0; letter-spacing: -0.5px; line-height: 1.2;">
+              <h1 style="color: #ffffff; font-size: 26px; font-weight: 700; margin: 0 0 10px; letter-spacing: -0.3px; line-height: 1.25; font-family: 'Inter', Arial, sans-serif;" class="hero-title">
                 Registration Not Approved
               </h1>
-              <p style="color: rgba(255,255,255,0.9); font-size: 16px; margin: 12px 0 0; line-height: 24px; font-weight: 500;">
+              <p style="color: rgba(255,255,255,0.88); font-size: 15px; margin: 0; line-height: 24px; font-weight: 400; font-family: 'Inter', Arial, sans-serif;">
                 We were unable to process your request at this time
               </p>
             </td>
@@ -224,51 +283,55 @@ const companyRejectedTemplate = ({ companyName, reason, supportEmail }) => {
         </table>
       </td>
     </tr>
+
+    <!-- Body -->
     <tr>
-      <td style="padding: 40px 40px;">
-        <p style="font-size: 16px; color: #1f2937; line-height: 26px; margin: 0 0 24px; font-weight: 500;">
-          Hello,
-        </p>
-        
-        <p style="font-size: 15px; color: #4b5563; line-height: 26px; margin: 0 0 24px;">
-          Thank you for your interest in ResolveHub. We've carefully reviewed your company registration for <strong style="color: #1f2937; font-weight: 600;">${companyName}</strong>, and unfortunately, we're unable to approve it at this time.
+      <td style="padding: 40px 40px 36px;" class="email-body-padding">
+        <p style="font-size: 16px; color: #0f172a; line-height: 28px; margin: 0 0 16px; font-weight: 600; font-family: 'Inter', Arial, sans-serif;">Hello,</p>
+        <p style="font-size: 15px; color: #475569; line-height: 26px; margin: 0 0 16px; font-family: 'Inter', Arial, sans-serif;">
+          Thank you for your interest in ResolveHub. We've carefully reviewed the registration for <strong style="color: #0f172a;">${companyName}</strong> and unfortunately cannot approve it at this time.
         </p>
 
         ${reason ? `
-        <div style="background: linear-gradient(135deg, #fef2f2 0%, #fef2f2 100%); border-left: 4px solid #dc2626; padding: 20px 24px; border-radius: 8px; margin: 24px 0;">
-          <p style="font-size: 13px; color: #7f1d1d; margin: 0 0 8px; font-weight: 600;">Reason for Rejection:</p>
-          <p style="font-size: 14px; color: #4b5563; line-height: 24px; margin: 0;">
-            ${reason}
-          </p>
-        </div>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
+          <tr>
+            <td style="background-color: #fef2f2; border-left: 3px solid #dc2626; border-radius: 0 8px 8px 0; padding: 16px 20px;">
+              <p style="font-size: 12px; color: #991b1b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin: 0 0 8px; font-family: 'Inter', Arial, sans-serif;">Reason for Rejection</p>
+              <p style="font-size: 14px; color: #374151; line-height: 22px; margin: 0; font-family: 'Inter', Arial, sans-serif;">${reason}</p>
+            </td>
+          </tr>
+        </table>
         ` : ''}
 
-        <p style="font-size: 15px; color: #4b5563; line-height: 26px; margin: 28px 0;">
-          We understand this may be disappointing. If you believe there's been a misunderstanding or if you'd like to provide additional information, we encourage you to reach out to our support team.
+        <p style="font-size: 15px; color: #475569; line-height: 26px; margin: 0 0 32px; font-family: 'Inter', Arial, sans-serif;">
+          If you believe this is an error or would like to provide additional information, please contact our support team — we're happy to review your case.
         </p>
 
         <!-- CTA Button -->
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 32px 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 32px;">
           <tr>
             <td align="center">
-              <a href="mailto:${supportEmail}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #ffffff; font-size: 16px; font-weight: 600; text-decoration: none; padding: 16px 48px; border-radius: 12px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3); letter-spacing: 0.3px;">
+              <a href="mailto:${supportEmail}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #ffffff; font-size: 15px; font-weight: 600; text-decoration: none; padding: 15px 44px; border-radius: 10px; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35); letter-spacing: 0.2px; font-family: 'Inter', Arial, sans-serif;" class="cta-button">
                 Contact Support Team
               </a>
             </td>
           </tr>
         </table>
 
-        <!-- Next Steps -->
-        <div style="background: linear-gradient(135deg, #f3f4f6 0%, #eff6ff 100%); border-left: 4px solid #4f46e5; padding: 20px 24px; border-radius: 8px; margin: 28px 0;">
-          <p style="font-size: 13px; color: #1f2937; margin: 0; line-height: 22px;">
-            <strong style="color: #4f46e5;">What's Next?</strong> Our support team is available 24/7 to discuss your registration. They can provide guidance on any areas that need improvement or clarification.
-          </p>
-        </div>
+        <!-- Info box -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="background-color: #f8fafc; border-left: 3px solid #4f46e5; border-radius: 0 8px 8px 0; padding: 16px 20px;">
+              <p style="font-size: 13px; color: #374151; margin: 0; line-height: 22px; font-family: 'Inter', Arial, sans-serif;">
+                <strong style="color: #4f46e5;">What's Next?</strong> Our support team is available to discuss your registration and provide guidance on next steps.
+              </p>
+            </td>
+          </tr>
+        </table>
 
-        <p style="font-size: 14px; color: #4b5563; line-height: 24px; margin: 28px 0 0;">
-          We value your interest and would love to help if there's any way we can.<br>
-          <br>
-          <strong style="color: #1f2937;">The ResolveHub Team</strong>
+        <p style="font-size: 14px; color: #475569; line-height: 24px; margin: 28px 0 0; font-family: 'Inter', Arial, sans-serif;">
+          We value your interest and look forward to hearing from you.<br><br>
+          <strong style="color: #0f172a;">The ResolveHub Team</strong>
         </p>
       </td>
     </tr>
@@ -280,75 +343,83 @@ const companyRejectedTemplate = ({ companyName, reason, supportEmail }) => {
 // ─── Company Suspended Template ─────────────────────────────────────────────
 const companySuspendedTemplate = ({ companyName, reason, supportEmail }) => {
   const content = `
+    <!-- Hero -->
     <tr>
-      <td style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); padding: 48px 40px 36px; text-align: center; border-bottom: 4px solid #b45309;">
+      <td style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); padding: 52px 40px 40px; text-align: center;" class="hero-padding">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           <tr>
-            <td align="center" style="padding-bottom: 16px;">
-              <div style="width: 80px; height: 80px; margin: 0 auto; background-color: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px;">
-                ⚠
+            <td align="center" style="padding-bottom: 20px;">
+              <div style="width: 72px; height: 72px; margin: 0 auto; background-color: rgba(255,255,255,0.2); border-radius: 50%; line-height: 72px; text-align: center; border: 2px solid rgba(255,255,255,0.3);">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-top: 2px;">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <line x1="12" y1="9" x2="12" y2="13" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
               </div>
             </td>
           </tr>
           <tr>
             <td>
-              <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0; letter-spacing: -0.5px; line-height: 1.2;">
+              <h1 style="color: #ffffff; font-size: 26px; font-weight: 700; margin: 0 0 10px; letter-spacing: -0.3px; line-height: 1.25; font-family: 'Inter', Arial, sans-serif;" class="hero-title">
                 Account Suspended
               </h1>
-              <p style="color: rgba(255,255,255,0.9); font-size: 16px; margin: 12px 0 0; line-height: 24px; font-weight: 500;">
-                Temporary suspension – Action required
+              <p style="color: rgba(255,255,255,0.88); font-size: 15px; margin: 0; line-height: 24px; font-weight: 400; font-family: 'Inter', Arial, sans-serif;">
+                Temporary suspension — Action required
               </p>
             </td>
           </tr>
         </table>
       </td>
     </tr>
+
+    <!-- Body -->
     <tr>
-      <td style="padding: 40px 40px;">
-        <p style="font-size: 16px; color: #1f2937; line-height: 26px; margin: 0 0 24px; font-weight: 500;">
-          Hello,
-        </p>
-        
-        <p style="font-size: 15px; color: #4b5563; line-height: 26px; margin: 0 0 24px;">
-          We regret to inform you that <strong style="color: #1f2937; font-weight: 600;">${companyName}</strong>'s ResolveHub account has been temporarily suspended by our admin team.
+      <td style="padding: 40px 40px 36px;" class="email-body-padding">
+        <p style="font-size: 16px; color: #0f172a; line-height: 28px; margin: 0 0 16px; font-weight: 600; font-family: 'Inter', Arial, sans-serif;">Hello,</p>
+        <p style="font-size: 15px; color: #475569; line-height: 26px; margin: 0 0 16px; font-family: 'Inter', Arial, sans-serif;">
+          We regret to inform you that <strong style="color: #0f172a;">${companyName}</strong>'s ResolveHub account has been temporarily suspended by our admin team.
         </p>
 
         ${reason ? `
-        <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-left: 4px solid #d97706; padding: 20px 24px; border-radius: 8px; margin: 24px 0;">
-          <p style="font-size: 13px; color: #78350f; margin: 0 0 8px; font-weight: 600;">Reason for Suspension:</p>
-          <p style="font-size: 14px; color: #4b5563; line-height: 24px; margin: 0;">
-            ${reason}
-          </p>
-        </div>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
+          <tr>
+            <td style="background-color: #fffbeb; border-left: 3px solid #d97706; border-radius: 0 8px 8px 0; padding: 16px 20px;">
+              <p style="font-size: 12px; color: #92400e; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin: 0 0 8px; font-family: 'Inter', Arial, sans-serif;">Reason for Suspension</p>
+              <p style="font-size: 14px; color: #374151; line-height: 22px; margin: 0; font-family: 'Inter', Arial, sans-serif;">${reason}</p>
+            </td>
+          </tr>
+        </table>
         ` : ''}
 
-        <p style="font-size: 15px; color: #4b5563; line-height: 26px; margin: 28px 0;">
-          During this suspension, your team will be <strong>unable to access the dashboard</strong> and cannot manage complaints or perform any platform operations. However, this is a temporary measure, and your account can be restored once the issue is resolved.
+        <p style="font-size: 15px; color: #475569; line-height: 26px; margin: 0 0 32px; font-family: 'Inter', Arial, sans-serif;">
+          During this suspension, your team will be unable to access the dashboard or perform platform operations. This is a temporary measure — your account will be restored once the issue is resolved.
         </p>
 
         <!-- CTA Button -->
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 32px 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 32px;">
           <tr>
             <td align="center">
-              <a href="mailto:${supportEmail}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); color: #ffffff; font-size: 16px; font-weight: 600; text-decoration: none; padding: 16px 48px; border-radius: 12px; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3); letter-spacing: 0.3px;">
+              <a href="mailto:${supportEmail}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); color: #ffffff; font-size: 15px; font-weight: 600; text-decoration: none; padding: 15px 44px; border-radius: 10px; box-shadow: 0 4px 14px rgba(217, 119, 6, 0.35); letter-spacing: 0.2px; font-family: 'Inter', Arial, sans-serif;" class="cta-button">
                 Contact Support Immediately
               </a>
             </td>
           </tr>
         </table>
 
-        <!-- Important Info -->
-        <div style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border-left: 4px solid #dc2626; padding: 20px 24px; border-radius: 8px; margin: 28px 0;">
-          <p style="font-size: 13px; color: #7f1d1d; margin: 0 0 8px; font-weight: 600;">⚡ What You Should Do:</p>
-          <p style="font-size: 13px; color: #4b5563; line-height: 22px; margin: 0;">
-            Contact our support team immediately to understand the issue and discuss resolution steps. We're here to help restore your account as quickly as possible.
-          </p>
-        </div>
+        <!-- Action box -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="background-color: #fef2f2; border-left: 3px solid #dc2626; border-radius: 0 8px 8px 0; padding: 16px 20px;">
+              <p style="font-size: 13px; color: #374151; margin: 0; line-height: 22px; font-family: 'Inter', Arial, sans-serif;">
+                <strong style="color: #dc2626;">Action Required:</strong> Contact our support team to understand the issue and discuss resolution steps. We're committed to restoring your account as quickly as possible.
+              </p>
+            </td>
+          </tr>
+        </table>
 
-        <p style="font-size: 14px; color: #4b5563; line-height: 24px; margin: 28px 0 0;">
-          Our support team is available 24/7 and ready to assist you.<br>
-          <br>
-          <strong style="color: #1f2937;">The ResolveHub Team</strong>
+        <p style="font-size: 14px; color: #475569; line-height: 24px; margin: 28px 0 0; font-family: 'Inter', Arial, sans-serif;">
+          Our support team is available and ready to assist.<br><br>
+          <strong style="color: #0f172a;">The ResolveHub Team</strong>
         </p>
       </td>
     </tr>
@@ -360,22 +431,25 @@ const companySuspendedTemplate = ({ companyName, reason, supportEmail }) => {
 // ─── Company Reactivated Template ───────────────────────────────────────────
 const companyReactivatedTemplate = ({ companyName, loginUrl }) => {
   const content = `
+    <!-- Hero -->
     <tr>
-      <td style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); padding: 48px 40px 36px; text-align: center; border-bottom: 4px solid #047857;">
+      <td style="background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%); padding: 52px 40px 40px; text-align: center;" class="hero-padding">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           <tr>
-            <td align="center" style="padding-bottom: 16px;">
-              <div style="width: 80px; height: 80px; margin: 0 auto; background-color: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px;">
-                ✓
+            <td align="center" style="padding-bottom: 20px;">
+              <div style="width: 72px; height: 72px; margin: 0 auto; background-color: rgba(255,255,255,0.2); border-radius: 50%; line-height: 72px; text-align: center; border: 2px solid rgba(255,255,255,0.3);">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-top: 2px;">
+                  <path d="M20 6L9 17L4 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
               </div>
             </td>
           </tr>
           <tr>
             <td>
-              <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0; letter-spacing: -0.5px; line-height: 1.2;">
+              <h1 style="color: #ffffff; font-size: 26px; font-weight: 700; margin: 0 0 10px; letter-spacing: -0.3px; line-height: 1.25; font-family: 'Inter', Arial, sans-serif;" class="hero-title">
                 Account Reactivated!
               </h1>
-              <p style="color: rgba(255,255,255,0.9); font-size: 16px; margin: 12px 0 0; line-height: 24px; font-weight: 500;">
+              <p style="color: rgba(255,255,255,0.88); font-size: 15px; margin: 0; line-height: 24px; font-weight: 400; font-family: 'Inter', Arial, sans-serif;">
                 Your company is back online
               </p>
             </td>
@@ -383,42 +457,43 @@ const companyReactivatedTemplate = ({ companyName, loginUrl }) => {
         </table>
       </td>
     </tr>
-    <tr>
-      <td style="padding: 40px 40px;">
-        <p style="font-size: 16px; color: #1f2937; line-height: 26px; margin: 0 0 24px; font-weight: 500;">
-          Good news!
-        </p>
-        
-        <p style="font-size: 15px; color: #4b5563; line-height: 26px; margin: 0 0 24px;">
-          <strong style="color: #059669; font-weight: 600;">${companyName}</strong> has been successfully reactivated. Your team can now access the dashboard and resume all operations immediately.
-        </p>
 
-        <p style="font-size: 15px; color: #4b5563; line-height: 26px; margin: 0 0 28px;">
-          We appreciate your patience and look forward to continuing to support your complaint management operations on ResolveHub.
+    <!-- Body -->
+    <tr>
+      <td style="padding: 40px 40px 36px;" class="email-body-padding">
+        <p style="font-size: 16px; color: #0f172a; line-height: 28px; margin: 0 0 16px; font-weight: 600; font-family: 'Inter', Arial, sans-serif;">Good news!</p>
+        <p style="font-size: 15px; color: #475569; line-height: 26px; margin: 0 0 16px; font-family: 'Inter', Arial, sans-serif;">
+          <strong style="color: #059669;">${companyName}</strong> has been successfully reactivated. Your team can now access the dashboard and resume all operations immediately.
+        </p>
+        <p style="font-size: 15px; color: #475569; line-height: 26px; margin: 0 0 32px; font-family: 'Inter', Arial, sans-serif;">
+          We appreciate your patience and look forward to continuing to support your complaint management operations.
         </p>
 
         <!-- CTA Button -->
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 32px 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 32px;">
           <tr>
             <td align="center">
-              <a href="${loginUrl}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #ffffff; font-size: 16px; font-weight: 600; text-decoration: none; padding: 16px 48px; border-radius: 12px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3); letter-spacing: 0.3px;">
-                Back to Dashboard →
+              <a href="${loginUrl}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #ffffff; font-size: 15px; font-weight: 600; text-decoration: none; padding: 15px 44px; border-radius: 10px; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35); letter-spacing: 0.2px; font-family: 'Inter', Arial, sans-serif;" class="cta-button">
+                Back to Dashboard &rarr;
               </a>
             </td>
           </tr>
         </table>
 
-        <!-- Quick Reminder -->
-        <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border-left: 4px solid #059669; padding: 20px 24px; border-radius: 8px; margin: 28px 0;">
-          <p style="font-size: 13px; color: #065f46; margin: 0; line-height: 22px;">
-            <strong style="color: #059669;">Welcome Back!</strong> To keep your account in good standing, please ensure your team remains compliant with our platform policies.
-          </p>
-        </div>
+        <!-- Info box -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="background-color: #f0fdf4; border-left: 3px solid #059669; border-radius: 0 8px 8px 0; padding: 16px 20px;">
+              <p style="font-size: 13px; color: #374151; margin: 0; line-height: 22px; font-family: 'Inter', Arial, sans-serif;">
+                <strong style="color: #059669;">Welcome Back!</strong> To keep your account in good standing, please ensure your team remains compliant with our platform policies.
+              </p>
+            </td>
+          </tr>
+        </table>
 
-        <p style="font-size: 14px; color: #4b5563; line-height: 24px; margin: 28px 0 0;">
-          If you have any questions, our support team is ready to assist.<br>
-          <br>
-          <strong style="color: #1f2937;">The ResolveHub Team</strong>
+        <p style="font-size: 14px; color: #475569; line-height: 24px; margin: 28px 0 0; font-family: 'Inter', Arial, sans-serif;">
+          If you have any questions, our support team is ready to assist.<br><br>
+          <strong style="color: #0f172a;">The ResolveHub Team</strong>
         </p>
       </td>
     </tr>
@@ -682,22 +757,29 @@ const sendNewCompanyRegistrationAlert = async (company, planType) => {
     : '#c7d2fe';
 
   const content = `
+    <!-- Hero -->
     <tr>
-      <td style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 48px 40px 36px; text-align: center; border-bottom: 4px solid #4338ca;">
+      <td style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 52px 40px 40px; text-align: center;" class="hero-padding">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           <tr>
-            <td align="center" style="padding-bottom: 16px;">
-              <div style="width: 80px; height: 80px; margin: 0 auto; background-color: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px;">
-                📋
+            <td align="center" style="padding-bottom: 20px;">
+              <div style="width: 72px; height: 72px; margin: 0 auto; background-color: rgba(255,255,255,0.2); border-radius: 50%; line-height: 72px; text-align: center; border: 2px solid rgba(255,255,255,0.3);">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-top: 2px;">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="14 2 14 8 20 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <line x1="16" y1="13" x2="8" y2="13" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="16" y1="17" x2="8" y2="17" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                  <polyline points="10 9 9 9 8 9" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
               </div>
             </td>
           </tr>
           <tr>
             <td>
-              <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0; letter-spacing: -0.5px; line-height: 1.2;">
+              <h1 style="color: #ffffff; font-size: 26px; font-weight: 700; margin: 0 0 10px; letter-spacing: -0.3px; line-height: 1.25; font-family: 'Inter', Arial, sans-serif;" class="hero-title">
                 New Registration Pending
               </h1>
-              <p style="color: rgba(255,255,255,0.9); font-size: 16px; margin: 12px 0 0; line-height: 24px; font-weight: 500;">
+              <p style="color: rgba(255,255,255,0.88); font-size: 15px; margin: 0; line-height: 24px; font-weight: 400; font-family: 'Inter', Arial, sans-serif;">
                 ${isEnterpriseMonthly ? 'Enterprise application' : 'Company signup'} awaiting approval
               </p>
             </td>
@@ -705,50 +787,40 @@ const sendNewCompanyRegistrationAlert = async (company, planType) => {
         </table>
       </td>
     </tr>
+
+    <!-- Body -->
     <tr>
-      <td style="padding: 40px 40px;">
-        <p style="font-size: 16px; color: #1f2937; line-height: 26px; margin: 0 0 28px; font-weight: 500;">
+      <td style="padding: 40px 40px 36px;" class="email-body-padding">
+        <p style="font-size: 16px; color: #0f172a; line-height: 28px; margin: 0 0 16px; font-weight: 600; font-family: 'Inter', Arial, sans-serif;">
           Action Required:
         </p>
-        
-        <p style="font-size: 15px; color: #4b5563; line-height: 26px; margin: 0 0 28px;">
+        <p style="font-size: 15px; color: #475569; line-height: 26px; margin: 0 0 28px; font-family: 'Inter', Arial, sans-serif;">
           A new company has registered on ResolveHub and is waiting for your review. Please review their details and approve or reject their registration.
         </p>
 
         <!-- Company Details Card -->
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border: 2px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin: 0 0 28px;">
           <tr>
-            <td style="padding: 28px 28px;">
+            <td style="padding: 24px 28px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                <!-- Company Name Row -->
                 <tr>
-                  <td style="padding-bottom: 20px;">
-                    <p style="font-size: 12px; color: #6b7280; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin: 0 0 6px;">Company Name</p>
-                    <p style="font-size: 18px; font-weight: 700; color: #1f2937; margin: 0;">
-                      ${company.name}
-                    </p>
+                  <td style="padding-bottom: 18px; border-bottom: 1px solid #e2e8f0;">
+                    <p style="font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: 700; letter-spacing: 0.6px; margin: 0 0 6px; font-family: 'Inter', Arial, sans-serif;">Company Name</p>
+                    <p style="font-size: 17px; font-weight: 700; color: #0f172a; margin: 0; font-family: 'Inter', Arial, sans-serif;">${company.name}</p>
                   </td>
                 </tr>
-
-                <!-- Email Row -->
                 <tr>
-                  <td style="padding-bottom: 20px;">
-                    <p style="font-size: 12px; color: #6b7280; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin: 0 0 6px;">Email Address</p>
-                    <p style="font-size: 15px; color: #4f46e5; margin: 0; font-family: 'Courier New', monospace;">
-                      ${company.email}
-                    </p>
+                  <td style="padding: 18px 0; border-bottom: 1px solid #e2e8f0;">
+                    <p style="font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: 700; letter-spacing: 0.6px; margin: 0 0 6px; font-family: 'Inter', Arial, sans-serif;">Email Address</p>
+                    <p style="font-size: 14px; color: #4f46e5; margin: 0; font-family: 'Courier New', Courier, monospace;">${company.email}</p>
                   </td>
                 </tr>
-
-                <!-- Plan Type Row -->
                 <tr>
-                  <td style="padding-bottom: 0;">
-                    <p style="font-size: 12px; color: #6b7280; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin: 0 0 6px;">Plan Type</p>
-                    <div style="display: inline-block; background-color: ${planBadgeBg}; border: 1px solid ${planBadgeBorder}; border-radius: 20px; padding: 6px 12px;">
-                      <span style="font-size: 13px; font-weight: 600; color: ${planBadgeColor};">
-                        ${planLabel}
-                      </span>
-                    </div>
+                  <td style="padding-top: 18px;">
+                    <p style="font-size: 11px; color: #6b7280; text-transform: uppercase; font-weight: 700; letter-spacing: 0.6px; margin: 0 0 8px; font-family: 'Inter', Arial, sans-serif;">Plan Type</p>
+                    <span style="display: inline-block; background-color: ${planBadgeBg}; border: 1px solid ${planBadgeBorder}; border-radius: 20px; padding: 5px 14px;">
+                      <span style="font-size: 13px; font-weight: 600; color: ${planBadgeColor}; font-family: 'Inter', Arial, sans-serif;">${planLabel}</span>
+                    </span>
                   </td>
                 </tr>
               </table>
@@ -756,28 +828,31 @@ const sendNewCompanyRegistrationAlert = async (company, planType) => {
           </tr>
         </table>
 
-        <!-- CTA Buttons -->
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 36px 0;">
+        <!-- CTA Button -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 32px;">
           <tr>
             <td align="center">
-              <a href="${approvalUrl}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #ffffff; font-size: 16px; font-weight: 600; text-decoration: none; padding: 16px 48px; border-radius: 12px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3); letter-spacing: 0.3px;">
-                Review & Approve →
+              <a href="${approvalUrl}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #ffffff; font-size: 15px; font-weight: 600; text-decoration: none; padding: 15px 44px; border-radius: 10px; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35); letter-spacing: 0.2px; font-family: 'Inter', Arial, sans-serif;" class="cta-button">
+                Review &amp; Approve &rarr;
               </a>
             </td>
           </tr>
         </table>
 
-        <!-- Quick Actions Info -->
-        <div style="background: linear-gradient(135deg, #f3f4f6 0%, #eff6ff 100%); border-left: 4px solid #4f46e5; padding: 20px 24px; border-radius: 8px; margin: 28px 0;">
-          <p style="font-size: 13px; color: #1f2937; margin: 0; line-height: 22px;">
-            <strong style="color: #4f46e5;">Dashboard Link:</strong> You can also access the approvals page directly from your super-admin dashboard under "Approvals" to manage all pending registrations.
-          </p>
-        </div>
+        <!-- Info box -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="background-color: #f8fafc; border-left: 3px solid #4f46e5; border-radius: 0 8px 8px 0; padding: 16px 20px;">
+              <p style="font-size: 13px; color: #374151; margin: 0; line-height: 22px; font-family: 'Inter', Arial, sans-serif;">
+                <strong style="color: #4f46e5;">Dashboard:</strong> Access the Approvals page in your super-admin dashboard to manage all pending registrations.
+              </p>
+            </td>
+          </tr>
+        </table>
 
-        <p style="font-size: 14px; color: #4b5563; line-height: 24px; margin: 28px 0 0;">
-          Thank you for keeping ResolveHub secure and reliable.<br>
-          <br>
-          <strong style="color: #1f2937;">The ResolveHub Team</strong>
+        <p style="font-size: 14px; color: #475569; line-height: 24px; margin: 28px 0 0; font-family: 'Inter', Arial, sans-serif;">
+          Thank you for keeping ResolveHub secure and reliable.<br><br>
+          <strong style="color: #0f172a;">The ResolveHub Team</strong>
         </p>
       </td>
     </tr>
@@ -801,22 +876,25 @@ const sendContactReplyEmail = async ({ to, customerName, subject, replyMessage }
   const replySubject = `Re: ${subject}`;
 
   const content = `
+    <!-- Hero -->
     <tr>
-      <td style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 48px 40px 36px; text-align: center; border-bottom: 4px solid #4338ca;">
+      <td style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 52px 40px 40px; text-align: center;" class="hero-padding">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           <tr>
-            <td align="center" style="padding-bottom: 16px;">
-              <div style="width: 72px; height: 72px; margin: 0 auto; background-color: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-                💬
+            <td align="center" style="padding-bottom: 20px;">
+              <div style="width: 72px; height: 72px; margin: 0 auto; background-color: rgba(255,255,255,0.2); border-radius: 50%; line-height: 72px; text-align: center; border: 2px solid rgba(255,255,255,0.3);">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-top: 2px;">
+                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
               </div>
             </td>
           </tr>
           <tr>
             <td>
-              <h1 style="color: #ffffff; font-size: 26px; font-weight: 700; margin: 0; letter-spacing: -0.5px; line-height: 1.2;">
+              <h1 style="color: #ffffff; font-size: 26px; font-weight: 700; margin: 0 0 10px; letter-spacing: -0.3px; line-height: 1.25; font-family: 'Inter', Arial, sans-serif;" class="hero-title">
                 Reply from ResolveHub
               </h1>
-              <p style="color: rgba(255,255,255,0.85); font-size: 15px; margin: 10px 0 0; line-height: 22px;">
+              <p style="color: rgba(255,255,255,0.88); font-size: 15px; margin: 0; line-height: 24px; font-weight: 400; font-family: 'Inter', Arial, sans-serif;">
                 Response to your support message
               </p>
             </td>
@@ -824,28 +902,29 @@ const sendContactReplyEmail = async ({ to, customerName, subject, replyMessage }
         </table>
       </td>
     </tr>
+
+    <!-- Body -->
     <tr>
-      <td style="padding: 40px 40px;">
-        <p style="font-size: 16px; color: #1f2937; line-height: 26px; margin: 0 0 20px; font-weight: 500;">
+      <td style="padding: 40px 40px 36px;" class="email-body-padding">
+        <p style="font-size: 16px; color: #0f172a; line-height: 28px; margin: 0 0 16px; font-weight: 600; font-family: 'Inter', Arial, sans-serif;">
           Hello ${customerName},
         </p>
-
-        <p style="font-size: 15px; color: #4b5563; line-height: 26px; margin: 0 0 8px;">
-          Thank you for reaching out to us. Here is our response to your message regarding <strong style="color: #1f2937;">"${subject}"</strong>:
+        <p style="font-size: 15px; color: #475569; line-height: 26px; margin: 0 0 24px; font-family: 'Inter', Arial, sans-serif;">
+          Thank you for reaching out to us. Here is our response to your message regarding <strong style="color: #0f172a;">"${subject}"</strong>:
         </p>
 
         <!-- Reply Content Card -->
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #f9fafb; border: 1px solid #e5e7eb; border-left: 4px solid #4f46e5; border-radius: 8px; overflow: hidden; margin: 24px 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 28px;">
           <tr>
-            <td style="padding: 24px 28px;">
-              <p style="font-size: 15px; color: #374151; line-height: 28px; margin: 0; white-space: pre-line;">${replyMessage}</p>
+            <td style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 3px solid #4f46e5; border-radius: 0 8px 8px 0; padding: 20px 24px;">
+              <p style="font-size: 15px; color: #374151; line-height: 28px; margin: 0; font-family: 'Inter', Arial, sans-serif; white-space: pre-line;">${replyMessage}</p>
             </td>
           </tr>
         </table>
 
-        <p style="font-size: 14px; color: #6b7280; line-height: 24px; margin: 28px 0 0;">
-          If you have any further questions, please don't hesitate to contact us again.<br><br>
-          <strong style="color: #1f2937;">Best regards,<br>ResolveHub Support Team</strong>
+        <p style="font-size: 14px; color: #94a3b8; line-height: 22px; margin: 0; font-family: 'Inter', Arial, sans-serif;">
+          If you have any further questions, don't hesitate to reach out — we're always happy to help.<br><br>
+          <strong style="color: #0f172a;">Best regards,<br>ResolveHub Support Team</strong>
         </p>
       </td>
     </tr>
