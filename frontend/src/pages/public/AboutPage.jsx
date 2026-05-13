@@ -334,24 +334,24 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {teamMembers.map((member, i) => (
               <div
                 key={i}
                 className="group rounded-2xl overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/25 hover:scale-105"
               >
-                <div className={`relative overflow-hidden h-56 bg-gradient-to-br ${member.color} flex items-center justify-center`}>
+                <div className={`relative w-full aspect-[3/4] bg-gradient-to-br ${member.color} flex items-center justify-center overflow-hidden`}>
+                  <span className="text-4xl font-bold text-white/90 select-none" aria-hidden="true">
+                    {member.initials}
+                  </span>
                   <img
                     src={member.image}
                     alt={`${member.name} – ${member.role} at ResolveHub`}
-                    className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
+                    className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
                     onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   />
-                  <span className="text-4xl font-bold text-white/90 relative z-0 select-none" aria-hidden="true">
-                    {member.initials}
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
                 </div>
                 <div className="p-6 bg-white dark:bg-background">
                   <h3 className="text-lg font-bold mb-1">{member.name}</h3>
