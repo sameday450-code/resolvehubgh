@@ -18,7 +18,8 @@ export default function AboutPage() {
       name: 'Samson Kendrick Egbetorke',
       role: 'Founder & CEO',
       bio: 'Started in fintech and spent years in operational businesses. Saw the same problem everywhere: customer complaints getting lost across locations, teams flying blind. Built ResolveHub to give businesses real-time visibility into what customers actually think. Now focuses on making the product solve real problems for multi-location businesses.',
-      image: '👨‍💼',
+      image: '/ceo.jpeg',
+      initials: 'SK',
       socials: { linkedin: '#', twitter: '#' },
       color: 'from-blue-500 to-cyan-500',
     },
@@ -26,7 +27,8 @@ export default function AboutPage() {
       name: 'Shirley Yvonne Okine',
       role: 'Head of Product',
       bio: "Designs ResolveHub to be simple and actually useful. Believes complex features don't help—clarity does. Every decision is about removing friction so teams spend time fixing issues, not managing software. Passionate about building tools that businesses depend on.",
-      image: '👨‍🎨',
+      image: '/headofproduct.jpeg',
+      initials: 'SO',
       socials: { linkedin: '#', twitter: '#' },
       color: 'from-green-500 to-teal-500',
     },
@@ -34,7 +36,8 @@ export default function AboutPage() {
       name: 'Abena Boateng',
       role: 'Head of Customer Success',
       bio: "Helps businesses set up ResolveHub and get measurable results in weeks. Works directly with customers to understand what's working and what needs to change. Believes success is when customers stop thinking about the software and start focusing on fixing complaints faster.",
-      image: '👩‍🤝‍👨',
+      image: '/ceo-founder.jpg',
+      initials: 'AB',
       socials: { linkedin: '#', twitter: '#' },
       color: 'from-orange-500 to-red-500',
     },
@@ -282,8 +285,15 @@ export default function AboutPage() {
                   <div className="flex justify-center md:col-span-1">
                     <div className="relative">
                       <div className="absolute inset-0 bg-gradient-to-br from-primary to-blue-600 rounded-2xl blur-xl opacity-50" />
-                      <div className="relative w-48 h-48 rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-7xl shadow-2xl">
-                        👨‍💼
+                      <div className="relative w-48 h-48 rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
+                        <img
+                          src="/ceo.jpeg"
+                          alt="Samson Kendrick Egbetorke – Founder & Chief Executive Officer of ResolveHub"
+                          className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-500 hover:scale-105"
+                          loading="lazy"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                        <span className="text-5xl font-bold text-white/90 select-none" aria-hidden="true">SK</span>
                       </div>
                     </div>
                   </div>
@@ -328,11 +338,20 @@ export default function AboutPage() {
             {teamMembers.map((member, i) => (
               <div
                 key={i}
-                className="group rounded-2xl overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:scale-105"
+                className="group rounded-2xl overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/25 hover:scale-105"
               >
-                <div className={`bg-gradient-to-br ${member.color} p-10 flex justify-center relative overflow-hidden group-hover:scale-110 transition-transform duration-300`}>
-                  <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
-                  <div className="text-7xl relative z-10">{member.image}</div>
+                <div className={`relative overflow-hidden h-56 bg-gradient-to-br ${member.color} flex items-center justify-center`}>
+                  <img
+                    src={member.image}
+                    alt={`${member.name} – ${member.role} at ResolveHub`}
+                    className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                  <span className="text-4xl font-bold text-white/90 relative z-0 select-none" aria-hidden="true">
+                    {member.initials}
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
                 </div>
                 <div className="p-6 bg-white dark:bg-background">
                   <h3 className="text-lg font-bold mb-1">{member.name}</h3>
