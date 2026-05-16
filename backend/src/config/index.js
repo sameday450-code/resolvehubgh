@@ -45,11 +45,23 @@ module.exports = {
     expiresIn: process.env.JWT_EXPIRES_IN || '15m',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   },
-  cloudinary: {
-    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
-    apiKey: process.env.CLOUDINARY_API_KEY,
-    apiSecret: process.env.CLOUDINARY_API_SECRET,
-  },
+  cloudinary: (() => {
+    // Support either individual env vars or the CLOUDINARY_URL format
+    // cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+    const url = process.env.CLOUDINARY_URL;
+    let cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    let apiKey = process.env.CLOUDINARY_API_KEY;
+    let apiSecret = process.env.CLOUDINARY_API_SECRET;
+    if (url && (!cloudName || !apiKey || !apiSecret)) {
+      try {
+        const parsed = new URL(url);
+        cloudName = cloudName || parsed.hostname;
+        apiKey = apiKey || parsed.username;
+        apiSecret = apiSecret || parsed.password;
+      } catch (_) { /* ignore parse errors */ }
+    }
+    return { cloudName, apiKey, apiSecret };
+  })(),
   smtp: {
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT, 10) || 587,

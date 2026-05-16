@@ -254,9 +254,9 @@ function PortalPreviewCard({ logoPreview, brandColor, companyName }) {
 // ─────────────────────────────────────────────────────────────────────────────
 function BrandingTab({ profile, queryClient }) {
   const companyName = profile?.company?.name || profile?.name || '';
-  const [brandColor, setBrandColor] = useState(profile?.brandColor || '#2563eb');
+  const [brandColor, setBrandColor] = useState(profile?.company?.brandColor || '#2563eb');
   const [logoFile, setLogoFile] = useState(null);
-  const [logoPreview, setLogoPreview] = useState(profile?.logoUrl || null);
+  const [logoPreview, setLogoPreview] = useState(profile?.company?.logoUrl || null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [fileError, setFileError] = useState('');
