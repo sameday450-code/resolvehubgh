@@ -272,9 +272,9 @@ export default function ManualActivationForm() {
               Mobile Money Details
             </h3>
             <div className="space-y-2">
-              <CopyField label="MTN Mobile Money" value="+233 24 123 4567" />
-              <CopyField label="Telecel Cash" value="+233 50 123 4567" />
-              <CopyField label="Account Name" value="ResolveHub GH" />
+              <CopyField label="MTN Mobile Money" value="+233 59 434 5424" />
+              <CopyField label="Telecel Cash" value="+233 57 220 7831" />
+              <CopyField label="Account Name" value="Samson Egbetorke Or Lydia Myers" />
             </div>
             <div className="h-px bg-border" />
             <h3 className="font-semibold flex items-center gap-2 text-sm">
@@ -282,9 +282,9 @@ export default function ManualActivationForm() {
               Bank Transfer Details
             </h3>
             <div className="space-y-2">
-              <CopyField label="Bank Name" value="Zenith Bank Ghana" />
-              <CopyField label="Account Number" value="1234567890" />
-              <CopyField label="Account Name" value="ResolveHub Limited" />
+              <CopyField label="Bank Name" value="GT Bank Ghana" />
+              <CopyField label="Account Number" value="12140001021994" />
+              <CopyField label="Account Name" value="Samson Yao Egbetorke" />
             </div>
           </div>
 
