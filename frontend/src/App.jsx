@@ -11,6 +11,11 @@ import CompanyLayout from './layouts/CompanyLayout';
 import LandingPage from './pages/public/LandingPage';
 import AboutPage from './pages/public/AboutPage';
 import ContactPage from './pages/public/ContactPage';
+import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage';
+import TermsPage from './pages/public/TermsPage';
+import CookiePolicyPage from './pages/public/CookiePolicyPage';
+import RefundPolicyPage from './pages/public/RefundPolicyPage';
+import DataProtectionPage from './pages/public/DataProtectionPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import SuperAdminLoginPage from './pages/auth/SuperAdminLoginPage';
@@ -85,6 +90,11 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/cookies" element={<CookiePolicyPage />} />
+        <Route path="/refunds" element={<RefundPolicyPage />} />
+        <Route path="/data-protection" element={<DataProtectionPage />} />
       </Route>
 
       {/* Auth routes */}

@@ -205,8 +205,11 @@ export default function PublicLayout() {
             <motion.div variants={staggerItem}>
               <h4 className="text-sm font-semibold mb-3 text-white">Legal</h4>
               <ul className="space-y-2 text-sm text-white/75">
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+                <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/terms" className="hover:text-white transition-colors">Terms & Conditions</Link></li>
+                <li><Link to="/cookies" className="hover:text-white transition-colors">Cookie Policy</Link></li>
+                <li><Link to="/refunds" className="hover:text-white transition-colors">Refund Policy</Link></li>
+                <li><Link to="/data-protection" className="hover:text-white transition-colors">Data Protection</Link></li>
               </ul>
             </motion.div>
           </motion.div>
