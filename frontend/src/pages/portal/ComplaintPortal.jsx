@@ -128,16 +128,25 @@ export default function ComplaintPortal() {
     setSubmitting(true);
 
     try {
-      // Upload attachments first if any; upload service returns array of objects
+      // Step 1 — Upload attachments if any
       let attachments = [];
       if (files.length > 0) {
         const formData = new FormData();
         files.forEach((file) => formData.append('files', file));
-        const uploadRes = await uploadAPI.uploadComplaintFiles(formData);
-        attachments = uploadRes.data?.data || [];
+        try {
+          const uploadRes = await uploadAPI.uploadComplaintFiles(formData);
+          attachments = uploadRes.data?.data || [];
+        } catch (uploadErr) {
+          const uploadMsg =
+            uploadErr.response?.data?.message ||
+            'File upload failed. Please check your files and try again.';
+          setError(uploadMsg);
+          setSubmitting(false);
+          return;
+        }
       }
 
-      // Build payload with explicit IDs resolved from qrData + correct field names
+      // Step 2 — Submit complaint with resolved IDs
       const payload = {
         qrCodeId: qrData?.qrCode?.id,
         companyId: qrData?.company?.id,
@@ -166,8 +175,10 @@ export default function ComplaintPortal() {
       } else if (serverMsg.toLowerCase().includes('company') || serverMsg.toLowerCase().includes('not active')) {
         setError('This company account is currently inactive.');
       } else if (serverMsg.toLowerCase().includes('validation') || serverMsg.toLowerCase().includes('required')) {
-        setError('Please complete all required fields.');
+        setError(serverMsg || 'Please complete all required fields.');
       } else if (serverMsg.toLowerCase().includes('too many')) {
+        setError(serverMsg);
+      } else if (serverMsg) {
         setError(serverMsg);
       } else {
         setError('Unable to submit feedback. Please try again.');

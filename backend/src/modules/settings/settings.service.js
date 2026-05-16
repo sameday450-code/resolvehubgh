@@ -130,10 +130,28 @@ const updateStaffStatus = async (companyId, userId, isActive) => {
   });
 };
 
-const updateBranding = async (companyId, { brandColor, logoUrl }) => {
+const updateBranding = async (companyId, { brandColor, logoUrl, removeLogo }) => {
   const updateData = {};
-  if (brandColor) updateData.brandColor = brandColor;
-  if (logoUrl) updateData.logoUrl = logoUrl;
+
+  if (brandColor !== undefined && brandColor !== null) {
+    updateData.brandColor = brandColor;
+  }
+
+  if (removeLogo) {
+    updateData.logoUrl = null;
+  } else if (logoUrl !== undefined && logoUrl !== null) {
+    updateData.logoUrl = logoUrl;
+  }
+
+  // Nothing changed — return the current values without a DB write
+  if (Object.keys(updateData).length === 0) {
+    const current = await prisma.company.findUnique({
+      where: { id: companyId },
+      select: { id: true, logoUrl: true, brandColor: true, updatedAt: true },
+    });
+    if (!current) throw new NotFoundError('Company not found');
+    return current;
+  }
 
   return prisma.company.update({
     where: { id: companyId },

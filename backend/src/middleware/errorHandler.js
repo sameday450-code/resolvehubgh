@@ -46,17 +46,35 @@ const errorHandler = (err, req, res, _next) => {
     });
   }
 
-  // Multer errors
+  // Multer / busboy errors
   if (err.code === 'LIMIT_FILE_SIZE') {
     statusCode = 400;
-    message = 'File too large';
+    message = 'File too large. Maximum size is 10 MB per file.';
     code = 'FILE_TOO_LARGE';
+  }
+
+  if (err.code === 'LIMIT_FILE_COUNT') {
+    statusCode = 400;
+    message = 'Too many files. Maximum is 5 files per upload.';
+    code = 'FILE_LIMIT_EXCEEDED';
   }
 
   if (err.code === 'LIMIT_UNEXPECTED_FILE') {
     statusCode = 400;
-    message = 'Unexpected file field';
+    message = 'Unexpected file field name in the upload request.';
     code = 'UNEXPECTED_FILE';
+  }
+
+  // busboy throws this when Content-Type header is missing the multipart boundary
+  if (
+    err.message &&
+    (err.message.includes('Boundary not found') ||
+      err.message.includes('boundary') ||
+      err.message.includes('Multipart'))
+  ) {
+    statusCode = 400;
+    message = 'Malformed file upload request. Ensure files are sent as multipart/form-data.';
+    code = 'INVALID_MULTIPART';
   }
 
   res.status(statusCode).json({

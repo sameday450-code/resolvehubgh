@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { settingsAPI, subscriptionAPI, paymentsAPI } from '../../lib/api';
@@ -10,7 +10,7 @@ import { Badge } from '../../components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Separator } from '../../components/ui/separator';
-import { Settings as SettingsIcon, Building2, Palette, Tag, Plus, Trash2, Upload, CreditCard, CheckCircle2, Clock, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
+import { Settings as SettingsIcon, Building2, Palette, Tag, Plus, Trash2, Upload, CreditCard, CheckCircle2, Clock, AlertCircle, Loader2, RefreshCw, ImagePlus, RotateCcw, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Settings() {
@@ -169,137 +169,385 @@ function ProfileTab({ profile, queryClient }) {
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// PORTAL PREVIEW CARD — simulates the real QR complaint portal appearance
+// ─────────────────────────────────────────────────────────────────────────────
+function PortalPreviewCard({ logoPreview, brandColor, companyName }) {
+  const color = brandColor || '#2563eb';
+  const initial = (companyName || 'R').charAt(0).toUpperCase();
+
+  return (
+    <div className="rounded-2xl border bg-white dark:bg-slate-900 shadow-xl overflow-hidden w-full">
+      {/* Thin color stripe at top */}
+      <div className="h-1.5" style={{ backgroundColor: color }} />
+      <div className="p-5">
+        {/* Branding header */}
+        <div className="text-center mb-5">
+          {logoPreview ? (
+            <img
+              src={logoPreview}
+              alt="Company logo"
+              className="h-14 w-14 mx-auto rounded-xl object-contain border shadow-sm bg-white p-1 mb-2"
+            />
+          ) : (
+            <div
+              className="h-14 w-14 mx-auto rounded-xl mb-2 flex items-center justify-center border"
+              style={{ backgroundColor: `${color}20` }}
+            >
+              <span className="text-xl font-bold" style={{ color }}>{initial}</span>
+            </div>
+          )}
+          <p className="font-bold text-sm text-slate-900 dark:text-slate-100 leading-tight">
+            {companyName || 'Your Company'}
+          </p>
+          <p className="text-[11px] text-slate-400 mt-0.5">Main Branch · Reception</p>
+        </div>
+
+        {/* Simulated form fields */}
+        <div className="space-y-2.5 mb-4">
+          {/* Type selector */}
+          <div className="flex gap-2">
+            {['Complaint', 'Feedback', 'Suggestion'].map((t, i) => (
+              <div
+                key={t}
+                className="flex-1 py-1.5 rounded-md text-[10px] font-medium text-center border transition-colors"
+                style={i === 0 ? { backgroundColor: color, color: '#fff', borderColor: color } : {}}
+              >
+                {t}
+              </div>
+            ))}
+          </div>
+          {/* Subject placeholder */}
+          <div className="rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 bg-slate-50 dark:bg-slate-800/50">
+            <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Subject</p>
+            <div className="h-2 w-28 bg-slate-200 dark:bg-slate-600 rounded-full" />
+          </div>
+          {/* Description placeholder */}
+          <div className="rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 bg-slate-50 dark:bg-slate-800/50 h-14">
+            <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Details</p>
+            <div className="space-y-1.5">
+              <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-600 rounded-full" />
+              <div className="h-1.5 w-4/5 bg-slate-200 dark:bg-slate-600 rounded-full" />
+            </div>
+          </div>
+        </div>
+
+        {/* Submit button */}
+        <button
+          type="button"
+          className="w-full h-9 rounded-lg text-white text-xs font-semibold shadow-sm"
+          style={{ backgroundColor: color }}
+        >
+          Submit Feedback
+        </button>
+
+        <p className="text-center text-[10px] text-slate-400 mt-3">
+          Powered by <span className="font-medium">ResolveHub</span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BRANDING TAB
+// ─────────────────────────────────────────────────────────────────────────────
 function BrandingTab({ profile, queryClient }) {
+  const companyName = profile?.company?.name || profile?.name || '';
   const [brandColor, setBrandColor] = useState(profile?.brandColor || '#2563eb');
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState(profile?.logoUrl || null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [fileError, setFileError] = useState('');
+  const fileInputRef = useRef(null);
+
+  const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+  const MAX_BYTES = 2 * 1024 * 1024; // 2 MB
+
+  const validateAndSetFile = useCallback((file) => {
+    setFileError('');
+    if (!ACCEPTED_TYPES.includes(file.type)) {
+      setFileError('Only JPG, PNG, WebP, or GIF images are accepted.');
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      setFileError(`File is too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum is 2 MB.`);
+      return;
+    }
+    setLogoFile(file);
+    // Revoke previous object URL to avoid memory leaks
+    if (logoPreview && logoPreview.startsWith('blob:')) URL.revokeObjectURL(logoPreview);
+    setLogoPreview(URL.createObjectURL(file));
+  }, [logoPreview]);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) validateAndSetFile(file);
+    e.target.value = ''; // reset so same file can be re-selected
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) validateAndSetFile(file);
+  };
+
+  const handleRemoveSelectedFile = () => {
+    if (logoPreview && logoPreview.startsWith('blob:')) URL.revokeObjectURL(logoPreview);
+    setLogoFile(null);
+    setLogoPreview(profile?.logoUrl || null);
+    setFileError('');
+  };
 
   const brandingMutation = useMutation({
-    mutationFn: (formData) => settingsAPI.updateBranding(formData),
+    mutationFn: (formData) =>
+      settingsAPI.updateBranding(formData, {
+        onUploadProgress: (evt) => {
+          if (evt.total) setUploadProgress(Math.round((evt.loaded * 100) / evt.total));
+        },
+      }),
     onSuccess: (res) => {
       const updated = res.data?.data;
-      // Refresh settings query so logo/color are in sync everywhere
       queryClient.invalidateQueries({ queryKey: ['company-profile'] });
-      // Update preview in case it came from Cloudinary
-      if (updated?.logoUrl) setLogoPreview(updated.logoUrl);
+      if (updated?.logoUrl !== undefined) setLogoPreview(updated.logoUrl);
       if (updated?.brandColor) setBrandColor(updated.brandColor);
       setLogoFile(null);
+      setUploadProgress(0);
       toast.success('Branding updated successfully');
     },
     onError: (err) => {
+      setUploadProgress(0);
       toast.error(err.response?.data?.message || 'Failed to save branding. Please try again.');
     },
   });
 
-  const handleLogoSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setLogoFile(file);
-    setLogoPreview(URL.createObjectURL(file));
+  const handleSave = () => {
+    if (fileError) return;
+    const fd = new FormData();
+    fd.append('brandColor', brandColor);
+    if (logoFile) fd.append('logo', logoFile);
+    brandingMutation.mutate(fd);
   };
 
-  const handleSave = () => {
-    const formData = new FormData();
-    formData.append('brandColor', brandColor);
-    if (logoFile) formData.append('logo', logoFile);
-    brandingMutation.mutate(formData);
+  const handleReset = () => {
+    if (!window.confirm('Reset branding to defaults (logo removed, color reset to blue)?')) return;
+    const fd = new FormData();
+    fd.append('brandColor', '#2563eb');
+    fd.append('removeLogo', 'true');
+    brandingMutation.mutate(fd, {
+      onSuccess: () => {
+        setBrandColor('#2563eb');
+        if (logoPreview && logoPreview.startsWith('blob:')) URL.revokeObjectURL(logoPreview);
+        setLogoPreview(null);
+        setLogoFile(null);
+        setFileError('');
+      },
+    });
   };
+
+  const isLoading = brandingMutation.isPending;
 
   return (
-    <div className="space-y-6">
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-base font-semibold">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
-              <Upload className="h-4 w-4 text-white" />
-            </div>
-            Company Logo
-          </CardTitle>
-          <CardDescription>Upload your company logo for the complaint portal</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-6">
-            <div className="h-24 w-24 rounded-xl border-2 border-dashed border-violet-200 dark:border-violet-800/50 flex items-center justify-center bg-gradient-to-br from-violet-50 to-purple-50/50 dark:from-violet-950/30 dark:to-purple-950/20 overflow-hidden">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      {/* ── Left: controls ───────────────────────────────────────────────── */}
+      <div className="space-y-5">
+        {/* Logo upload */}
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base font-semibold">
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
+                <ImagePlus className="h-4 w-4 text-white" />
+              </div>
+              Company Logo
+            </CardTitle>
+            <CardDescription>PNG, JPG, WebP, or GIF — max 2 MB, recommended 200×200 px</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* Drag-and-drop zone */}
+            <div
+              onDrop={handleDrop}
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDragEnter={() => setIsDragging(true)}
+              onClick={() => !isLoading && fileInputRef.current?.click()}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && !isLoading && fileInputRef.current?.click()}
+              aria-label="Upload logo"
+              className={[
+                'relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed cursor-pointer select-none transition-all duration-200 p-8 outline-none',
+                isDragging
+                  ? 'border-violet-400 bg-violet-50 dark:bg-violet-950/20 scale-[1.01]'
+                  : 'border-slate-200 dark:border-slate-700 hover:border-violet-300 hover:bg-violet-50/50 dark:hover:bg-violet-950/10',
+                isLoading ? 'cursor-not-allowed opacity-60 pointer-events-none' : '',
+              ].join(' ')}
+            >
               {logoPreview ? (
-                <img src={logoPreview} alt="Logo preview" className="h-full w-full object-contain" />
+                <div className="relative">
+                  <img
+                    src={logoPreview}
+                    alt="Logo preview"
+                    className="h-20 w-20 object-contain rounded-xl border shadow-md bg-white p-1.5"
+                  />
+                  {/* Remove / change overlay */}
+                  <div className="absolute inset-0 rounded-xl bg-black/0 hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 hover:opacity-100">
+                    <span className="text-white text-[10px] font-medium">Click to replace</span>
+                  </div>
+                </div>
               ) : (
-                <Building2 className="h-8 w-8 text-muted-foreground" />
+                <div className="h-14 w-14 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
+                  <Upload className="h-6 w-6 text-violet-500" />
+                </div>
               )}
-            </div>
-            <div>
-              <label className="cursor-pointer">
-                <Button variant="outline" asChild>
-                  <span>
-                    <Upload className="h-4 w-4 mr-2" />
-                    {logoFile ? 'Change Logo' : 'Choose Logo'}
-                  </span>
-                </Button>
-                <input type="file" className="hidden" accept="image/*" onChange={handleLogoSelect} />
-              </label>
-              {logoFile && (
-                <p className="text-xs text-muted-foreground mt-1">{logoFile.name} — click Save to upload</p>
-              )}
-              <p className="text-xs text-muted-foreground mt-2">PNG, JPG up to 2MB. Recommended 200×200px.</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-base font-semibold">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg shadow-rose-500/20">
-              <Palette className="h-4 w-4 text-white" />
-            </div>
-            Brand Colors
-          </CardTitle>
-          <CardDescription>Customize the complaint portal appearance</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-4 mb-6">
-            <div>
-              <Label>Primary Color</Label>
-              <div className="flex items-center gap-2 mt-1">
-                <input
-                  type="color"
-                  value={brandColor}
-                  onChange={(e) => setBrandColor(e.target.value)}
-                  className="h-10 w-10 cursor-pointer rounded border"
-                />
-                <Input
-                  value={brandColor}
-                  onChange={(e) => setBrandColor(e.target.value)}
-                  className="w-32 font-mono"
-                  maxLength={7}
-                />
+              <div className="text-center">
+                <p className="text-sm font-medium">
+                  {logoPreview ? 'Click or drag to replace logo' : 'Drop logo here, or click to browse'}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">JPG, PNG, WebP, GIF · max 2 MB</p>
               </div>
             </div>
-            <div className="mt-6">
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+              onChange={handleFileChange}
+              disabled={isLoading}
+            />
+
+            {/* Selected file info */}
+            {logoFile && !fileError && (
+              <div className="mt-3 flex items-center justify-between rounded-lg bg-violet-50 dark:bg-violet-950/20 border border-violet-200 dark:border-violet-800/50 px-3 py-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="h-2 w-2 rounded-full bg-violet-500 shrink-0" />
+                  <p className="text-xs font-medium truncate">{logoFile.name}</p>
+                  <span className="text-xs text-muted-foreground shrink-0">
+                    {(logoFile.size / 1024).toFixed(0)} KB
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); handleRemoveSelectedFile(); }}
+                  className="ml-2 text-muted-foreground hover:text-destructive transition-colors"
+                  aria-label="Remove selected file"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
+
+            {/* Validation error */}
+            {fileError && (
+              <p className="mt-2 flex items-center gap-1.5 text-xs text-destructive">
+                <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                {fileError}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Brand colour */}
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base font-semibold">
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg shadow-rose-500/20">
+                <Palette className="h-4 w-4 text-white" />
+              </div>
+              Brand Color
+            </CardTitle>
+            <CardDescription>Applied to buttons and accents on your QR complaint portal</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap items-center gap-3">
+              <input
+                type="color"
+                value={brandColor}
+                onChange={(e) => setBrandColor(e.target.value)}
+                disabled={isLoading}
+                className="h-11 w-11 cursor-pointer rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 shrink-0"
+              />
+              <Input
+                value={brandColor}
+                onChange={(e) => setBrandColor(e.target.value)}
+                disabled={isLoading}
+                className="w-32 font-mono uppercase"
+                maxLength={7}
+                placeholder="#2563eb"
+              />
               <div
-                className="h-10 w-24 rounded-md border flex items-center justify-center text-xs font-medium text-white shadow-sm"
+                className="h-11 flex-1 min-w-[80px] rounded-lg border flex items-center justify-center text-xs font-semibold text-white shadow-sm transition-colors duration-200"
                 style={{ backgroundColor: brandColor }}
               >
-                Preview
+                Sample
               </div>
             </div>
-          </div>
 
-          <Button
-            className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white shadow-lg shadow-rose-500/25 border-0"
-            onClick={handleSave}
-            disabled={brandingMutation.isPending}
-          >
-            {brandingMutation.isPending ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving…
-              </>
-            ) : (
-              'Save Branding'
+            {/* Upload progress bar */}
+            {isLoading && uploadProgress > 0 && (
+              <div className="mt-4">
+                <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
+                  <span>Uploading…</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-300"
+                    style={{ width: `${uploadProgress}%`, backgroundColor: brandColor }}
+                  />
+                </div>
+              </div>
             )}
-          </Button>
-        </CardContent>
-      </Card>
+
+            <Separator className="my-5" />
+
+            {/* Action buttons */}
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white shadow-md shadow-rose-500/20 border-0"
+                onClick={handleSave}
+                disabled={isLoading || !!fileError}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving…
+                  </>
+                ) : (
+                  'Save Branding'
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleReset}
+                disabled={isLoading}
+                className="gap-2 text-muted-foreground"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Reset to Default
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* ── Right: live portal preview ───────────────────────────────────── */}
+      <div className="space-y-3 sticky top-6">
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-semibold">Live Portal Preview</p>
+          <Badge variant="secondary" className="text-[10px] font-medium">Real-time</Badge>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          This is how your QR complaint portal appears to customers. Changes reflect instantly.
+        </p>
+        <PortalPreviewCard
+          logoPreview={logoPreview}
+          brandColor={brandColor}
+          companyName={companyName}
+        />
+      </div>
     </div>
   );
 }

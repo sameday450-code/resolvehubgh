@@ -205,9 +205,10 @@ export const settingsAPI = {
   get: () => api.get('/settings'),
   updateProfile: (data) => api.put('/settings/profile', data),
   updatePreferences: (data) => api.put('/settings/preferences', data),
-  updateBranding: (formData) =>
+  updateBranding: (formData, onUploadProgress) =>
     api.put('/settings/branding', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      headers: { 'Content-Type': undefined },
+      onUploadProgress,
     }),
   getCategories: () => api.get('/settings/categories'),
   createCategory: (data) => api.post('/settings/categories', data),
@@ -218,18 +219,27 @@ export const settingsAPI = {
 };
 
 // Upload API
+// IMPORTANT: Do NOT set Content-Type manually for multipart uploads.
+// Setting 'Content-Type: multipart/form-data' without the boundary parameter causes
+// busboy/multer to throw "Boundary not found". Setting it to undefined removes the
+// axios default 'application/json' header and lets the browser set the full
+// 'multipart/form-data; boundary=XXXX' header automatically.
 export const uploadAPI = {
-  uploadComplaintFiles: (formData) => api.post('/uploads/complaint-attachments', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  }),
+  uploadComplaintFiles: (formData) =>
+    api.post('/uploads/complaint-attachments', formData, {
+      headers: { 'Content-Type': undefined },
+    }),
   uploadLogo: (file) => {
-    const formData = new FormData();
-    formData.append('logo', file);
-    return api.post('/uploads/logo', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+    const fd = new FormData();
+    fd.append('logo', file);
+    return api.post('/uploads/logo', fd, {
+      headers: { 'Content-Type': undefined },
     });
   },
 };
+
+// Settings API — updateBranding accepts optional axios config as second arg
+// (used to pass onUploadProgress from the UI layer)
 
 // Public API
 export const publicAPI = {
@@ -247,7 +257,7 @@ export const subscriptionAPI = {
   submitActivationRequest: (data) => api.post('/subscriptions/company/request-activation', data),
   submitActivationRequestMultipart: (formData) =>
     api.post('/subscriptions/company/request-activation', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      headers: { 'Content-Type': undefined },
     }),
   getActivationRequests: (status) =>
     api.get('/subscriptions/company/activation-requests', { params: { status } }),
