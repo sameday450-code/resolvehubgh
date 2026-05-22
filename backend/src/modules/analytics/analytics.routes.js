@@ -5,7 +5,7 @@ const billingGuard = require('../../middleware/billingGuard');
 const dashboardLockGuard = require('../../middleware/dashboardLockGuard');
 
 const router = Router();
-router.use(authenticate, authorize('COMPANY_ADMIN'), tenantGuard, dashboardLockGuard, billingGuard);
+router.use(authenticate, authorize('COMPANY_ADMIN'), tenantGuard, dashboardLockGuard, billingGuard('read'));
 router.get('/', controller.getCompanyAnalytics);
 
 module.exports = router;
