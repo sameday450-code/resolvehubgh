@@ -18,8 +18,12 @@ export default function ComplaintSuccess() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center px-4">
-      <Card className="max-w-md w-full">
+    <div
+      className="min-h-screen relative flex items-center justify-center px-4 bg-cover bg-center"
+      style={{ backgroundImage: 'url(/auth-bg.jpg)' }}
+    >
+      <div className="absolute inset-0 bg-black/30" />
+      <Card className="max-w-md w-full relative z-10">
         <CardContent className="pt-8 pb-8 text-center">
           <div className="h-16 w-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="h-8 w-8 text-green-500" />

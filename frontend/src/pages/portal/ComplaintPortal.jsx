@@ -198,28 +198,31 @@ export default function ComplaintPortal() {
   // ── Privacy Consent Modal ──────────────────────────────────────────────────
   if (consentStatus === 'pending') {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-md">
+      <div
+        className="min-h-screen relative flex items-center justify-center px-4 py-8 bg-cover bg-center"
+        style={{ backgroundImage: 'url(/auth-bg.jpg)' }}
+      >
+        <div className="absolute inset-0 bg-black/30" />
+        <div className="relative z-10 w-full max-w-md">
           {/* Company branding above modal */}
           <div className="text-center mb-6">
             {logoSrc ? (
               <img
                 src={logoSrc}
                 alt={company?.name}
-                className="h-16 w-16 mx-auto rounded-xl mb-3 object-contain border border-border shadow-sm bg-white p-1"
+                className="h-16 w-16 mx-auto rounded-xl mb-3 object-contain border border-white/20 shadow-lg bg-white p-1"
               />
             ) : (
               <div
-                className="h-16 w-16 mx-auto rounded-xl mb-3 flex items-center justify-center border border-border"
-                style={{ backgroundColor: `${color}1a` }}
+                className="h-16 w-16 mx-auto rounded-xl mb-3 flex items-center justify-center border border-white/30 shadow-lg bg-white/10 backdrop-blur-sm"
               >
-                <span className="text-2xl font-bold" style={{ color }}>
+                <span className="text-2xl font-bold text-white">
                   {company?.name?.charAt(0) || 'R'}
                 </span>
               </div>
             )}
-            <h1 className="text-xl font-bold">{company?.name}</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
+            <h1 className="text-xl font-bold text-white">{company?.name}</h1>
+            <p className="text-sm text-white/70 mt-0.5">
               {branch?.name}{point ? ` · ${point.name}` : ''}
             </p>
           </div>
@@ -264,7 +267,7 @@ export default function ComplaintPortal() {
             </CardContent>
           </Card>
 
-          <p className="text-center text-xs text-muted-foreground mt-6 flex items-center justify-center gap-1.5">
+          <p className="text-center text-xs text-white/60 mt-6 flex items-center justify-center gap-1.5">
             <img src="/logo.png" alt="ResolveHub" className="h-4 w-4 inline opacity-60" />
             Powered by <span className="font-semibold">ResolveHub</span>
           </p>
@@ -276,20 +279,24 @@ export default function ComplaintPortal() {
   // ── Consent Declined ──────────────────────────────────────────────────────
   if (consentStatus === 'declined') {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-md text-center">
-          <div className="h-16 w-16 rounded-full bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center mx-auto mb-4" >
-            <ShieldX className="h-8 w-8 text-amber-500" />
+      <div
+        className="min-h-screen relative flex items-center justify-center px-4 py-8 bg-cover bg-center"
+        style={{ backgroundImage: 'url(/auth-bg.jpg)' }}
+      >
+        <div className="absolute inset-0 bg-black/30" />
+        <div className="relative z-10 w-full max-w-md text-center">
+          <div className="h-16 w-16 rounded-full bg-amber-500/20 border border-amber-400/30 flex items-center justify-center mx-auto mb-4">
+            <ShieldX className="h-8 w-8 text-amber-400" />
           </div>
-          <h2 className="text-xl font-bold mb-2">Privacy Notice Not Accepted</h2>
-          <p className="text-sm text-muted-foreground mb-6">
+          <h2 className="text-xl font-bold mb-2 text-white">Privacy Notice Not Accepted</h2>
+          <p className="text-sm text-white/70 mb-6">
             You need to accept the privacy notice before submitting feedback. No data has been
             collected or stored.
           </p>
-          <Button variant="outline" onClick={() => setConsentStatus('pending')}>
+          <Button variant="outline" className="border-white/30 text-white hover:bg-white/10 hover:text-white" onClick={() => setConsentStatus('pending')}>
             Review Privacy Notice
           </Button>
-          <p className="text-center text-xs text-muted-foreground mt-8 flex items-center justify-center gap-1.5">
+          <p className="text-center text-xs text-white/60 mt-8 flex items-center justify-center gap-1.5">
             <img src="/logo.png" alt="ResolveHub" className="h-4 w-4 inline opacity-60" />
             Powered by <span className="font-semibold">ResolveHub</span>
           </p>
@@ -300,32 +307,35 @@ export default function ComplaintPortal() {
 
   // ── Complaint Form (consent accepted) ────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
-      <div className="max-w-2xl mx-auto px-4 py-8">
+    <div
+      className="min-h-screen relative bg-cover bg-center"
+      style={{ backgroundImage: 'url(/auth-bg.jpg)' }}
+    >
+      <div className="absolute inset-0 bg-black/30" />
+      <div className="relative z-10 max-w-2xl mx-auto px-4 py-8">
         {/* Company Header */}
         <div className="text-center mb-8">
           {logoSrc ? (
             <img
               src={logoSrc}
               alt={company?.name}
-              className="h-20 w-20 mx-auto rounded-xl mb-3 object-contain border border-border shadow-sm bg-white p-1"
+              className="h-20 w-20 mx-auto rounded-xl mb-3 object-contain border border-white/20 shadow-lg bg-white p-1"
             />
           ) : (
             <div
-              className="h-20 w-20 mx-auto rounded-xl mb-3 flex items-center justify-center border border-border shadow-sm"
-              style={{ backgroundColor: `${color}1a` }}
+              className="h-20 w-20 mx-auto rounded-xl mb-3 flex items-center justify-center border border-white/30 shadow-lg bg-white/10 backdrop-blur-sm"
             >
-              <span className="text-3xl font-bold" style={{ color }}>
+              <span className="text-3xl font-bold text-white">
                 {company?.name?.charAt(0) || 'R'}
               </span>
             </div>
           )}
-          <h1 className="text-2xl font-bold">{company?.name}</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <h1 className="text-2xl font-bold text-white">{company?.name}</h1>
+          <p className="text-white/70 mt-1 text-sm">
             {branch?.name}{point ? ` · ${point.name}` : ''}
           </p>
           {company?.welcomeMessage && (
-            <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto italic">
+            <p className="text-sm text-white/60 mt-2 max-w-md mx-auto italic">
               "{company.welcomeMessage}"
             </p>
           )}
@@ -520,7 +530,7 @@ export default function ComplaintPortal() {
           </CardContent>
         </Card>
 
-        <p className="text-center text-xs text-muted-foreground mt-6 flex items-center justify-center gap-1.5">
+        <p className="text-center text-xs text-white/60 mt-6 flex items-center justify-center gap-1.5">
           <img src="/logo.png" alt="ResolveHub" className="h-4 w-4 inline opacity-60" />
           Powered by <span className="font-semibold">ResolveHub</span>
         </p>
