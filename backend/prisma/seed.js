@@ -43,32 +43,55 @@ async function main() {
 
   // Create default complaint categories (system-wide)
   const defaultCategories = [
-    { name: 'Staff Behavior', slug: 'staff-behavior' },
-    { name: 'Service Delay', slug: 'service-delay' },
-    { name: 'Product Quality', slug: 'product-quality' },
-    { name: 'Overcharging', slug: 'overcharging' },
-    { name: 'Safety Issue', slug: 'safety-issue' },
-    { name: 'Cleanliness', slug: 'cleanliness' },
-    { name: 'Technical Issue', slug: 'technical-issue' },
-    { name: 'General Feedback', slug: 'general-feedback' },
-    { name: 'Suggestion', slug: 'suggestion' },
-    { name: 'Other', slug: 'other' },
+    { name: 'Staff Behavior',        slug: 'staff-behavior' },
+    { name: 'Service Quality',       slug: 'service-quality' },
+    { name: 'Billing & Payment',     slug: 'billing-payment' },
+    { name: 'Product Defect',        slug: 'product-defect' },
+    { name: 'Delivery & Fulfillment',slug: 'delivery-fulfillment' },
+    { name: 'Wrong Order',           slug: 'wrong-order' },
+    { name: 'Waiting Time',          slug: 'waiting-time' },
+    { name: 'Technical Issue',       slug: 'technical-issue' },
+    { name: 'Hygiene & Cleanliness', slug: 'hygiene-cleanliness' },
+    { name: 'Safety & Hazard',       slug: 'safety-hazard' },
+    { name: 'Pricing & Value',       slug: 'pricing-value' },
+    { name: 'Customer Support',      slug: 'customer-support' },
+    { name: 'Misinformation',        slug: 'misinformation' },
+    { name: 'Privacy & Data',        slug: 'privacy-data' },
+    { name: 'Accessibility',         slug: 'accessibility' },
+    { name: 'Noise & Disturbance',   slug: 'noise-disturbance' },
+    { name: 'Policy Issue',          slug: 'policy-issue' },
+    { name: 'Compliment',            slug: 'compliment' },
+    { name: 'Suggestion',            slug: 'suggestion' },
+    { name: 'General Feedback',      slug: 'general-feedback' },
+    { name: 'Other',                 slug: 'other' },
   ];
 
   for (const cat of defaultCategories) {
-    const existing = await prisma.complaintCategory.findFirst({
-      where: { slug: cat.slug, companyId: null },
-    });
-    if (!existing) {
-      await prisma.complaintCategory.create({
-        data: {
-          name: cat.name,
-          slug: cat.slug,
-          isDefault: true,
-          companyId: null,
-        },
+    await prisma.complaintCategory.upsert({
+      where: { slug_companyId: { slug: cat.slug, companyId: '' } },
+      update: { name: cat.name, isDefault: true },
+      create: {
+        name: cat.name,
+        slug: cat.slug,
+        isDefault: true,
+        companyId: null,
+      },
+    }).catch(async () => {
+      // fallback: upsert by slug+null companyId using findFirst
+      const existing = await prisma.complaintCategory.findFirst({
+        where: { slug: cat.slug, companyId: null },
       });
-    }
+      if (!existing) {
+        await prisma.complaintCategory.create({
+          data: { name: cat.name, slug: cat.slug, isDefault: true, companyId: null },
+        });
+      } else {
+        await prisma.complaintCategory.update({
+          where: { id: existing.id },
+          data: { name: cat.name },
+        });
+      }
+    });
   }
   console.log('✅ Default complaint categories seeded');
 

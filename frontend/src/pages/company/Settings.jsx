@@ -554,12 +554,18 @@ function BrandingTab({ profile, queryClient }) {
 
 function CategoriesTab({ categories, queryClient }) {
   const [newCategory, setNewCategory] = useState('');
+  const [createError, setCreateError] = useState('');
 
   const createMutation = useMutation({
     mutationFn: (name) => settingsAPI.createCategory({ name }),
     onSuccess: () => {
       queryClient.invalidateQueries(['categories']);
       setNewCategory('');
+      setCreateError('');
+    },
+    onError: (err) => {
+      const msg = err?.response?.data?.message || 'Failed to create category';
+      setCreateError(msg);
     },
   });
 
@@ -584,7 +590,7 @@ function CategoriesTab({ categories, queryClient }) {
           <Input
             placeholder="New category name..."
             value={newCategory}
-            onChange={(e) => setNewCategory(e.target.value)}
+            onChange={(e) => { setNewCategory(e.target.value); setCreateError(''); }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && newCategory.trim()) {
                 e.preventDefault();
@@ -602,6 +608,9 @@ function CategoriesTab({ categories, queryClient }) {
             <Plus className="h-4 w-4 mr-1" /> Add
           </Button>
         </div>
+        {createError && (
+          <p className="text-sm text-red-500 -mt-4 mb-4">{createError}</p>
+        )}
 
         <div className="space-y-2">
           {categories.length === 0 ? (

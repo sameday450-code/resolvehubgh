@@ -1,5 +1,5 @@
 const prisma = require('../../config/database');
-const { NotFoundError } = require('../../utils/errors');
+const { NotFoundError, ValidationError } = require('../../utils/errors');
 
 const getSettings = async (companyId) => {
   const company = await prisma.company.findUnique({
@@ -57,16 +57,33 @@ const updateSettings = async (companyId, data) => {
 };
 
 const getCategories = async (companyId) => {
-  return prisma.complaintCategory.findMany({
+  const all = await prisma.complaintCategory.findMany({
     where: { OR: [{ companyId }, { isDefault: true, companyId: null }] },
     orderBy: { name: 'asc' },
   });
+
+  // Deduplicate: if a company has a custom category with the same name as a default, keep only the company one
+  const companyNames = new Set(
+    all.filter((c) => c.companyId === companyId).map((c) => c.name.toLowerCase())
+  );
+  return all.filter((c) => !(c.isDefault && c.companyId === null && companyNames.has(c.name.toLowerCase())));
 };
 
 const createCategory = async (companyId, data) => {
-  const slug = data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  const trimmedName = data.name.trim();
+  if (!trimmedName) throw new ValidationError('Category name is required');
+
+  // Prevent duplicate names (case-insensitive) across default and company categories
+  const all = await prisma.complaintCategory.findMany({
+    where: { OR: [{ companyId }, { isDefault: true, companyId: null }] },
+    select: { name: true },
+  });
+  const nameTaken = all.some((c) => c.name.toLowerCase() === trimmedName.toLowerCase());
+  if (nameTaken) throw new ValidationError(`A category named "${trimmedName}" already exists`);
+
+  const slug = trimmedName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
   return prisma.complaintCategory.create({
-    data: { companyId, name: data.name, slug },
+    data: { companyId, name: trimmedName, slug },
   });
 };
 
