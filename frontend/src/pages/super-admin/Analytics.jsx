@@ -30,7 +30,7 @@ export default function SAAnalytics() {
   if (isLoading) return <PageLoading />;
   if (error) return <ErrorState message={error.message} onRetry={refetch} />;
 
-  const analytics = data?.data || {};
+  const analytics = data?.data?.data || {};
 
   const statusData = [
     { name: 'Active', value: analytics.activeCompanies || 0 },

@@ -516,73 +516,83 @@ const deleteCompany = async (companyId, adminId) => {
 };
 
 const getPlatformAnalytics = async () => {
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-  // Registrations over time (last 30 days)
+  // Company status distribution
+  const companyStatusDist = await prisma.company.groupBy({
+    by: ['status'],
+    _count: { id: true },
+  });
+
+  const companyStatusMap = {};
+  companyStatusDist.forEach((s) => {
+    companyStatusMap[s.status] = s._count.id;
+  });
+
+  // Complaint status distribution
+  const complaintStatusDist = await prisma.complaint.groupBy({
+    by: ['status'],
+    _count: { id: true },
+  });
+
+  const complaintStatusMap = {};
+  complaintStatusDist.forEach((s) => {
+    complaintStatusMap[s.status] = s._count.id;
+  });
+
+  // Monthly registrations (last 6 months)
   const registrationsRaw = await prisma.company.findMany({
-    where: { createdAt: { gte: thirtyDaysAgo } },
+    where: { createdAt: { gte: sixMonthsAgo } },
     select: { createdAt: true },
     orderBy: { createdAt: 'asc' },
   });
 
-  const registrationsByDay = {};
+  const registrationsByMonth = {};
   registrationsRaw.forEach((r) => {
-    const day = r.createdAt.toISOString().split('T')[0];
-    registrationsByDay[day] = (registrationsByDay[day] || 0) + 1;
+    const d = r.createdAt;
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    registrationsByMonth[key] = (registrationsByMonth[key] || 0) + 1;
   });
 
-  // Complaints over time
-  const complaintsRaw = await prisma.complaint.findMany({
-    where: { createdAt: { gte: thirtyDaysAgo } },
-    select: { createdAt: true },
-    orderBy: { createdAt: 'asc' },
-  });
+  const monthlyRegistrations = Object.entries(registrationsByMonth)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, count]) => {
+      const [year, month] = key.split('-');
+      const label = new Date(Number(year), Number(month) - 1).toLocaleString('en-US', { month: 'short', year: 'numeric' });
+      return { month: label, count };
+    });
 
-  const complaintsByDay = {};
-  complaintsRaw.forEach((c) => {
-    const day = c.createdAt.toISOString().split('T')[0];
-    complaintsByDay[day] = (complaintsByDay[day] || 0) + 1;
-  });
-
-  // Most active companies
-  const activeCompanies = await prisma.complaint.groupBy({
+  // Top companies by complaint count
+  const topCompaniesByComplaints = await prisma.complaint.groupBy({
     by: ['companyId'],
     _count: { id: true },
     orderBy: { _count: { id: 'desc' } },
     take: 10,
   });
 
-  const companyIds = activeCompanies.map((a) => a.companyId);
-  const companies = await prisma.company.findMany({
-    where: { id: { in: companyIds } },
-    select: { id: true, name: true, industry: true },
+  const topCompanyIds = topCompaniesByComplaints.map((a) => a.companyId);
+  const topCompanyRecords = await prisma.company.findMany({
+    where: { id: { in: topCompanyIds } },
+    select: { id: true, name: true },
   });
 
-  const mostActiveCompanies = activeCompanies.map((a) => {
-    const company = companies.find((c) => c.id === a.companyId);
-    return {
-      companyId: a.companyId,
-      companyName: company?.name,
-      industry: company?.industry,
-      complaintCount: a._count.id,
-    };
-  });
-
-  // Status distribution
-  const statusDistribution = await prisma.complaint.groupBy({
-    by: ['status'],
-    _count: { id: true },
+  const topCompanies = topCompaniesByComplaints.map((a) => {
+    const company = topCompanyRecords.find((c) => c.id === a.companyId);
+    return { name: company?.name || 'Unknown', complaints: a._count.id };
   });
 
   return {
-    registrationsByDay: Object.entries(registrationsByDay).map(([date, count]) => ({ date, count })),
-    complaintsByDay: Object.entries(complaintsByDay).map(([date, count]) => ({ date, count })),
-    mostActiveCompanies,
-    statusDistribution: statusDistribution.map((s) => ({
-      status: s.status,
-      count: s._count.id,
-    })),
+    activeCompanies: companyStatusMap['APPROVED'] || 0,
+    pendingCompanies: companyStatusMap['PENDING'] || 0,
+    suspendedCompanies: companyStatusMap['SUSPENDED'] || 0,
+    rejectedCompanies: companyStatusMap['REJECTED'] || 0,
+    openComplaints: (complaintStatusMap['NEW'] || 0) + (complaintStatusMap['ACKNOWLEDGED'] || 0),
+    inProgressComplaints: (complaintStatusMap['IN_REVIEW'] || 0) + (complaintStatusMap['ASSIGNED'] || 0),
+    resolvedComplaints: complaintStatusMap['RESOLVED'] || 0,
+    closedComplaints: (complaintStatusMap['CLOSED'] || 0) + (complaintStatusMap['ARCHIVED'] || 0),
+    monthlyRegistrations,
+    topCompanies,
   };
 };
 
