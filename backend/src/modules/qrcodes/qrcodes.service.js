@@ -187,15 +187,23 @@ const resolvePublicQR = async (publicSlug) => {
     data: { scanCount: { increment: 1 }, lastScannedAt: new Date() },
   });
 
-  // Get categories for this company
-  const categories = await prisma.complaintCategory.findMany({
+  // Get categories for this company (deduplicate: company-specific takes priority over defaults)
+  const allCategories = await prisma.complaintCategory.findMany({
     where: {
       OR: [{ companyId: qrCode.company.id }, { isDefault: true, companyId: null }],
       isActive: true,
     },
-    select: { id: true, name: true, slug: true },
+    select: { id: true, name: true, slug: true, isDefault: true, companyId: true },
     orderBy: { name: 'asc' },
   });
+
+  const companyId = qrCode.company.id;
+  const companyNames = new Set(
+    allCategories.filter((c) => c.companyId === companyId).map((c) => c.name.toLowerCase())
+  );
+  const categories = allCategories
+    .filter((c) => !(c.isDefault && c.companyId === null && companyNames.has(c.name.toLowerCase())))
+    .map(({ id, name, slug }) => ({ id, name, slug }));
 
   return {
     company: {
