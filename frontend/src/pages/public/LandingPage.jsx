@@ -116,7 +116,7 @@ const plans = [
       'Priority feature requests',
       'SLA guarantee',
     ],
-    cta: 'Contact Sales',
+    cta: 'Start 14-Day Free Trial',
     popular: false,
   },
   {
