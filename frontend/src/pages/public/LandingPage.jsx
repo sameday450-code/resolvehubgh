@@ -667,7 +667,7 @@ export default function LandingPage() {
               </div>
 
               {/* Additional Pricing Info */}
-              <div className="border-t border-border/40 pt-6">
+              {/* <div className="border-t border-border/40 pt-6">
                 <div className="flex items-start gap-4">
                   <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-500/10 ring-1 ring-blue-500/20 shrink-0">
                     <Plus className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -688,7 +688,7 @@ export default function LandingPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </motion.div>
         </div>
