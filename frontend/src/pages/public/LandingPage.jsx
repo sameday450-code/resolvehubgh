@@ -50,8 +50,8 @@ const features = [
 
 const plans = [
   {
-    name: 'Starter',
-    planType: 'starter',
+    name: 'Starter Plan',
+    planType: 'starter plan',
     price: '600',
     period: '/month',
     priceCurrency: 'GHS',
@@ -78,7 +78,7 @@ const plans = [
     priceCurrency: 'GHS',
     description: 'Ideal for growing businesses managing multiple branches. Get advanced analytics, team collaboration tools, and API access to scale your complaint management.',
     features: [
-      '3 branches included',
+      '4 branches included',
       '100 QR codes included',
       'Up to 15 team members',
       'Advanced analytics & reporting',
