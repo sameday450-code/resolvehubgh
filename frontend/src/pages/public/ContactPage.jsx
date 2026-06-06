@@ -197,7 +197,7 @@ export default function ContactPage() {
                   {
                     icon: Mail,
                     title: 'Email Us',
-                    detail: 'support@resolvehub.com',
+                    detail: 'resolvehub3@gmail.com',
                     sub: 'We reply within 2 hours',
                   },
                   {
@@ -456,7 +456,7 @@ export default function ContactPage() {
 
                       <p className="text-xs text-center text-muted-foreground">
                         By submitting this form, you agree to our{' '}
-                        <a href="#" className="text-primary hover:underline">Privacy Policy</a>.
+                        <a href="getresolvehub.com/privacy" className="text-primary hover:underline">Privacy Policy</a>.
                       </p>
                     </form>
                   </>
@@ -484,7 +484,7 @@ export default function ContactPage() {
                             required
                             value={generalFormState.fullName}
                             onChange={handleGeneralChange}
-                            placeholder="John Doe"
+                            placeholder="Your Name Here"
                             className="w-full h-11 px-4 rounded-xl border border-border/60 bg-background/50 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                           />
                         </div>
@@ -497,7 +497,7 @@ export default function ContactPage() {
                             required
                             value={generalFormState.email}
                             onChange={handleGeneralChange}
-                            placeholder="john@company.com"
+                            placeholder="yourname@company.com"
                             className="w-full h-11 px-4 rounded-xl border border-border/60 bg-background/50 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
                           />
                         </div>
@@ -561,7 +561,7 @@ export default function ContactPage() {
 
                       <p className="text-xs text-center text-muted-foreground">
                         By submitting this form, you agree to our{' '}
-                        <a href="#" className="text-primary hover:underline">Privacy Policy</a>.
+                        <a href="getresolvehub.com/privacy" className="text-primary hover:underline">Privacy Policy</a>.
                       </p>
                     </form>
                   </>
@@ -596,7 +596,7 @@ export default function ContactPage() {
                     <div>
                       <p className="text-sm">
                         <span className="font-medium">📧 Email:</span> <br />
-                        <a href="mailto:support@resolvehub.com" className="text-primary hover:underline">support@resolvehub.com</a>
+                        <a href="mailto:resolvehub3@gmail.com" className="text-primary hover:underline">resolvehub3@gmail.com</a>
                       </p>
                     </div>
                   </div>

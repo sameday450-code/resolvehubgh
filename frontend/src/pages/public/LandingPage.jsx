@@ -653,10 +653,10 @@ export default function LandingPage() {
                       After 14 days, you'll need to activate your subscription to keep using ResolveHub. No automatic charges.
                     </p>
                     <p>
-                      Pay via <strong className="text-foreground">Mobile Money or Bank Transfer</strong>, then email our team to activate your account. We'll confirm within 2 hours.
+                      Pay via <strong className="text-foreground">Mobile Money or Bank Transfer</strong>, then email / WhatsApp our team to activate your account. We'll confirm within 2 hours.
                     </p>
                     <p>
-                      During your trial, we'll send clear instructions on how to activate. Any questions? Contact support@resolvehub.com.
+                      During your trial, we'll send clear instructions on how to activate. Any questions? Contact resolvehub3@gmail.com.
                     </p>
                   </div>
                 </div>

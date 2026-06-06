@@ -198,7 +198,7 @@ export default function RegisterPage() {
                     <div className={`login-input-wrapper ${focused === 'industry' ? 'login-input-focused' : ''}`}>
                       <Input
                         id="industry"
-                        placeholder="e.g. Retail"
+                        placeholder="e.g. Retail, Healthcare, Food Services, etc."
                         value={form.industry}
                         onChange={update('industry')}
                         onFocus={() => setFocused('industry')}
@@ -213,7 +213,7 @@ export default function RegisterPage() {
                     <div className={`login-input-wrapper ${focused === 'contactPhone' ? 'login-input-focused' : ''}`}>
                       <Input
                         id="contactPhone"
-                        placeholder="+1234567890"
+                        placeholder="+233 24 123 4567"
                         value={form.contactPhone}
                         onChange={update('contactPhone')}
                         onFocus={() => setFocused('contactPhone')}
@@ -231,7 +231,7 @@ export default function RegisterPage() {
                     <Input
                       id="contactEmail"
                       type="email"
-                      placeholder="info@company.com"
+                      placeholder="yourname@company.com"
                       value={form.contactEmail}
                       onChange={update('contactEmail')}
                       onFocus={() => setFocused('contactEmail')}
@@ -257,7 +257,7 @@ export default function RegisterPage() {
                   <div className={`login-input-wrapper ${focused === 'name' ? 'login-input-focused' : ''}`}>
                     <Input
                       id="name"
-                      placeholder="John Doe"
+                      placeholder="Your Name Here"
                       value={form.name}
                       onChange={update('name')}
                       onFocus={() => setFocused('name')}
@@ -353,9 +353,9 @@ export default function RegisterPage() {
                   />
                   <label htmlFor="terms" className="text-sm text-gray-500 dark:text-gray-400 leading-tight cursor-pointer">
                     I agree to the{' '}
-                    <a href="#" className="text-primary hover:underline underline-offset-4">Terms of Service</a>
+                    <a href="getresolvehub.com/terms" className="text-primary hover:underline underline-offset-4">Terms of Service</a>
                     {' '}and{' '}
-                    <a href="#" className="text-primary hover:underline underline-offset-4">Privacy Policy</a>
+                    <a href="getresolvehub.com/privacy" className="text-primary hover:underline underline-offset-4">Privacy Policy</a>
                   </label>
                 </div>
 
