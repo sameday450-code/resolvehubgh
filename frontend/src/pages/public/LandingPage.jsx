@@ -52,19 +52,46 @@ const plans = [
   {
     name: 'Starter',
     planType: 'starter',
-    price: '150',
+    price: '600',
     period: '/month',
     priceCurrency: 'GHS',
-    description: 'Ideal for single locations or small teams who want to capture and track customer complaints without complexity.',
+    description: 'Perfect for small businesses or teams starting their complaint management journey. Get essential tools to capture and track customer feedback at your first location.',
     features: [
-      'Up to 2 locations',
-      'Up to 50 QR codes',
-      'Up to 10 team members',
+      '1 branch included',
+      '20 QR codes included',
+      'Up to 5 team members',
       'Complaint dashboard',
-      'Real-time tracking',
+      'Real-time notifications',
       'Email alerts',
-      'Basic reports',
+      'Basic reports (PDF export)',
       'QR-based submissions',
+      'Additional branches: 50 GHS each',
+      'Additional QR codes: 50 GHS each',
+    ],
+    cta: 'Start 14-Day Free Trial',
+    popular: false,
+    trialNote: 'No payment required',
+  },
+  {
+    name: 'Pro',
+    planType: 'pro',
+    price: '1770',
+    period: '/month',
+    priceCurrency: 'GHS',
+    description: 'Ideal for growing businesses managing multiple branches. Get advanced analytics, team collaboration tools, and API access to scale your complaint management.',
+    features: [
+      '3 branches included',
+      '100 QR codes included',
+      'Up to 15 team members',
+      'Advanced analytics & reporting',
+      'Real-time notifications',
+      'Priority email & chat support',
+      'Data export (CSV, Excel, PDF)',
+      'Custom branding on QR codes',
+      'REST API access',
+      'Advanced filtering & search',
+      'Additional branches: 50 GHS each',
+      'Additional QR codes: 50 GHS each',
     ],
     cta: 'Start 14-Day Free Trial',
     popular: true,
@@ -73,20 +100,27 @@ const plans = [
   {
     name: 'Enterprise',
     planType: 'enterprise',
-    price: '300',
+    price: '3544.50',
     period: '/month',
     priceCurrency: 'GHS',
-    description: 'For businesses running multiple locations who need centralized visibility, advanced analytics, and dedicated support.',
+    description: 'For large enterprises requiring unlimited scale, premium support, and custom integrations. Full white-label solution with dedicated account management.',
     features: [
-      'Up to 10 locations',
-      'Up to 200 QR codes',
-      'Up to 50 team members',
-      'Advanced analytics',
-      'Real-time notifications',
-      'Priority support',
-      'Data export',
+      'Unlimited branches',
+      'Unlimited QR codes',
+      'Unlimited team members',
+      'Advanced analytics & custom reports',
+      'Real-time notifications & webhooks',
+      '24/7 dedicated support',
+      'Custom data export formats',
+      'Full white-label capability',
+      'REST & GraphQL API access',
+      'Custom integrations',
+      'SSO & advanced security',
+      'Dedicated account manager',
+      'Priority feature requests',
+      'SLA guarantee',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Contact Sales',
     popular: false,
   },
   {
@@ -94,14 +128,16 @@ const plans = [
     planType: 'custom',
     price: 'Contact Sales',
     period: '',
-    description: 'For large enterprises with unique workflows or special requirements. Custom builds, unlimited scale, dedicated support.',
+    description: 'For enterprises with unique workflows or special requirements. Custom builds, specialized integrations, and tailored solutions.',
     features: [
-      'Unlimited locations',
-      'Unlimited everything',
-      'Dedicated account manager',
-      'Custom setup',
-      'API access',
-      'Full customization',
+      'Custom feature set',
+      'Custom deployment options',
+      'Dedicated engineering team',
+      'Custom setup & migration',
+      'Advanced API customization',
+      'Full customization available',
+      'On-premise or hybrid options',
+      'Custom compliance & security',
     ],
     cta: 'Contact Sales',
     popular: false,
@@ -114,6 +150,9 @@ const faqs = [
   { q: 'How quickly can we start?', a: 'Register today, we approve within 24 hours, then you print your QR codes and start receiving complaints immediately. Setup takes no technical knowledge.' },
   { q: 'Is our data safe?', a: 'Yes. Your data is encrypted, regularly backed up, and accessed only by authorized team members. We follow standard security practices for SaaS platforms.' },
   { q: 'Does this work for multiple locations?', a: 'Yes. That\'s what we built it for. You can manage 2 branches or 100 from one dashboard. Compare performance across locations in real time.' },
+  { q: 'What\'s the difference between Starter, Pro, and Enterprise plans?', a: 'Starter (600 GHS/month) is perfect for 1 branch with 20 QR codes. Pro (1770 GHS/month) supports 3 branches with 100 QR codes and advanced analytics. Enterprise (3544.50 GHS/month) offers unlimited branches, unlimited QR codes, 24/7 support, and custom integrations.' },
+  { q: 'Can I upgrade my plan later?', a: 'Yes! You can upgrade anytime. We\'ll prorate your charges, and you\'ll get access to additional features immediately. You can also add individual branches or QR codes as needed.' },
+  { q: 'What if I need more branches or QR codes than my plan includes?', a: 'No problem. You can purchase additional branches for 50 GHS each or additional QR codes for 50 GHS each at any time via our manual payment system.' },
 ];
 
 export default function LandingPage() {
@@ -126,7 +165,7 @@ export default function LandingPage() {
     <div>
       <SEO
         title="Get ResolveHub | Smart Complaint & Feedback Management SaaS"
-        description="ResolveHub is a QR-based complaint and feedback management SaaS that helps businesses capture complaints, track issues, and resolve them faster. Start your free trial today."
+        description="ResolveHub is a QR-based complaint and feedback management SaaS. Choose Starter (600 GHS/month, 1 branch), Pro (1770 GHS/month, 3 branches), or Enterprise (3544.50 GHS/month, unlimited). Start your free trial today."
         keywords="get resolve, getresolvehub, ResolveHub, complaint management system, feedback management SaaS, QR complaint system Ghana, customer feedback system"
         canonical="https://getresolvehub.com"
         ogImage="https://getresolvehub.com/og-image.png"
@@ -606,8 +645,8 @@ export default function LandingPage() {
             variants={fadeUp}
             className="mt-20 max-w-3xl mx-auto"
           >
-            <div className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-sm p-8 md:p-10">
-              <div className="flex items-start gap-4 mb-6">
+            <div className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-sm p-8 md:p-10 space-y-6">
+              <div className="flex items-start gap-4">
                 <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 ring-1 ring-primary/20 shrink-0">
                   <Mail className="h-5 w-5 text-primary" />
                 </div>
@@ -623,6 +662,30 @@ export default function LandingPage() {
                     <p>
                       During your trial, we'll send clear instructions on how to activate. Any questions? Contact support@resolvehub.com.
                     </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional Pricing Info */}
+              <div className="border-t border-border/40 pt-6">
+                <div className="flex items-start gap-4">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-500/10 ring-1 ring-blue-500/20 shrink-0">
+                    <Plus className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold mb-3">Scalable Add-Ons Available on All Plans</h3>
+                    <div className="space-y-2 text-sm">
+                      <p className="text-muted-foreground">Need more capacity? Easily scale your Starter, Pro, or Enterprise plan with affordable add-ons:</p>
+                      <div className="flex items-center gap-2 mt-3 p-3 bg-blue-500/5 rounded-lg border border-blue-500/10">
+                        <span className="font-semibold text-blue-700 dark:text-blue-300">Additional Branches:</span>
+                        <span className="text-blue-700 dark:text-blue-300">50 GHS per branch</span>
+                      </div>
+                      <div className="flex items-center gap-2 p-3 bg-blue-500/5 rounded-lg border border-blue-500/10">
+                        <span className="font-semibold text-blue-700 dark:text-blue-300">Additional QR Codes:</span>
+                        <span className="text-blue-700 dark:text-blue-300">50 GHS per QR code</span>
+                      </div>
+                      <p className="text-muted-foreground text-xs mt-2">Add as many branches and QR codes as you need via our manual payment system. Perfect for growing businesses.</p>
+                    </div>
                   </div>
                 </div>
               </div>

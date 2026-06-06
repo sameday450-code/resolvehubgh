@@ -23,7 +23,7 @@ export const PAGE_META = {
   },
   pricing: {
     title: 'Pricing - Get ResolveHub | Complaint Management SaaS',
-    description: 'Simple, transparent pricing for complaint management. Choose Starter at 150 GHS/month or Enterprise at 300 GHS/month. Start your free 14-day trial today.',
+    description: 'Transparent pricing for complaint management. Starter 600 GHS/month (1 branch, 20 QR codes), Pro 1770 GHS/month (3 branches, 100 QR codes), Enterprise 3544.50 GHS/month (unlimited). Start your free 14-day trial today.',
     keywords: 'ResolveHub pricing, complaint management cost, feedback system pricing, SaaS pricing Ghana',
   },
   about: {

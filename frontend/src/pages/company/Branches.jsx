@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { branchAPI, subscriptionAPI } from '../../lib/api';
+import { branchAPI, subscriptionAPI, branchOrderAPI } from '../../lib/api';
 import { PageLoading, ErrorState, EmptyState, BillingLockedBanner } from '../../components/shared';
 import { useBillingErrorHandler } from '../../hooks/useBillingError';
 import { useAuth } from '../../contexts/AuthContext';
@@ -9,13 +9,14 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Badge } from '../../components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { GitBranch, Plus, MapPin, Edit, Trash2, MoreHorizontal, Layers, X } from 'lucide-react';
+import { GitBranch, Plus, MapPin, Edit, Trash2, MoreHorizontal, Layers, X, ShoppingCart, Clock, AlertCircle } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../../components/ui/dropdown-menu';
+import BranchPurchaseModal from '../../components/billing/BranchPurchaseModal';
 
 export default function Branches() {
   const queryClient = useQueryClient();
@@ -24,6 +25,7 @@ export default function Branches() {
   
   const [showCreate, setShowCreate] = useState(false);
   const [showPoints, setShowPoints] = useState(null);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [editBranch, setEditBranch] = useState(null);
   const [formError, setFormError] = useState('');
   const [form, setForm] = useState({
@@ -43,6 +45,12 @@ export default function Branches() {
     queryFn: () => subscriptionAPI.getCompanySubscriptionInfo(),
   });
 
+  // Fetch branch orders
+  const { data: ordersData } = useQuery({
+    queryKey: ['branch-orders'],
+    queryFn: () => branchOrderAPI.getMyOrders({ limit: 10, status: '' }),
+  });
+
   const canCreateBranch = canAccess('write');
   const canDeleteBranch = canAccess('delete');
 
@@ -52,6 +60,10 @@ export default function Branches() {
   const branchLimit = companyInfo?.branchLimit ?? null;
   // Block the button when the real limit is reached — no hardcoded status checks
   const isAtBranchLimit = branchLimit !== null && branches.length >= branchLimit;
+
+  const orders = ordersData?.data?.data || [];
+  const pendingOrders = orders.filter(o => o.status === 'PAYMENT_PENDING_APPROVAL' || o.status === 'PENDING_PAYMENT');
+  const completedOrders = orders.filter(o => o.status === 'COMPLETED');
 
   const createMutation = useMutation({
     mutationFn: (data) => branchAPI.create(data),
@@ -165,27 +177,71 @@ export default function Branches() {
           <h1 className="text-3xl font-bold tracking-tight">Branches</h1>
           <p className="text-muted-foreground mt-1">Manage your locations and complaint points</p>
         </div>
-        {isTrialExpired ? (
-          <p className="text-sm text-amber-600 dark:text-amber-400">
-            Trial expired —{' '}
-            <a href="/company/billing" className="underline font-medium">Activate a subscription</a>
-          </p>
-        ) : isAtBranchLimit ? (
-          <p className="text-sm text-muted-foreground">
-            Your current plan allows only {branchLimit} branch{branchLimit !== 1 ? 'es' : ''}.{' '}
-            <a href="/company/billing" className="text-violet-600 dark:text-violet-400 underline font-medium">Upgrade your subscription to add more branches.</a>
-          </p>
-        ) : (
+        <div className="flex gap-2">
           <Button
-            onClick={() => { resetForm(); setEditBranch(null); setShowCreate(true); }}
-            disabled={!canCreateBranch}
-            className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 border-0"
+            onClick={() => setShowPurchaseModal(true)}
+            variant="outline"
+            className="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-800 dark:text-amber-400 dark:hover:bg-amber-900/20"
           >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Branch
+            <ShoppingCart className="h-4 w-4 mr-2" />
+            Purchase Branches
           </Button>
-        )}
+          {isTrialExpired ? (
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 text-amber-600" />
+              <p className="text-sm text-amber-600 dark:text-amber-400">
+                Trial expired —{' '}
+                <a href="/company/billing" className="underline font-medium">Activate a subscription</a>
+              </p>
+            </div>
+          ) : isAtBranchLimit ? (
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-muted-foreground">
+                Your current plan allows only {branchLimit} branch{branchLimit !== 1 ? 'es' : ''}.
+              </p>
+            </div>
+          ) : (
+            <Button
+              onClick={() => { resetForm(); setEditBranch(null); setShowCreate(true); }}
+              disabled={!canCreateBranch}
+              className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 border-0"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Branch
+            </Button>
+          )}
+        </div>
       </div>
+
+      {/* Pending Orders Alert */}
+      {pendingOrders.length > 0 && (
+        <div className="space-y-3">
+          {pendingOrders.map(order => (
+            <Card key={order.id} className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Clock className="h-5 w-5 text-amber-600" />
+                    <div>
+                      <p className="font-medium text-amber-900 dark:text-amber-100">
+                        {order.quantity} branch{order.quantity > 1 ? 'es' : ''} pending approval
+                      </p>
+                      <p className="text-sm text-amber-700 dark:text-amber-200">
+                        Total: <span className="font-semibold">{order.totalCost} GHS</span> • Status: <Badge variant="outline" className="ml-1">{order.status}</Badge>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-amber-600 dark:text-amber-300">
+                      {order.paymentMethod === 'MOBILE_MONEY' ? '📱 Mobile Money' : '🏦 Bank Transfer'}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {branches.length === 0 ? (
         <EmptyState
@@ -397,6 +453,9 @@ export default function Branches() {
           </div>
         </div>
       )}
+
+      {/* Branch Purchase Modal */}
+      <BranchPurchaseModal open={showPurchaseModal} onOpenChange={setShowPurchaseModal} />
     </div>
   );
 }

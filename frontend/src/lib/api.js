@@ -298,3 +298,17 @@ export const contactAPI = {
   reply: (id, replyMessage) => api.post(`/super-admin/contact-messages/${id}/reply`, { replyMessage }),
   getStats: () => api.get('/super-admin/contact-messages/stats'),
 };
+
+// Branch Orders API (Manual branch purchase with payment)
+export const branchOrderAPI = {
+  // Company routes
+  create: (data) => api.post('/branch-orders', data),
+  getMyOrders: (params) => api.get('/branch-orders', { params }),
+  getOrder: (id) => api.get(`/branch-orders/${id}`),
+  calculateCost: (quantity) => api.post('/branch-orders/calculate-cost', { quantity }),
+
+  // Super Admin routes
+  getAllOrders: (params) => api.get('/branch-orders/admin/list', { params }),
+  approveOrder: (id, data) => api.post(`/branch-orders/${id}/approve`, data),
+  rejectOrder: (id, data) => api.post(`/branch-orders/${id}/reject`, data),
+};

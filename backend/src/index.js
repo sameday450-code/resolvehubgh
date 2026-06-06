@@ -18,6 +18,7 @@ const { bootstrap } = require('./utils/bootstrap');
 const authRoutes = require('./modules/auth/auth.routes');
 const superAdminRoutes = require('./modules/super-admin/superAdmin.routes');
 const branchRoutes = require('./modules/branches/branches.routes');
+const branchOrdersRoutes = require('./modules/branch-orders/branchOrders.routes');
 const qrCodeRoutes = require('./modules/qrcodes/qrcodes.routes');
 const complaintRoutes = require('./modules/complaints/complaints.routes');
 const notificationRoutes = require('./modules/notifications/notifications.routes');
@@ -204,6 +205,7 @@ app.get('/api/cors-test', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/super-admin', superAdminRoutes);
 app.use('/api/branches', branchRoutes);
+app.use('/api/branch-orders', branchOrdersRoutes);
 app.use('/api/qrcodes', qrCodeRoutes);
 app.use('/api/complaints', complaintRoutes);
 app.use('/api/notifications', notificationRoutes);

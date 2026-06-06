@@ -250,6 +250,7 @@ model Company {
   paymentTransactions  PaymentTransaction[]
   contactSalesRequests ContactSalesRequest[]
   activationRequests   ActivationRequest[]
+  branchPaymentOrders  BranchPaymentOrder[]
 
   // Optimized indexes for common company queries
   @@index([status])
@@ -753,6 +754,87 @@ model ActivationRequest {
   // Composite indexes for common patterns
   @@index([companyId, status])
   @@index([status, createdAt(sort: Desc)])
+}
+
+// ============================================
+// BRANCH PAYMENT ORDERS (Manual Branch Purchase)
+// ============================================
+
+model BranchPaymentOrder {
+  id                String   @id @default(uuid())
+  companyId         String
+  company           Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  quantity          Int      // Number of branches to create
+  costPerBranch     Int      @default(50) // 50 GHS per branch
+  totalCost         Int      // quantity * costPerBranch
+  status            String   @default("PENDING_PAYMENT") // PENDING_PAYMENT, PAYMENT_PENDING_APPROVAL, APPROVED, REJECTED, COMPLETED
+  paymentMethod     String   // "MOBILE_MONEY" or "BANK_TRANSFER" or "MANUAL"
+  
+  // Mobile Money fields
+  network           String?  // MTN, TELECEL, AIRTELTIGO
+  phoneNumber       String?  // Phone number used for mobile money
+  mobileMoneyTxnId  String?  // Mobile money transaction ID
+  
+  // Bank Transfer fields
+  bankName          String?  // Bank name for bank transfer
+  accountNameUsed   String?  // Account name used for bank transfer
+  bankTxnReference  String?  // Reference/check number from bank
+  
+  // Common fields
+  transactionReference String? // Combined transaction reference
+  proofOfPaymentUrl String?  // URL to uploaded proof/receipt
+  paymentDate       DateTime?
+  note              String?  // Optional note from company
+  
+  // Review fields
+  reviewedBy        String?  // Super Admin user ID who approved/rejected
+  reviewNotes       String?  // Admin notes on approval/rejection
+  reviewedAt        DateTime?
+  rejectionReason   String?  // Reason if rejected
+  
+  // After approval - branch creation fields
+  createdBranchIds  String?  // Comma-separated IDs of created branches (stored as JSON)
+  completedAt       DateTime?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  branchRequests BranchRequest[]
+
+  // Optimized indexes
+  @@index([companyId])
+  @@index([status])
+  @@index([paymentDate])
+  @@index([createdAt(sort: Desc)])
+  // Composite indexes for common patterns
+  @@index([companyId, status])
+  @@index([status, createdAt(sort: Desc)])
+}
+
+// ============================================
+// BRANCH REQUESTS (Individual branch details in bulk order)
+// ============================================
+
+model BranchRequest {
+  id                 String   @id @default(uuid())
+  branchPaymentOrderId String
+  branchPaymentOrder  BranchPaymentOrder @relation(fields: [branchPaymentOrderId], references: [id], onDelete: Cascade)
+  branchId           String?  // Populated after branch is created
+  name               String
+  address            String?
+  city               String?
+  region             String?
+  country            String   @default("Ghana")
+  contactPhone       String?
+  contactEmail       String?
+  managerName        String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Optimized indexes
+  @@index([branchPaymentOrderId])
+  @@index([branchId])
 }
 
 // ============================================

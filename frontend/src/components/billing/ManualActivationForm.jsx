@@ -30,10 +30,11 @@ import {
 } from '../ui/card';
 
 const PLAN_OPTIONS = [
-  { value: 'STARTER', label: 'Starter', price: 'GHS 150/month' },
-  { value: 'ENTERPRISE', label: 'Enterprise', price: 'GHS 500/month' },
+  { value: 'STARTER', label: 'Starter', price: 'GHS 600/month' },
+  { value: 'PRO', label: 'Pro', price: 'GHS 1770/month' },
+  { value: 'ENTERPRISE', label: 'Enterprise', price: 'GHS 3544.50/month' },
 ];
-const PLAN_DEFAULT_AMOUNT = { STARTER: '150', ENTERPRISE: '500' };
+const PLAN_DEFAULT_AMOUNT = { STARTER: '600', PRO: '1770', ENTERPRISE: '3544.50' };
 
 const NETWORK_OPTIONS = [
   { value: 'MTN', label: 'MTN Mobile Money' },
