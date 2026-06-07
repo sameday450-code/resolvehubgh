@@ -132,6 +132,9 @@ export const superAdminAPI = {
   deleteCompany: (id) => api.delete(`/super-admin/companies/${id}`),
   getAnalytics: () => api.get('/super-admin/analytics'),
   getSupportMessages: (params) => api.get('/super-admin/support-messages', { params }),
+  listBranchPayments: (params) => api.get('/super-admin/branch-payments', { params }),
+  approveBranchPayment: (id) => api.post(`/super-admin/branch-payments/${id}/approve`),
+  rejectBranchPayment: (id, data) => api.post(`/super-admin/branch-payments/${id}/reject`, data),
 };
 
 // Branch API
@@ -198,6 +201,7 @@ export const paymentsAPI = {
   initializePayment: (gateway) => api.post('/payments/initialize', { gateway }),
   verifyPayment: (reference, gateway) => api.post('/payments/verify', { reference, gateway }),
   getAllTransactions: (params) => api.get('/payments', { params }),
+  submitBranchUpgradePayment: (data) => api.post('/payments/branch-upgrade', data),
 };
 
 // Settings API

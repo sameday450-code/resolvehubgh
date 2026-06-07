@@ -56,6 +56,8 @@ const createBranch = async (companyId, data) => {
       status: true,
       isDashboardLocked: true,
       branchLimit: true,
+      plan: true,
+      planName: true,
       subscription: {
         select: {
           status: true,
@@ -92,17 +94,27 @@ const createBranch = async (companyId, data) => {
     // Trial active — enforce branch limit from company record
     const branchCount = await prisma.branch.count({ where: { companyId } });
     if (branchCount >= company.branchLimit) {
-      throw new BadRequestError(
-        `Your current plan allows only ${company.branchLimit} branch${company.branchLimit !== 1 ? 'es' : ''}. Upgrade your subscription to add more branches.`
+      const error = new BadRequestError(
+        `Your plan includes only ${company.branchLimit} branch${company.branchLimit !== 1 ? 'es' : ''}. Additional branches require a payment of GHS 600 per branch.`
       );
+      error.code = 'BRANCH_LIMIT_EXCEEDED';
+      error.planLimit = company.branchLimit;
+      error.plan = company.plan;
+      error.planName = company.planName;
+      throw error;
     }
   } else if (subStatus === 'ACTIVE') {
     // Paid subscription — enforce branch limit from company record
     const branchCount = await prisma.branch.count({ where: { companyId } });
     if (branchCount >= company.branchLimit) {
-      throw new BadRequestError(
-        `Your current plan allows only ${company.branchLimit} branch${company.branchLimit !== 1 ? 'es' : ''}. Upgrade your subscription to add more branches.`
+      const error = new BadRequestError(
+        `Your plan includes only ${company.branchLimit} branch${company.branchLimit !== 1 ? 'es' : ''}. Additional branches require a payment of GHS 600 per branch.`
       );
+      error.code = 'BRANCH_LIMIT_EXCEEDED';
+      error.planLimit = company.branchLimit;
+      error.plan = company.plan;
+      error.planName = company.planName;
+      throw error;
     }
   } else {
     // PENDING_ACTIVATION, PENDING_PAYMENT, EXPIRED, CANCELLED, PAST_DUE

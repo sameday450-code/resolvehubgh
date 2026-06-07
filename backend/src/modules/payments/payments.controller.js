@@ -46,7 +46,88 @@ const listAllTransactions = async (req, res, next) => {
   }
 };
 
-module.exports = { getMyTransactions, getMyTransaction, listAllTransactions, initializePayment, verifyPayment, paystackWebhook, stripeWebhook };
+// Branch upgrade payment endpoint
+const submitBranchUpgradePayment = async (req, res, next) => {
+  try {
+    const { amount, paymentMethod, paymentReference, branches = 1 } = req.body;
+    const companyId = req.user.companyId;
+
+    // Validate inputs
+    if (!amount || amount <= 0) {
+      throw new BadRequestError('Invalid amount');
+    }
+    if (!paymentMethod || !['momo', 'bank'].includes(paymentMethod)) {
+      throw new BadRequestError('Invalid payment method');
+    }
+    if (!paymentReference || paymentReference.trim() === '') {
+      throw new BadRequestError('Payment reference is required');
+    }
+    if (branches <= 0) {
+      throw new BadRequestError('Branches must be greater than 0');
+    }
+
+    // Fetch company and verify subscription status
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+      select: {
+        id: true,
+        plan: true,
+        planName: true,
+        branchLimit: true,
+        isActive: true,
+        status: true,
+      },
+    });
+
+    if (!company) {
+      throw new NotFoundError('Company not found');
+    }
+
+    if (company.status !== 'APPROVED' || !company.isActive) {
+      throw new BadRequestError('Your company account is not active');
+    }
+
+    // Enterprise has unlimited branches, no need for upgrade
+    if (company.plan === 'ENTERPRISE_PLAN' || company.plan === 'ENTERPRISE') {
+      throw new BadRequestError('Your plan already includes unlimited branches');
+    }
+
+    // Create a branch payment order record (for manual processing)
+    const branchPaymentOrder = await prisma.branchPaymentOrder.create({
+      data: {
+        companyId,
+        branches,
+        amount,
+        paymentMethod: paymentMethod === 'momo' ? 'MOBILE_MONEY' : 'BANK_TRANSFER',
+        paymentReference,
+        status: 'PENDING_APPROVAL',
+        requestedAt: new Date(),
+      },
+    });
+
+    logger.info(`Branch upgrade payment submitted for company ${companyId}`, {
+      orderId: branchPaymentOrder.id,
+      amount,
+      branches,
+      paymentMethod,
+    });
+
+    return response.success(res, branchPaymentOrder, 'Payment submitted successfully. We will verify and activate within 2 hours.', 201);
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { 
+  getMyTransactions, 
+  getMyTransaction, 
+  listAllTransactions, 
+  submitBranchUpgradePayment,
+  initializePayment, 
+  verifyPayment, 
+  paystackWebhook, 
+  stripeWebhook 
+};
 
 /**
  * POST /api/payments/initialize

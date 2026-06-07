@@ -29,8 +29,27 @@ export default function RegisterPage() {
   const { register, googleLogin } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const planType = (searchParams.get('plan') || 'starter_trial').toUpperCase().replace(/-/g, '_');
-  const isStarterTrial = planType === 'STARTER_TRIAL';
+  
+  // Map plan parameters to PlanType enum values
+  const planParam = searchParams.get('plan') || 'starter_plan';
+  const planMapping = {
+    'starter_plan': 'STARTER_PLAN',
+    'starter': 'STARTER_PLAN',
+    'pro_plan': 'PRO_PLAN',
+    'pro': 'PRO_PLAN',
+    'enterprise_plan': 'ENTERPRISE_PLAN',
+    'enterprise': 'ENTERPRISE_PLAN',
+  };
+  const planType = planMapping[planParam] || 'STARTER_PLAN';
+  
+  // Plan display info
+  const planInfo = {
+    STARTER_PLAN: { name: 'Starter Plan', price: '600', branches: '1' },
+    PRO_PLAN: { name: 'Pro Plan', price: '1,770', branches: '4' },
+    ENTERPRISE_PLAN: { name: 'Enterprise Plan', price: 'Contact Sales', branches: 'Unlimited' },
+  };
+  
+  const selectedPlanInfo = planInfo[planType] || planInfo.STARTER_PLAN;
 
   // Redirect enterprise_monthly to the dedicated registration page
   if (planType === 'ENTERPRISE_MONTHLY') {
@@ -155,15 +174,27 @@ export default function RegisterPage() {
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
             Register your company and start managing complaints in minutes
           </p>
-          {isStarterTrial && (
-            <div className="mb-6 flex items-start gap-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 px-4 py-3">
-              <span className="text-emerald-600 text-lg leading-none mt-0.5">🎉</span>
-              <div>
-                <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">14-Day Free Trial</p>
-                <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5">No credit card required. You'll get instant access after registration.</p>
+          
+          {/* Plan Selection Summary */}
+          <div className="mb-6 flex items-start gap-3 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 px-4 py-3">
+            <span className="text-blue-600 text-lg leading-none mt-0.5">📋</span>
+            <div>
+              <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">Selected Plan: {selectedPlanInfo.name}</p>
+              <div className="text-xs text-blue-700 dark:text-blue-400 mt-1 space-y-0.5">
+                <p>Price: GHS {selectedPlanInfo.price}/month</p>
+                <p>Branches Included: {selectedPlanInfo.branches}</p>
               </div>
             </div>
-          )}
+          </div>
+
+          {/* Free Trial Offer */}
+          <div className="mb-6 flex items-start gap-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 px-4 py-3">
+            <span className="text-emerald-600 text-lg leading-none mt-0.5">🎉</span>
+            <div>
+              <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">14-Day Free Trial</p>
+              <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5">No credit card required. You'll get instant access after registration.</p>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">

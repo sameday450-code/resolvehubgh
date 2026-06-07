@@ -25,4 +25,9 @@ router.get('/contact-messages/:id', contactController.getMessageById);
 router.patch('/contact-messages/:id/status', contactController.updateStatus);
 router.post('/contact-messages/:id/reply', contactController.replyToMessage);
 
+// Branch upgrade payments
+router.get('/branch-payments', controller.listBranchPayments);
+router.post('/branch-payments/:id/approve', controller.approveBranchPayment);
+router.post('/branch-payments/:id/reject', controller.rejectBranchPayment);
+
 module.exports = router;

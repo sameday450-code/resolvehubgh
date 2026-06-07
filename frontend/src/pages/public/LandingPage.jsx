@@ -146,7 +146,7 @@ const faqs = [
   { q: 'How quickly can we start?', a: 'Register today, we approve within 24 hours, then you print your QR codes and start receiving complaints immediately. Setup takes no technical knowledge.' },
   { q: 'Is our data safe?', a: 'Yes. Your data is encrypted, regularly backed up, and accessed only by authorized team members. We follow standard security practices for SaaS platforms.' },
   { q: 'Does this work for multiple locations?', a: 'Yes. That\'s what we built it for. You can manage 2 branches or 100 from one dashboard. Compare performance across locations in real time.' },
-  { q: 'What\'s the difference between Starter, Pro, and Enterprise plans?', a: 'Starter (600 GHS/month) is perfect for 1 branch with 20 QR codes. Pro (1770 GHS/month) supports 3 branches with 100 QR codes and advanced analytics. Enterprise (3544.50 GHS/month) offers unlimited branches, unlimited QR codes, 24/7 support, and custom integrations.' },
+  { q: 'What\'s the difference between Starter, Pro, and Enterprise plans?', a: 'Starter (600 GHS/month) is perfect for 1 branch with 20 QR codes. Pro (1770 GHS/month) supports 4 branches with 100 QR codes and advanced analytics. Enterprise (3544.50 GHS/month) offers unlimited branches, unlimited QR codes, 24/7 support, and custom integrations.' },
   { q: 'Can I upgrade my plan later?', a: 'Yes! You can upgrade anytime. We\'ll prorate your charges, and you\'ll get access to additional features immediately. You can also add individual branches or QR codes as needed.' },
   { q: 'What if I need more branches or QR codes than my plan includes?', a: 'No problem. You can purchase additional branches for 50 GHS each or additional QR codes for 50 GHS each at any time via our manual payment system.' },
 ];
@@ -543,7 +543,7 @@ export default function LandingPage() {
             whileInView="visible"
             viewport={defaultViewport}
             variants={staggerContainer(0.12)}
-            className="grid md:grid-cols-3 gap-5 md:gap-6 max-w-6xl mx-auto items-start"
+            className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 max-w-7xl mx-auto items-stretch"
           >
             {plans.map((plan, planIdx) => (
               <motion.div
@@ -616,12 +616,16 @@ export default function LandingPage() {
                     }`}
                     variant={plan.popular ? 'default' : 'outline'}
                     onClick={() => {
-                      if (plan.planType === 'starter') {
-                        navigate('/register?plan=starter');
-                      } else if (plan.planType === 'enterprise') {
-                        navigate('/register?plan=enterprise');
-                      } else {
+                      if (plan.planType === 'starter plan') {
+                        navigate('/register?plan=starter_plan');
+                      } else if (plan.planType === 'pro plan') {
+                        navigate('/register?plan=pro_plan');
+                      } else if (plan.planType === 'enterprise plan') {
+                        navigate('/register?plan=enterprise_plan');
+                      } else if (plan.planType === 'custom plan') {
                         navigate('/contact?type=sales');
+                      } else {
+                        navigate('/register?plan=starter_plan');
                       }
                     }}
                   >

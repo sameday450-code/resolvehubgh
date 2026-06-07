@@ -35,6 +35,7 @@ const navItems = [
   { to: '/super-admin/companies', icon: Building2, label: 'Companies' },
   { to: '/super-admin/sales-inquiries', icon: MessageSquareWarning, label: 'Sales Inquiries' },
   { to: '/super-admin/payment-requests', icon: CreditCard, label: 'Payment Requests' },
+  { to: '/super-admin/branch-payments', icon: CreditCard, label: 'Branch Payments' },
   { to: '/super-admin/contact-messages', icon: Inbox, label: 'Contact Messages', showContactBadge: true },
   { to: '/super-admin/notifications', icon: Bell, label: 'Notifications', showBadge: true },
   { to: '/super-admin/analytics', icon: BarChart3, label: 'Analytics' },

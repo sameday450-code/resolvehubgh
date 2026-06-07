@@ -54,4 +54,13 @@ router.get(
   paymentsController.listAllTransactions
 );
 
+// ── Branch upgrade payment ─────────────────────────────────────────────────────
+router.post(
+  '/branch-upgrade',
+  authenticate,
+  authorize('COMPANY_ADMIN'),
+  tenantGuard,
+  paymentsController.submitBranchUpgradePayment
+);
+
 module.exports = router;

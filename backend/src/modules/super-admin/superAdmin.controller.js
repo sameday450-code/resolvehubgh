@@ -108,6 +108,34 @@ const getSupportMessages = async (req, res, next) => {
   }
 };
 
+const listBranchPayments = async (req, res, next) => {
+  try {
+    const { data, pagination } = await superAdminService.listBranchPayments(req.query);
+    return response.paginated(res, data, pagination);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const approveBranchPayment = async (req, res, next) => {
+  try {
+    const data = await superAdminService.approveBranchPayment(req.params.id, req.user.id);
+    return response.success(res, data, 'Branch payment approved and limit updated');
+  } catch (err) {
+    next(err);
+  }
+};
+
+const rejectBranchPayment = async (req, res, next) => {
+  try {
+    const { reason } = req.body;
+    const data = await superAdminService.rejectBranchPayment(req.params.id, req.user.id, reason);
+    return response.success(res, data, 'Branch payment rejected');
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getDashboard,
   getCompanies,
@@ -119,4 +147,7 @@ module.exports = {
   deleteCompany,
   getAnalytics,
   getSupportMessages,
+  listBranchPayments,
+  approveBranchPayment,
+  rejectBranchPayment,
 };

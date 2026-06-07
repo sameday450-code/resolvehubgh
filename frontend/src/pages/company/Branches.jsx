@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '../../components/ui/dropdown-menu';
 import BranchPurchaseModal from '../../components/billing/BranchPurchaseModal';
+import BranchLimitModal from '../../components/billing/BranchLimitModal';
 
 export default function Branches() {
   const queryClient = useQueryClient();
@@ -26,6 +27,7 @@ export default function Branches() {
   const [showCreate, setShowCreate] = useState(false);
   const [showPoints, setShowPoints] = useState(null);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [showBranchLimitModal, setShowBranchLimitModal] = useState(false);
   const [editBranch, setEditBranch] = useState(null);
   const [formError, setFormError] = useState('');
   const [form, setForm] = useState({
@@ -76,7 +78,15 @@ export default function Branches() {
       setFormError('');
     },
     onError: (error) => {
-      setFormError(error.response?.data?.message || 'Failed to create branch');
+      const errorData = error.response?.data;
+      const message = errorData?.message || 'Failed to create branch';
+      
+      // Check if it's a branch limit error
+      if (errorData?.code === 'BRANCH_LIMIT_EXCEEDED') {
+        setShowBranchLimitModal(true);
+      } else {
+        setFormError(message);
+      }
       console.error('Create branch error:', error);
     },
   });
@@ -456,6 +466,19 @@ export default function Branches() {
 
       {/* Branch Purchase Modal */}
       <BranchPurchaseModal open={showPurchaseModal} onOpenChange={setShowPurchaseModal} />
+
+      {/* Branch Limit Modal */}
+      <BranchLimitModal
+        isOpen={showBranchLimitModal}
+        onClose={() => setShowBranchLimitModal(false)}
+        plan={companyInfo?.plan}
+        planLimit={branchLimit}
+        onPaymentComplete={() => {
+          queryClient.invalidateQueries(['subscription-info']);
+          queryClient.invalidateQueries(['branches']);
+        }}
+        companyId={companyInfo?.id}
+      />
     </div>
   );
 }

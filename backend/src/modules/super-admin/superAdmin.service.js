@@ -617,6 +617,173 @@ const getSupportMessages = async (query) => {
   return { messages, pagination: buildPaginationMeta(total, page, limit) };
 };
 
+const listBranchPayments = async (query) => {
+  const { page, limit, skip } = getPaginationParams(query);
+  const where = {};
+
+  if (query.status) {
+    where.status = query.status;
+  }
+
+  const [data, total] = await Promise.all([
+    prisma.branchPaymentOrder.findMany({
+      where,
+      skip,
+      take: limit,
+      include: {
+        company: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            plan: true,
+            branchLimit: true,
+          },
+        },
+      },
+      orderBy: { requestedAt: 'desc' },
+    }),
+    prisma.branchPaymentOrder.count({ where }),
+  ]);
+
+  return { data, pagination: buildPaginationMeta(total, page, limit) };
+};
+
+const approveBranchPayment = async (paymentOrderId, adminId) => {
+  const order = await prisma.branchPaymentOrder.findUnique({
+    where: { id: paymentOrderId },
+    include: { company: true },
+  });
+
+  if (!order) throw new NotFoundError('Payment order not found');
+  if (order.status !== 'PENDING_APPROVAL') {
+    throw new BadRequestError(`Cannot approve payment with status: ${order.status}`);
+  }
+
+  const company = order.company;
+
+  // Update both the company branchLimit and mark payment as approved
+  const updated = await prisma.$transaction(async (tx) => {
+    // Increase branch limit
+    const updatedCompany = await tx.company.update({
+      where: { id: company.id },
+      data: {
+        branchLimit: company.branchLimit + order.branches,
+      },
+    });
+
+    // Mark payment as approved
+    const updatedOrder = await tx.branchPaymentOrder.update({
+      where: { id: paymentOrderId },
+      data: {
+        status: 'COMPLETED',
+        approvedAt: new Date(),
+        approvedBy: adminId,
+      },
+    });
+
+    // Log activity
+    await tx.activityLog.create({
+      data: {
+        userId: adminId,
+        action: 'BRANCH_PAYMENT_APPROVED',
+        entity: 'BranchPaymentOrder',
+        entityId: paymentOrderId,
+        metadata: {
+          companyId: company.id,
+          companyName: company.name,
+          branchesAdded: order.branches,
+          newBranchLimit: updatedCompany.branchLimit,
+        },
+      },
+    });
+
+    return { updatedCompany, updatedOrder };
+  });
+
+  // Send notification email to company
+  try {
+    await emailService.sendEmail({
+      to: company.email,
+      subject: 'Branch Payment Approved',
+      html: `
+        <p>Dear ${company.name},</p>
+        <p>Your branch upgrade payment has been approved!</p>
+        <p>
+          <strong>${order.branches}</strong> new branch${order.branches > 1 ? 'es' : ''} (${order.amount} GHS) 
+          ${order.branches > 1 ? 'have' : 'has'} been added to your account.
+        </p>
+        <p>Your new total branch limit: <strong>${updated.updatedCompany.branchLimit}</strong></p>
+        <p>You can now create additional branches in your dashboard.</p>
+        <p>Thank you for upgrading!</p>
+      `,
+    });
+  } catch (err) {
+    console.warn(`Failed to send approval email to ${company.email}:`, err.message);
+  }
+
+  return updated.updatedOrder;
+};
+
+const rejectBranchPayment = async (paymentOrderId, adminId, reason = '') => {
+  const order = await prisma.branchPaymentOrder.findUnique({
+    where: { id: paymentOrderId },
+    include: { company: true },
+  });
+
+  if (!order) throw new NotFoundError('Payment order not found');
+  if (order.status !== 'PENDING_APPROVAL') {
+    throw new BadRequestError(`Cannot reject payment with status: ${order.status}`);
+  }
+
+  const updated = await prisma.$transaction(async (tx) => {
+    const updatedOrder = await tx.branchPaymentOrder.update({
+      where: { id: paymentOrderId },
+      data: {
+        status: 'REJECTED',
+        rejectedAt: new Date(),
+        rejectedBy: adminId,
+        rejectionReason: reason,
+      },
+    });
+
+    // Log activity
+    await tx.activityLog.create({
+      data: {
+        userId: adminId,
+        action: 'BRANCH_PAYMENT_REJECTED',
+        entity: 'BranchPaymentOrder',
+        entityId: paymentOrderId,
+        metadata: {
+          companyId: order.company.id,
+          companyName: order.company.name,
+          reason: reason || 'No reason provided',
+        },
+      },
+    });
+
+    return updatedOrder;
+  });
+
+  // Send notification email to company
+  try {
+    await emailService.sendEmail({
+      to: order.company.email,
+      subject: 'Branch Payment Not Approved',
+      html: `
+        <p>Dear ${order.company.name},</p>
+        <p>We have reviewed your branch upgrade payment and need more information.</p>
+        ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ''}
+        <p>Please contact our support team at resolvehub3@gmail.com to resolve this.</p>
+      `,
+    });
+  } catch (err) {
+    console.warn(`Failed to send rejection email to ${order.company.email}:`, err.message);
+  }
+
+  return updated;
+};
+
 module.exports = {
   getDashboardOverview,
   getCompanies,
@@ -628,4 +795,7 @@ module.exports = {
   deleteCompany,
   getPlatformAnalytics,
   getSupportMessages,
+  listBranchPayments,
+  approveBranchPayment,
+  rejectBranchPayment,
 };

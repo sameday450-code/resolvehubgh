@@ -75,7 +75,10 @@ enum NotificationType {
 
 enum PlanType {
   STARTER_TRIAL
+  STARTER_PLAN
+  PRO_PLAN
   ENTERPRISE_MONTHLY
+  ENTERPRISE_PLAN
   CUSTOM_ENTERPRISE
 }
 
@@ -764,48 +767,33 @@ model BranchPaymentOrder {
   id                String   @id @default(uuid())
   companyId         String
   company           Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  quantity          Int      // Number of branches to create
-  costPerBranch     Int      @default(50) // 50 GHS per branch
-  totalCost         Int      // quantity * costPerBranch
-  status            String   @default("PENDING_PAYMENT") // PENDING_PAYMENT, PAYMENT_PENDING_APPROVAL, APPROVED, REJECTED, COMPLETED
-  paymentMethod     String   // "MOBILE_MONEY" or "BANK_TRANSFER" or "MANUAL"
   
-  // Mobile Money fields
-  network           String?  // MTN, TELECEL, AIRTELTIGO
-  phoneNumber       String?  // Phone number used for mobile money
-  mobileMoneyTxnId  String?  // Mobile money transaction ID
+  // Payment request details
+  branches          Int      // Number of branches being purchased
+  amount            Int      // Total amount in GHS
+  paymentMethod     String   // "MOBILE_MONEY" or "BANK_TRANSFER"
+  paymentReference  String   // Transaction reference/receipt number
   
-  // Bank Transfer fields
-  bankName          String?  // Bank name for bank transfer
-  accountNameUsed   String?  // Account name used for bank transfer
-  bankTxnReference  String?  // Reference/check number from bank
+  // Status tracking
+  status            String   @default("PENDING_APPROVAL") // PENDING_APPROVAL, COMPLETED, REJECTED
+  requestedAt       DateTime @default(now())
   
-  // Common fields
-  transactionReference String? // Combined transaction reference
-  proofOfPaymentUrl String?  // URL to uploaded proof/receipt
-  paymentDate       DateTime?
-  note              String?  // Optional note from company
+  // Approval tracking
+  approvedAt        DateTime?
+  approvedBy        String?  // Super Admin user ID who approved
+  rejectedAt        DateTime?
+  rejectedBy        String?  // Super Admin user ID who rejected
+  rejectionReason   String?  // Reason for rejection
   
-  // Review fields
-  reviewedBy        String?  // Super Admin user ID who approved/rejected
-  reviewNotes       String?  // Admin notes on approval/rejection
-  reviewedAt        DateTime?
-  rejectionReason   String?  // Reason if rejected
-  
-  // After approval - branch creation fields
-  createdBranchIds  String?  // Comma-separated IDs of created branches (stored as JSON)
-  completedAt       DateTime?
+  // Relations
+  branchRequests    BranchRequest[]
   
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  // Relations
-  branchRequests BranchRequest[]
-
   // Optimized indexes
   @@index([companyId])
   @@index([status])
-  @@index([paymentDate])
   @@index([createdAt(sort: Desc)])
   // Composite indexes for common patterns
   @@index([companyId, status])
